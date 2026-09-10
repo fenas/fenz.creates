@@ -43,6 +43,29 @@ export interface Category {
   description?: string;
 }
 
-export type ViewTab = "discover" | "categories" | "trending" | "new" | "saved";
+export interface Tutorial {
+  id: string;
+  title: string;
+  description: string;
+  readTime: string;
+  level: "Beginner" | "Intermediate" | "Advanced";
+  model: string;
+  mediaUrl: string;
+  content: string[];
+  tips: string[];
+  samplePrompt: string;
+}
+
+export interface ComingSoonFeature {
+  id: string;
+  title: string;
+  description: string;
+  badge: string;
+  eta: string;
+  mediaUrl: string;
+  highlights: string[];
+}
+
+export type ViewTab = "home" | "prompts" | "coming-soon" | "tutorials" | "saved" | "discover" | "trending" | "new";
 
 export type SortOption = "trending" | "newest" | "most-copied" | "alphabetical";

@@ -33,7 +33,7 @@ export function Sidebar() {
 
   const handleNavClick = (tab: ViewTab) => {
     setActiveTab(tab);
-    if (tab !== "discover" && tab !== "categories") {
+    if (tab !== "home" && tab !== "prompts" && tab !== "discover") {
       setSelectedCategory("all");
     }
   };
