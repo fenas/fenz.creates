@@ -30,6 +30,8 @@ export function SingleSectionCardsLayout() {
     activeTab,
     selectedCategory,
     categories,
+    tutorials,
+    comingSoon,
     searchQuery,
     setSearchQuery,
     setSelectedCategory,
@@ -58,14 +60,14 @@ export function SingleSectionCardsLayout() {
       return {
         title: "Prompt Engineering Tutorials",
         subtitle: "Masterclasses and formula breakdowns for Midjourney, Flux, and SDXL",
-        count: `${initialTutorials.length} guides`,
+        count: `${tutorials.length} guides`,
       };
     }
     if (activeTab === "coming-soon") {
       return {
         title: "Coming Soon to fenz.creates",
         subtitle: "Upcoming features and AI video prompt tools in development",
-        count: `${initialComingSoon.length} updates`,
+        count: `${comingSoon.length} updates`,
       };
     }
     if (activeTab === "saved") {
@@ -113,7 +115,7 @@ export function SingleSectionCardsLayout() {
       {/* RENDER CASE 1: Tutorials Grid */}
       {activeTab === "tutorials" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pb-16">
-          {initialTutorials.map((tut) => {
+          {tutorials.map((tut) => {
             const isCopied = copiedTutId === tut.id;
             return (
               <div
@@ -206,7 +208,7 @@ export function SingleSectionCardsLayout() {
       {/* RENDER CASE 2: Coming Soon Grid */}
       {activeTab === "coming-soon" && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 pb-16">
-          {initialComingSoon.map((feat) => (
+          {comingSoon.map((feat) => (
             <div
               key={feat.id}
               className="rounded-3xl floating-panel bg-[#0e1017]/95 border border-white/10 p-5 space-y-4 hover:border-red-500/40 transition-all group flex flex-col justify-between"
