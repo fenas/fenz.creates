@@ -67,7 +67,7 @@ export function SlimIconSidebar() {
   return (
     <>
       {/* Desktop & Tablet Slim Icon-Only Sidebar */}
-      <aside className="hidden md:flex flex-col justify-between items-center fixed top-0 left-0 bottom-0 z-40 w-18 glass-panel bg-[#07090e]/95 border-r border-white/10 py-5">
+      <aside className="hidden md:flex flex-col justify-between items-center fixed top-0 left-0 bottom-0 z-40 w-20 glass-panel bg-[#07090e]/95 border-r border-white/10 py-5">
         {/* Top Logo */}
         <div className="flex flex-col items-center gap-6 w-full">
           <Link
