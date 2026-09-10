@@ -8,7 +8,6 @@ import {
   Clock,
   BookOpen,
   Bookmark,
-  PlusCircle,
   Settings,
   Images,
 } from "lucide-react";
@@ -21,7 +20,6 @@ export function SlimIconSidebar() {
     setActiveTab,
     setSelectedCategory,
     savedPromptIds,
-    setIsSubmitModalOpen,
   } = usePromptStore();
 
   const navItems = [
@@ -83,7 +81,7 @@ export function SlimIconSidebar() {
             </div>
 
             {/* Hover Tooltip matching reference */}
-            <div className="absolute left-full ml-3 px-3.5 py-1.5 rounded-full bg-[#1c1f2b] text-white text-xs font-semibold shadow-2xl border border-white/10 whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2 transition-all duration-200 z-50">
+            <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-full bg-[#1c1f2b] text-white text-xs font-semibold shadow-2xl border border-white/10 whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2 transition-all duration-200 z-50">
               fenz.creates
             </div>
           </Link>
@@ -164,23 +162,8 @@ export function SlimIconSidebar() {
           </nav>
         </div>
 
-        {/* Bottom Actions: Submit & Admin Settings */}
+        {/* Bottom Actions: Admin Settings */}
         <div className="flex flex-col items-center gap-3 w-full px-2 pt-4 border-t border-white/5">
-          {/* Submit Prompt */}
-          <div className="relative group flex items-center justify-center w-full">
-            <button
-              onClick={() => setIsSubmitModalOpen(true)}
-              className="w-12 h-12 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/[0.08] transition-all"
-            >
-              <PlusCircle className="w-5 h-5 text-violet-400 group-hover:scale-110 transition-transform" />
-            </button>
-
-            <div className="absolute left-full ml-3.5 px-4 py-2 rounded-full bg-[#1c1f2b] text-white text-xs font-bold shadow-2xl border border-white/10 whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2 transition-all duration-200 z-50">
-              Submit Prompt
-            </div>
-          </div>
-
-          {/* Admin Studio */}
           <div className="relative group flex items-center justify-center w-full">
             <Link
               href="/admin"
@@ -226,14 +209,6 @@ export function SlimIconSidebar() {
               </button>
             );
           })}
-
-          <button
-            onClick={() => setIsSubmitModalOpen(true)}
-            className="flex flex-col items-center justify-center py-1 px-2.5 text-slate-400 hover:text-white"
-          >
-            <PlusCircle className="w-5 h-5 text-violet-400" />
-            <span className="text-[10px] mt-1">Submit</span>
-          </button>
         </div>
       </nav>
     </>
