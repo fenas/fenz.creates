@@ -37,6 +37,8 @@ export function PromptManagerTable({
     updatePrompt,
     resetToDefaults,
     setActiveModalPrompt,
+    bannerPromptId,
+    setBannerPromptId,
   } = usePromptStore();
   const { showToast } = useToast();
 
@@ -142,6 +144,7 @@ export function PromptManagerTable({
                 <th className="p-4">Prompt & Artwork</th>
                 <th className="p-4 hidden md:table-cell">Model / AR</th>
                 <th className="p-4 hidden lg:table-cell">Category</th>
+                <th className="p-4 text-center">Hero Banner</th>
                 <th className="p-4 text-center">Status</th>
                 <th className="p-4 text-center hidden sm:table-cell">Featured</th>
                 <th className="p-4 text-right hidden sm:table-cell">Copies</th>
@@ -152,17 +155,21 @@ export function PromptManagerTable({
             <tbody className="divide-y divide-white/5">
               {filteredPrompts.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-slate-400">
+                  <td colSpan={8} className="p-8 text-center text-slate-400">
                     No prompts matching filter.
                   </td>
                 </tr>
               ) : (
                 filteredPrompts.map((p) => {
                   const cat = categories.find((c) => c.id === p.categoryId);
+                  const isCurrentBanner = p.id === bannerPromptId;
+
                   return (
                     <tr
                       key={p.id}
-                      className="hover:bg-white/[0.02] transition-colors group"
+                      className={`hover:bg-white/[0.02] transition-colors group ${
+                        isCurrentBanner ? "bg-amber-500/[0.03]" : ""
+                      }`}
                     >
                       {/* Artwork & Title */}
                       <td className="p-4">
@@ -183,7 +190,12 @@ export function PromptManagerTable({
                           </div>
                           <div className="min-w-0 max-w-xs sm:max-w-md">
                             <div className="font-semibold text-white truncate flex items-center gap-1.5">
-                              {p.title}
+                              <span>{p.title}</span>
+                              {isCurrentBanner && (
+                                <span className="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 text-[9px] font-bold border border-amber-500/40">
+                                  BANNER
+                                </span>
+                              )}
                             </div>
                             <div className="text-[11px] text-slate-400 truncate font-mono mt-0.5">
                               {p.promptText}
@@ -205,6 +217,23 @@ export function PromptManagerTable({
                         <span className="px-2 py-0.5 rounded-lg bg-white/[0.04] text-slate-300 text-[11px]">
                           {cat?.name || "Uncategorized"}
                         </span>
+                      </td>
+
+                      {/* Hero Banner Toggle */}
+                      <td className="p-4 text-center">
+                        {isCurrentBanner ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm shadow-amber-950">
+                            <span>🌟 Active Banner</span>
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => setBannerPromptId(p.id)}
+                            className="px-2.5 py-1 rounded-full text-[10px] font-medium glass-pill text-slate-400 hover:text-amber-300 hover:border-amber-500/30 transition-all hover:scale-105"
+                            title="Set as Home Spotlight Hero Banner"
+                          >
+                            Set as Banner
+                          </button>
+                        )}
                       </td>
 
                       {/* Status Toggle */}

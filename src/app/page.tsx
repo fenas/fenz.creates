@@ -10,10 +10,17 @@ import { SubmitPromptModal } from "@/components/prompts/SubmitPromptModal";
 import { usePromptStore } from "@/context/PromptContext";
 
 export default function Home() {
-  const { activeModalPrompt, setActiveModalPrompt, prompts, activeTab, selectedCategory } =
-    usePromptStore();
+  const {
+    activeModalPrompt,
+    setActiveModalPrompt,
+    prompts,
+    activeTab,
+    selectedCategory,
+    bannerPromptId,
+  } = usePromptStore();
 
   const featuredPrompt =
+    prompts.find((p) => p.id === bannerPromptId) ||
     prompts.find((p) => p.featured && p.status === "published") ||
     prompts[0] ||
     null;

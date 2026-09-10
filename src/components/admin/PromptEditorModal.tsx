@@ -28,7 +28,7 @@ export function PromptEditorModal({
   isOpen,
   onClose,
 }: PromptEditorModalProps) {
-  const { categories, addPrompt, updatePrompt } = usePromptStore();
+  const { categories, addPrompt, updatePrompt, bannerPromptId, setBannerPromptId } = usePromptStore();
   const { showToast } = useToast();
 
   const isEditing = !!promptToEdit;
@@ -44,6 +44,7 @@ export function PromptEditorModal({
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [featured, setFeatured] = useState(false);
+  const [isHeroBanner, setIsHeroBanner] = useState(false);
   const [status, setStatus] = useState<"published" | "draft">("published");
 
   // Advanced parameters
@@ -64,6 +65,7 @@ export function PromptEditorModal({
       setCategoryId(promptToEdit.categoryId);
       setTags(promptToEdit.tags || []);
       setFeatured(promptToEdit.featured);
+      setIsHeroBanner(promptToEdit.id === bannerPromptId);
       setStatus(promptToEdit.status);
       setSeed(promptToEdit.parameters?.seed || "");
       setStylize(promptToEdit.parameters?.stylize?.toString() || "");
@@ -80,13 +82,14 @@ export function PromptEditorModal({
       setCategoryId(categories[0]?.id || "");
       setTags(["Featured", "Cinematic"]);
       setFeatured(false);
+      setIsHeroBanner(false);
       setStatus("published");
       setSeed("");
       setStylize("");
       setCfgScale("");
       setSampler("");
     }
-  }, [promptToEdit, categories, isOpen]);
+  }, [promptToEdit, categories, isOpen, bannerPromptId]);
 
   if (!isOpen) return null;
 
@@ -150,8 +153,14 @@ export function PromptEditorModal({
 
     if (isEditing && promptToEdit) {
       updatePrompt(promptToEdit.id, promptData);
+      if (isHeroBanner) {
+        setBannerPromptId(promptToEdit.id);
+      }
     } else {
-      addPrompt(promptData);
+      const created = addPrompt(promptData);
+      if (isHeroBanner && created?.id) {
+        setBannerPromptId(created.id);
+      }
     }
 
     onClose();
@@ -319,6 +328,23 @@ export function PromptEditorModal({
                     checked={featured}
                     onChange={(e) => setFeatured(e.target.checked)}
                     className="w-4 h-4 accent-violet-600 rounded cursor-pointer"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                  <div>
+                    <div className="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
+                      <span>🌟 Hero Banner Post</span>
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      Showcase as the main spotlight hero banner on Home
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={isHeroBanner}
+                    onChange={(e) => setIsHeroBanner(e.target.checked)}
+                    className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
                   />
                 </div>
               </div>

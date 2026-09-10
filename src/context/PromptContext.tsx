@@ -45,6 +45,8 @@ interface PromptContextType {
   toggleSave: (promptId: string) => void;
   isSaved: (promptId: string) => boolean;
   triggerRandomPrompt: () => Prompt | null;
+  bannerPromptId: string;
+  setBannerPromptId: (id: string) => void;
   // Prompts CRUD
   addPrompt: (newPrompt: Omit<Prompt, "id" | "slug" | "createdAt" | "updatedAt" | "copyCount" | "viewCount">) => Prompt;
   updatePrompt: (id: string, updates: Partial<Prompt>) => void;
@@ -73,6 +75,7 @@ const LOCAL_STORAGE_TUTORIALS = "fenz_tutorials_v2";
 const LOCAL_STORAGE_COMING_SOON = "fenz_coming_soon_v2";
 const LOCAL_STORAGE_SAVED = "fenz_saved_v2";
 const LOCAL_STORAGE_ADMIN = "fenz_admin_session_v2";
+const LOCAL_STORAGE_BANNER = "fenz_banner_prompt_id_v2";
 
 export function PromptProvider({ children }: { children: React.ReactNode }) {
   const { showToast } = useToast();
@@ -84,6 +87,7 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
   const [savedPromptIds, setSavedPromptIds] = useState<string[]>([]);
   const [isAdminAuth, setIsAdminAuth] = useState<boolean>(false);
   const [adminEmail, setAdminEmail] = useState<string>("fenas.fnz@gmail.com");
+  const [bannerPromptId, setBannerPromptIdState] = useState<string>("prompt-1");
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Filters state
@@ -107,6 +111,13 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
       const storedComingSoon = localStorage.getItem(LOCAL_STORAGE_COMING_SOON);
       const storedSaved = localStorage.getItem(LOCAL_STORAGE_SAVED);
       const storedAdmin = localStorage.getItem(LOCAL_STORAGE_ADMIN);
+      const storedBanner = localStorage.getItem(LOCAL_STORAGE_BANNER);
+
+      if (storedBanner) {
+        setBannerPromptIdState(storedBanner);
+      } else {
+        setBannerPromptIdState("prompt-1");
+      }
 
       if (storedPrompts) {
         setPrompts(JSON.parse(storedPrompts));
@@ -221,6 +232,15 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
     setIsAdminAuth(false);
     localStorage.removeItem(LOCAL_STORAGE_ADMIN);
   }, []);
+
+  const setBannerPromptId = useCallback(
+    (id: string) => {
+      setBannerPromptIdState(id);
+      localStorage.setItem(LOCAL_STORAGE_BANNER, id);
+      showToast("Updated Home Hero Banner!", "success");
+    },
+    [showToast]
+  );
 
   // Copy Prompt with Toast & Confetti
   const copyPrompt = useCallback(
@@ -565,6 +585,8 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         toggleSave,
         isSaved,
         triggerRandomPrompt,
+        bannerPromptId,
+        setBannerPromptId,
         addPrompt,
         updatePrompt,
         deletePrompt,

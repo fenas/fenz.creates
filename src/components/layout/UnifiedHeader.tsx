@@ -103,39 +103,15 @@ export function UnifiedHeader() {
             <span>Surprise Me</span>
           </button>
 
-          {/* Notification Bell */}
+          {/* Submit Prompt Button */}
           <button
             onClick={() => setIsSubmitModalOpen(true)}
-            className="relative p-2 rounded-xl bg-white/[0.04] hover:bg-white/10 text-slate-300 hover:text-white border border-white/5 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/10 text-slate-300 hover:text-white border border-white/5 transition-colors text-xs font-semibold"
             title="Submit Prompt"
           >
-            <Bell className="w-4 h-4" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-600 rounded-full" />
+            <Bell className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Submit Prompt</span>
           </button>
-
-          {/* Profile Chip */}
-          <Link
-            href="/admin"
-            className="flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-xl bg-white/[0.04] hover:bg-white/10 border border-white/5 transition-colors group"
-          >
-            <div className="relative w-6 h-6 rounded-full overflow-hidden bg-slate-800 border border-white/10">
-              <Image
-                src="https://images.unsplash.com/photo-1628157582853-a796fa650a6a?q=80&w=120&auto=format&fit=crop"
-                alt="Profile"
-                fill
-                sizes="24px"
-                className="object-cover"
-              />
-            </div>
-            <div className="flex flex-col text-left hidden sm:flex">
-              <span className="text-[11px] font-bold text-white leading-tight">
-                Fenas Sharma
-              </span>
-              <span className="text-[9px] text-slate-400 leading-tight">
-                @fenz.creates
-              </span>
-            </div>
-          </Link>
         </div>
       </div>
 
