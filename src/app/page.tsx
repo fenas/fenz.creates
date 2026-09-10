@@ -30,7 +30,7 @@ export default function Home() {
     selectedCategory === "all";
 
   return (
-    <div className="min-h-screen room-backdrop bg-[#06070a] text-white flex flex-col md:flex-row relative overflow-x-hidden">
+    <div className="min-h-screen room-backdrop bg-[#03081e] text-white flex flex-col md:flex-row relative overflow-x-hidden">
       {/* Permanent Slim Icon-Only Left Sidebar */}
       <SlimIconSidebar />
 

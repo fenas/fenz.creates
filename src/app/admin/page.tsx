@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ShieldCheck,
   LogOut,
@@ -128,8 +129,14 @@ export default function AdminPage() {
             </Link>
 
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-red-600/20 border border-red-500/30 flex items-center justify-center font-black text-red-500 text-xs">
-                F
+              <div className="w-8 h-8 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center p-1.5 shadow-sm">
+                <Image
+                  src="/logo.png"
+                  alt="fenz.creates logo"
+                  width={20}
+                  height={20}
+                  className="object-contain"
+                />
               </div>
               <span className="font-bold text-sm sm:text-base text-white">
                 Admin Content Studio

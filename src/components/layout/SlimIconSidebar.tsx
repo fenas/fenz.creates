@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Home,
   Sparkles,
@@ -76,8 +77,15 @@ export function SlimIconSidebar() {
             }}
             className="group relative flex items-center justify-center focus:outline-none"
           >
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-red-600 to-violet-600 flex items-center justify-center font-black text-white text-base shadow-lg shadow-red-950/50 group-hover:scale-105 transition-transform">
-              F
+            <div className="w-11 h-11 rounded-2xl bg-white/[0.05] hover:bg-white/[0.09] border border-white/10 hover:border-white/20 flex items-center justify-center p-2 shadow-lg shadow-black/40 group-hover:scale-105 transition-all">
+              <Image
+                src="/logo.png"
+                alt="fenz.creates logo"
+                width={28}
+                height={28}
+                className="object-contain"
+                priority
+              />
             </div>
 
             {/* Hover Tooltip matching reference */}
