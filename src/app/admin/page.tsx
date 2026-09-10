@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   ShieldCheck,
   LogOut,
@@ -17,6 +16,7 @@ import {
   Clock,
   User,
 } from "lucide-react";
+import { Logo } from "@/components/ui/Logo";
 import { usePromptStore } from "@/context/PromptContext";
 import { AdminAuthModal } from "@/components/admin/AdminAuthModal";
 import { PromptManagerTable } from "@/components/admin/PromptManagerTable";
@@ -129,14 +129,8 @@ export default function AdminPage() {
             </Link>
 
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center p-1.5 shadow-sm">
-                <Image
-                  src="/logo.png"
-                  alt="fenz.creates logo"
-                  width={20}
-                  height={20}
-                  className="object-contain"
-                />
+              <div className="w-8 h-8 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center p-1.5 shadow-sm text-white">
+                <Logo className="w-5 h-5 text-white" />
               </div>
               <span className="font-bold text-sm sm:text-base text-white">
                 Admin Content Studio

@@ -2,7 +2,6 @@
 
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   Home,
   Sparkles,
@@ -12,6 +11,7 @@ import {
   Settings,
   Images,
 } from "lucide-react";
+import { Logo } from "@/components/ui/Logo";
 import { usePromptStore } from "@/context/PromptContext";
 import { ViewTab } from "@/types";
 
@@ -77,15 +77,8 @@ export function SlimIconSidebar() {
             }}
             className="group relative flex items-center justify-center focus:outline-none"
           >
-            <div className="w-11 h-11 rounded-2xl bg-white/[0.05] hover:bg-white/[0.09] border border-white/10 hover:border-white/20 flex items-center justify-center p-2 shadow-lg shadow-black/40 group-hover:scale-105 transition-all">
-              <Image
-                src="/logo.png"
-                alt="fenz.creates logo"
-                width={28}
-                height={28}
-                className="object-contain"
-                priority
-              />
+            <div className="w-11 h-11 rounded-2xl bg-white/[0.05] hover:bg-white/[0.09] border border-white/10 hover:border-white/20 flex items-center justify-center p-2 shadow-lg shadow-black/40 group-hover:scale-105 transition-all text-white">
+              <Logo className="w-6 h-6 text-white" />
             </div>
 
             {/* Hover Tooltip matching reference */}
