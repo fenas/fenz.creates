@@ -6,7 +6,6 @@ import Image from "next/image";
 import {
   Search,
   Dices,
-  Bell,
   X,
   Sparkles,
   ChevronDown,
@@ -26,7 +25,6 @@ export function UnifiedHeader() {
     categories,
     selectedMediaType,
     setSelectedMediaType,
-    setIsSubmitModalOpen,
     activeTab,
   } = usePromptStore();
 
@@ -101,16 +99,6 @@ export function UnifiedHeader() {
           >
             <Dices className="w-3.5 h-3.5 text-amber-400" />
             <span>Surprise Me</span>
-          </button>
-
-          {/* Submit Prompt Button */}
-          <button
-            onClick={() => setIsSubmitModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/10 text-slate-300 hover:text-white border border-white/5 transition-colors text-xs font-semibold"
-            title="Submit Prompt"
-          >
-            <Bell className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Submit Prompt</span>
           </button>
         </div>
       </div>
