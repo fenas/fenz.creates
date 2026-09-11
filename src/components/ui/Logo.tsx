@@ -7,14 +7,14 @@ interface LogoProps {
 }
 
 export function Logo({
-  className = "w-7 h-7",
+  className = "w-8 h-8",
   size,
   color = "currentColor",
 }: LogoProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 450 359"
+      viewBox="5 34 440 296"
       width={size}
       height={size}
       className={className}
