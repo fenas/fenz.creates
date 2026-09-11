@@ -146,7 +146,7 @@ export function UnifiedSidePanel({
                 >
                   <Icon
                     className={`w-4 h-4 flex-shrink-0 transition-transform group-hover:scale-110 ${
-                      active ? "text-red-500" : "text-slate-400 group-hover:text-white"
+                      active ? "text-white" : "text-slate-400 group-hover:text-white"
                     }`}
                   />
 
@@ -182,7 +182,7 @@ export function UnifiedSidePanel({
             >
               <Bookmark
                 className={`w-4 h-4 flex-shrink-0 ${
-                  activeTab === "saved" ? "text-red-500 fill-red-500" : "text-slate-400 group-hover:text-white"
+                  activeTab === "saved" ? "text-white fill-white" : "text-slate-400 group-hover:text-white"
                 }`}
               />
               {!isCollapsed && (
@@ -196,6 +196,22 @@ export function UnifiedSidePanel({
             </button>
           </div>
         </div>
+
+        {/* Footer info in expanded view */}
+        {!isCollapsed && (
+          <div className="p-3 mx-3 mb-2 rounded-2xl bg-white/[0.03] border border-white/5 space-y-2">
+            <div className="flex items-center justify-between text-[11px] text-slate-400">
+              <span>Catalog Version</span>
+              <span className="font-mono text-white">v2.4</span>
+            </div>
+            <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+              <div className="bg-gradient-to-r from-red-600 to-violet-600 h-full w-3/4 rounded-full" />
+            </div>
+            <p className="text-[10px] text-slate-400">
+              Free to copy and remix prompts for AI creators.
+            </p>
+          </div>
+        )}
 
         {/* Bottom Actions: Submit & Admin Settings */}
         <div className="p-3 border-t border-white/5 space-y-2">
@@ -235,7 +251,7 @@ export function UnifiedSidePanel({
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
                 className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all relative ${
-                  active ? "text-red-500 font-bold" : "text-slate-400"
+                  active ? "text-white font-bold" : "text-slate-400"
                 }`}
               >
                 <div className="relative">
@@ -248,7 +264,7 @@ export function UnifiedSidePanel({
                 </div>
                 <span className="text-[10px] mt-1">{item.label}</span>
                 {active && (
-                  <span className="absolute bottom-0 w-6 h-0.5 bg-red-500 rounded-full shadow-sm shadow-red-500" />
+                  <span className="absolute bottom-0 w-6 h-0.5 bg-white rounded-full shadow-sm shadow-white/50" />
                 )}
               </button>
             );

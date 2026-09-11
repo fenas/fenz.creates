@@ -105,7 +105,7 @@ export function SlimIconSidebar() {
                   >
                     <Icon
                       className={`w-5 h-5 transition-transform duration-200 group-hover:scale-110 ${
-                        active ? "text-red-500" : "text-slate-400 group-hover:text-white"
+                        active ? "text-white" : "text-slate-400 group-hover:text-white"
                       }`}
                     />
 
@@ -141,7 +141,7 @@ export function SlimIconSidebar() {
                 <Bookmark
                   className={`w-5 h-5 transition-transform group-hover:scale-110 ${
                     activeTab === "saved"
-                      ? "text-red-500 fill-red-500"
+                      ? "text-white fill-white"
                       : "text-slate-400 group-hover:text-white"
                   }`}
                 />
@@ -192,7 +192,7 @@ export function SlimIconSidebar() {
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
                 className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all relative ${
-                  active ? "text-red-500 font-bold" : "text-slate-400"
+                  active ? "text-white font-bold" : "text-slate-400"
                 }`}
               >
                 <div className="relative">
@@ -205,7 +205,7 @@ export function SlimIconSidebar() {
                 </div>
                 <span className="text-[10px] mt-1">{item.label}</span>
                 {active && (
-                  <span className="absolute bottom-0 w-6 h-0.5 bg-red-500 rounded-full shadow-sm shadow-red-500" />
+                  <span className="absolute bottom-0 w-6 h-0.5 bg-white rounded-full shadow-sm shadow-white/50" />
                 )}
               </button>
             );
