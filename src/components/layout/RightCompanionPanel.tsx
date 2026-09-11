@@ -5,7 +5,7 @@ import Image from "next/image";
 import {
   Search,
   ArrowUpDown,
-  Play,
+  Copy,
   Check,
   Flame,
   Bookmark,
@@ -140,7 +140,7 @@ export function RightCompanionPanel() {
                       {isCopied ? (
                         <Check className="w-3.5 h-3.5" />
                       ) : (
-                        <Play className="w-3 h-3 fill-black ml-0.5" />
+                        <Copy className="w-3.5 h-3.5 text-black" />
                       )}
                     </button>
                   </div>
@@ -199,7 +199,7 @@ export function RightCompanionPanel() {
                     {isCopied ? (
                       <Check className="w-3 h-3" />
                     ) : (
-                      <Play className="w-2.5 h-2.5 fill-black ml-0.5" />
+                      <Copy className="w-2.5 h-2.5 text-black" />
                     )}
                   </button>
                 </div>

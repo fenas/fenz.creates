@@ -100,7 +100,7 @@ export function PosterPromptCard({ prompt }: PosterPromptCardProps) {
           {copied ? (
             <Check className="w-3.5 h-3.5 text-black" />
           ) : (
-            <Play className="w-3 h-3 fill-black ml-0.5" />
+            <Copy className="w-3.5 h-3.5 text-black" />
           )}
         </button>
       </div>

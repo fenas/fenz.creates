@@ -102,7 +102,7 @@ export function SpotlightHero({ featuredPrompt }: SpotlightHeroProps) {
               </>
             ) : (
               <>
-                <Play className="w-3.5 h-3.5 fill-black" />
+                <Copy className="w-3.5 h-3.5 text-black" />
                 <span>Copy Prompt</span>
               </>
             )}
