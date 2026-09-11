@@ -111,8 +111,8 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
         {/* Top Sticky Header */}
         <div className="px-4 sm:px-6 py-3.5 border-b border-white/5 flex items-center justify-between bg-[#0a0c12]/90 backdrop-blur-xl z-20">
           <div className="flex items-center gap-2 min-w-0 pr-4">
-            <span className="px-2.5 py-1 rounded-xl text-[11px] font-semibold bg-violet-500/15 text-violet-300 border border-violet-500/30 flex items-center gap-1.5 flex-shrink-0">
-              <Sparkles className="w-3.5 h-3.5 text-violet-400" />
+            <span className="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-[#E85002]/15 text-[#F16001] border border-[#E85002]/30 flex items-center gap-1.5 flex-shrink-0">
+              <Sparkles className="w-3.5 h-3.5 text-[#E85002]" />
               {prompt.model}
             </span>
             <span className="text-xs text-slate-400 truncate hidden sm:inline">
@@ -125,7 +125,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
               onClick={() => toggleSave(prompt.id)}
               className={`p-2 rounded-xl transition-all ${
                 saved
-                  ? "bg-violet-600 text-white shadow-lg shadow-violet-900/50"
+                  ? "bg-[#E85002] text-white shadow-lg shadow-[#E85002]/50"
                   : "glass-pill text-slate-300 hover:text-white hover:bg-white/10"
               }`}
               title={saved ? "Saved in Favorites" : "Save Prompt"}
@@ -179,7 +179,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
 
                 {/* Media Type pill */}
                 {prompt.type === "video" && (
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-xl bg-amber-500/90 backdrop-blur-md text-black font-semibold text-xs flex items-center gap-1.5 shadow-lg">
+                  <div className="absolute top-3 left-3 px-3 py-1 rounded-xl bg-[#E85002] backdrop-blur-md text-white font-bold text-xs flex items-center gap-1.5 shadow-lg">
                     <Video className="w-3.5 h-3.5" />
                     Video Prompt
                   </div>
@@ -194,7 +194,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
               {/* Stats Bar */}
               <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-white/[0.03] border border-white/5 text-xs text-slate-400">
                 <span className="flex items-center gap-1.5 font-medium">
-                  <Copy className="w-3.5 h-3.5 text-violet-400" />
+                  <Copy className="w-3.5 h-3.5 text-[#E85002]" />
                   {formatNumber(prompt.copyCount || 0)} times copied
                 </span>
                 <span>Created {formatDate(prompt.createdAt)}</span>
@@ -204,7 +204,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
             {/* Right Column: Prompt Details & Copy Action */}
             <div className="lg:col-span-6 space-y-6">
               <div>
-                <div className="text-xs font-semibold text-violet-400 uppercase tracking-wider mb-1">
+                <div className="text-xs font-bold text-[#E85002] uppercase tracking-wider mb-1">
                   {category?.name}
                 </div>
                 <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
@@ -216,15 +216,15 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-violet-400" />
+                    <Sparkles className="w-3.5 h-3.5 text-[#E85002]" />
                     AI Prompt Text
                   </span>
-                  <span className="text-[11px] text-slate-400 font-mono">
+                  <span className="text-[11px] text-[#A7A7A7] font-mono">
                     {prompt.promptText.length} chars
                   </span>
                 </div>
 
-                <div className="relative group rounded-2xl bg-black/60 border border-violet-500/20 p-4 font-mono text-xs sm:text-sm text-slate-200 leading-relaxed shadow-inner">
+                <div className="relative group rounded-2xl bg-black/60 border border-[#E85002]/20 p-4 font-mono text-xs sm:text-sm text-slate-200 leading-relaxed shadow-inner">
                   <p className="select-all break-words">{prompt.promptText}</p>
 
                   <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between gap-3">
@@ -233,7 +233,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                       className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-lg ${
                         copied
                           ? "bg-emerald-600 text-white shadow-emerald-950"
-                          : "bg-gradient-to-r from-violet-600 via-indigo-600 to-violet-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-violet-950/60 hover:scale-[1.02] active:scale-[0.98]"
+                          : "bg-gradient-to-r from-[#E85002] to-[#F16001] hover:opacity-95 text-white shadow-[#E85002]/40 hover:scale-[1.02] active:scale-[0.98]"
                       }`}
                     >
                       {copied ? (
@@ -243,7 +243,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                         </>
                       ) : (
                         <>
-                          <Copy className="w-4 h-4 text-violet-200" />
+                          <Copy className="w-4 h-4 text-white" />
                           <span>Copy Prompt</span>
                         </>
                       )}
@@ -340,7 +340,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
               {/* Tags */}
               <div className="space-y-2">
                 <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <Tag className="w-3.5 h-3.5 text-violet-400" />
+                  <Tag className="w-3.5 h-3.5 text-[#E85002]" />
                   Tags
                 </span>
                 <div className="flex flex-wrap gap-1.5">
@@ -348,7 +348,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                     <button
                       key={tag}
                       onClick={() => handleTagClick(tag)}
-                      className="px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-violet-600/20 hover:text-violet-300 hover:border-violet-500/30 border border-white/5 text-xs text-slate-300 transition-all cursor-pointer"
+                      className="px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-[#E85002]/20 hover:text-[#F16001] hover:border-[#E85002]/30 border border-white/5 text-xs text-slate-300 transition-all cursor-pointer"
                     >
                       #{tag}
                     </button>
@@ -363,7 +363,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
             <div className="pt-8 border-t border-white/5 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-violet-400" />
+                  <Layers className="w-4 h-4 text-[#E85002]" />
                   More Like This
                 </h3>
               </div>
@@ -373,7 +373,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                   <div
                     key={related.id}
                     onClick={() => setActiveModalPrompt(related)}
-                    className="group relative rounded-xl overflow-hidden glass-card cursor-pointer border border-white/5 hover:border-violet-500/30 transition-all aspect-[4/3]"
+                    className="group relative rounded-xl overflow-hidden glass-card cursor-pointer border border-white/5 hover:border-[#E85002]/30 transition-all aspect-[4/3]"
                   >
                     <Image
                       src={related.mediaUrl}
@@ -386,7 +386,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                       <span className="text-[11px] font-semibold text-white truncate drop-shadow">
                         {related.title}
                       </span>
-                      <span className="text-[10px] text-violet-300 font-medium">
+                      <span className="text-[10px] text-[#E85002] font-medium">
                         {related.model}
                       </span>
                     </div>

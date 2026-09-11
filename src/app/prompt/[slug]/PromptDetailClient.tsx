@@ -102,7 +102,7 @@ export function PromptDetailClient({
               onClick={() => toggleSave(prompt.id)}
               className={`p-2 rounded-xl transition-all ${
                 saved
-                  ? "bg-violet-600 text-white shadow-lg shadow-violet-900"
+                  ? "bg-[#E85002] text-white shadow-lg shadow-[#E85002]/40"
                   : "glass-pill text-slate-300 hover:text-white"
               }`}
               title={saved ? "Saved" : "Save Prompt"}
@@ -139,7 +139,7 @@ export function PromptDetailClient({
               </div>
 
               {prompt.type === "video" && (
-                <div className="absolute top-4 left-4 px-3 py-1.5 rounded-xl bg-amber-500/90 backdrop-blur-md text-black font-semibold text-xs flex items-center gap-1.5 shadow-lg">
+                <div className="absolute top-4 left-4 px-3 py-1.5 rounded-xl bg-[#E85002] backdrop-blur-md text-white font-bold text-xs flex items-center gap-1.5 shadow-lg">
                   <Video className="w-3.5 h-3.5" />
                   Video Prompt
                 </div>
@@ -152,7 +152,7 @@ export function PromptDetailClient({
 
             <div className="flex items-center justify-between px-4 py-3 rounded-2xl glass-card text-xs text-slate-400">
               <span className="flex items-center gap-1.5 font-medium">
-                <Copy className="w-3.5 h-3.5 text-violet-400" />
+                <Copy className="w-3.5 h-3.5 text-[#E85002]" />
                 {formatNumber(prompt.copyCount || 0)} copies
               </span>
               <span>Published {formatDate(prompt.createdAt)}</span>
@@ -162,7 +162,7 @@ export function PromptDetailClient({
           {/* Prompt Details */}
           <div className="lg:col-span-6 space-y-6">
             <div>
-              <div className="text-xs font-semibold text-violet-400 uppercase tracking-wider mb-2">
+              <div className="text-xs font-bold text-[#E85002] uppercase tracking-wider mb-2">
                 {category?.name || "AI Art"}
               </div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
@@ -174,15 +174,15 @@ export function PromptDetailClient({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-violet-400" />
+                  <Sparkles className="w-3.5 h-3.5 text-[#E85002]" />
                   Prompt Formula
                 </span>
-                <span className="text-[11px] text-slate-400 font-mono">
+                <span className="text-[11px] text-[#A7A7A7] font-mono">
                   {prompt.model}
                 </span>
               </div>
 
-              <div className="rounded-2xl bg-black/70 border border-violet-500/30 p-5 font-mono text-sm text-slate-200 leading-relaxed shadow-xl">
+              <div className="rounded-2xl bg-black/70 border border-[#E85002]/30 p-5 font-mono text-sm text-slate-200 leading-relaxed shadow-xl">
                 <p className="select-all break-words">&ldquo;{prompt.promptText}&rdquo;</p>
 
                 <div className="mt-5 pt-4 border-t border-white/10">
@@ -191,7 +191,7 @@ export function PromptDetailClient({
                     className={`w-full flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-xl text-sm font-semibold transition-all shadow-xl ${
                       copied
                         ? "bg-emerald-600 text-white"
-                        : "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-violet-950/60 hover:scale-[1.01]"
+                        : "bg-gradient-to-r from-[#E85002] to-[#F16001] hover:opacity-95 text-white shadow-[#E85002]/40 hover:scale-[1.01]"
                     }`}
                   >
                     {copied ? (
@@ -269,7 +269,7 @@ export function PromptDetailClient({
             {/* Tags */}
             <div className="space-y-2">
               <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                <Tag className="w-3.5 h-3.5 text-violet-400" />
+                <Tag className="w-3.5 h-3.5 text-[#E85002]" />
                 Tags
               </span>
               <div className="flex flex-wrap gap-2">
@@ -281,7 +281,7 @@ export function PromptDetailClient({
                       setSearchQuery(t);
                       setActiveTab("discover");
                     }}
-                    className="px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-violet-600/20 hover:text-violet-300 border border-white/5 text-xs text-slate-300 transition-all"
+                    className="px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-[#E85002]/20 hover:text-[#F16001] border border-white/5 text-xs text-slate-300 transition-all"
                   >
                     #{t}
                   </Link>
@@ -295,7 +295,7 @@ export function PromptDetailClient({
         {relatedPrompts.length > 0 && (
           <div className="pt-12 border-t border-white/5 space-y-6">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Layers className="w-5 h-5 text-violet-400" />
+              <Layers className="w-5 h-5 text-[#E85002]" />
               Related Prompts
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -303,7 +303,7 @@ export function PromptDetailClient({
                 <Link
                   key={related.id}
                   href={`/prompt/${related.slug}`}
-                  className="group relative rounded-2xl overflow-hidden glass-card border border-white/10 hover:border-violet-500/40 transition-all aspect-[4/3]"
+                  className="group relative rounded-2xl overflow-hidden glass-card border border-white/10 hover:border-[#E85002]/40 transition-all aspect-[4/3]"
                 >
                   <Image
                     src={related.mediaUrl}
@@ -316,7 +316,7 @@ export function PromptDetailClient({
                     <span className="text-xs font-semibold text-white truncate drop-shadow">
                       {related.title}
                     </span>
-                    <span className="text-[10px] text-violet-300 font-medium">
+                    <span className="text-[10px] text-[#E85002] font-medium">
                       {related.model}
                     </span>
                   </div>

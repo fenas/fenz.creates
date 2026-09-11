@@ -14,9 +14,11 @@ import {
   Flame,
   ArrowUpRight,
   Video,
+  Share2,
 } from "lucide-react";
 import { Prompt } from "@/types";
 import { usePromptStore } from "@/context/PromptContext";
+import { useToast } from "@/components/ui/Toast";
 
 interface SpotlightHeroProps {
   featuredPrompt: Prompt | null;
@@ -25,6 +27,7 @@ interface SpotlightHeroProps {
 export function SpotlightHero({ featuredPrompt }: SpotlightHeroProps) {
   const { copyPrompt, toggleSave, isSaved, setActiveModalPrompt, categories } =
     usePromptStore();
+  const { showToast } = useToast();
 
   const [copied, setCopied] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
@@ -38,6 +41,22 @@ export function SpotlightHero({ featuredPrompt }: SpotlightHeroProps) {
     setCopied(true);
     await copyPrompt(featuredPrompt);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/prompt/${featuredPrompt.slug}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${featuredPrompt.title} - fenz.creates`,
+          text: `Check out this trending prompt for ${featuredPrompt.model}: "${featuredPrompt.title}"`,
+          url,
+        });
+      } catch {}
+    } else {
+      await navigator.clipboard.writeText(url);
+      showToast("Prompt Link Copied!", "success", url);
+    }
   };
 
   return (
@@ -106,6 +125,16 @@ export function SpotlightHero({ featuredPrompt }: SpotlightHeroProps) {
                 <span>Copy Prompt</span>
               </>
             )}
+          </button>
+
+          {/* Share Button */}
+          <button
+            onClick={handleShare}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-semibold backdrop-blur-md border border-white/10 transition-all hover:scale-105"
+            title="Share Prompt"
+          >
+            <Share2 className="w-3.5 h-3.5" />
+            <span>Share</span>
           </button>
 
           {/* Inspect / Save Button */}

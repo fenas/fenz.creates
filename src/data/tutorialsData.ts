@@ -3,6 +3,7 @@ import { Tutorial, ComingSoonFeature } from "@/types";
 export const initialTutorials: Tutorial[] = [
   {
     id: "tut-1",
+    slug: "mastering-midjourney-v6-photorealism",
     title: "Mastering Midjourney v6 Photorealism",
     description: "Learn how camera sensors, 35mm lens specs, natural lighting, and --style raw eliminate artificial CGI plastic sheen.",
     readTime: "4 min read",
@@ -19,9 +20,11 @@ export const initialTutorials: Tutorial[] = [
       "Add natural imperfections: 'candid film grain, subtle freckles, cinematic side lighting'.",
     ],
     samplePrompt: "Candid 35mm film photograph of a woman in Tokyo, soft morning window light, natural skin texture, Kodak Portra 400 --ar 16:9 --style raw --v 6.0",
+    createdAt: "2026-03-01T10:00:00.000Z",
   },
   {
     id: "tut-2",
+    slug: "flux-1-pro-prompt-structuring-guide",
     title: "Flux.1 Pro Prompt Structuring Guide",
     description: "How to craft natural language prompts for Black Forest Labs' Flux.1 Pro model with zero weight decay.",
     readTime: "5 min read",
@@ -38,9 +41,11 @@ export const initialTutorials: Tutorial[] = [
       "Keep guidance scale between 3.5 and 6.0 for optimal realism.",
     ],
     samplePrompt: "A high-end modern perfume bottle with clear typography reading 'FENZ' embossed in gold foil on frosted smoked glass, studio softbox lighting --ar 4:5",
+    createdAt: "2026-03-03T14:30:00.000Z",
   },
   {
     id: "tut-3",
+    slug: "cinematic-lighting-color-grading-formulas",
     title: "Cinematic Lighting & Color Grading Formulas",
     description: "Chiaroscuro, rim lighting, volumetric fog, and anamorphic lens flares to make your scenes look like blockbuster films.",
     readTime: "3 min read",
@@ -57,9 +62,11 @@ export const initialTutorials: Tutorial[] = [
       "Mention film stocks: 'shot on 70mm IMAX film, Arri Alexa Mini LF'.",
     ],
     samplePrompt: "Cinematic film still, cyberpunk ronin in rain, volumetric neon god rays, anamorphic blue lens flare, Arri Alexa 65 --ar 21:9",
+    createdAt: "2026-03-05T09:15:00.000Z",
   },
   {
     id: "tut-4",
+    slug: "architectural-interior-design-ai-formulas",
     title: "Architectural & Interior Design AI Formulas",
     description: "Prompting biophilic villas, brutalist pavilions, and Scandinavian sunlight interiors with perfect perspective.",
     readTime: "4 min read",
@@ -76,35 +83,42 @@ export const initialTutorials: Tutorial[] = [
       "Use wide aspect ratios like --ar 16:9 or --ar 21:9 to capture sweeping exterior lines.",
     ],
     samplePrompt: "Architectural Digest photography of a cantilevered concrete and glass villa over a serene reflecting pool at dusk, warm interior lights --ar 16:9",
+    createdAt: "2026-03-08T16:45:00.000Z",
   },
 ];
 
 export const initialComingSoon: ComingSoonFeature[] = [
   {
     id: "feat-1",
+    slug: "ai-video-prompt-studio",
     title: "AI Video Prompt Studio",
     description: "Support for Runway Gen-3, OpenAI Sora, and Kling AI prompts with real-time video preview players and frame rate controls.",
     badge: "In Development",
     eta: "Q4 2026",
     mediaUrl: "https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=800&auto=format&fit=crop",
     highlights: ["4K Video Looping Previews", "Camera Motion Prompts (Pan, Orbit, Dolly)", "Frame Rate & Seed Presets"],
+    createdAt: "2026-03-01T00:00:00.000Z",
   },
   {
     id: "feat-2",
+    slug: "smart-prompt-optimizer-enhancer",
     title: "Smart Prompt Optimizer & Enhancer",
     description: "One-click tool to expand short ideas into complete, professionally structured prompts tailored for any target model.",
     badge: "Beta Testing",
     eta: "Next Week",
     mediaUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop",
     highlights: ["Automatic Camera & Lighting Injection", "Negative Prompt Auto-Generator", "Multi-Model Translation"],
+    createdAt: "2026-03-04T00:00:00.000Z",
   },
   {
     id: "feat-3",
+    slug: "community-creator-upvoting-profiles",
     title: "Community Creator Upvoting & Profiles",
     description: "Creator accounts to follow prompt engineers, create custom collections, and upvote the week's best formulas.",
     badge: "Planned",
     eta: "Q1 2027",
     mediaUrl: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=800&auto=format&fit=crop",
     highlights: ["Creator Verified Badges", "Custom Public Profile Portfolios", "Weekly Leaderboards"],
+    createdAt: "2026-03-07T00:00:00.000Z",
   },
 ];

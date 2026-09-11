@@ -2,10 +2,11 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Play, Copy, Check, Bookmark, Sparkles, MoreHorizontal } from "lucide-react";
+import { Play, Copy, Check, Bookmark, Sparkles, MoreHorizontal, Share2 } from "lucide-react";
 import { Prompt } from "@/types";
 import { usePromptStore } from "@/context/PromptContext";
 import { formatNumber } from "@/lib/utils";
+import { useToast } from "@/components/ui/Toast";
 
 interface PosterPromptCardProps {
   prompt: Prompt;
@@ -14,6 +15,7 @@ interface PosterPromptCardProps {
 export function PosterPromptCard({ prompt }: PosterPromptCardProps) {
   const { copyPrompt, toggleSave, isSaved, setActiveModalPrompt, categories } =
     usePromptStore();
+  const { showToast } = useToast();
   const [copied, setCopied] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
@@ -30,6 +32,23 @@ export function PosterPromptCard({ prompt }: PosterPromptCardProps) {
   const handleSave = (e: React.MouseEvent) => {
     e.stopPropagation();
     toggleSave(prompt.id);
+  };
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/prompt/${prompt.slug}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${prompt.title} - fenz.creates`,
+          text: `Check out this AI prompt for ${prompt.model}: "${prompt.title}"`,
+          url,
+        });
+      } catch {}
+    } else {
+      await navigator.clipboard.writeText(url);
+      showToast("Prompt Link Copied!", "success", url);
+    }
   };
 
   return (
@@ -58,17 +77,27 @@ export function PosterPromptCard({ prompt }: PosterPromptCardProps) {
           {category?.name?.split(" ")[0] || "AI Art"}
         </span>
 
-        <button
-          onClick={handleSave}
-          className={`p-1 rounded-full backdrop-blur-md transition-all ${
-            saved
-              ? "bg-[#E85002] text-white"
-              : "bg-black/50 text-slate-300 hover:text-white"
-          }`}
-          title="Save"
-        >
-          <Bookmark className={`w-3 h-3 ${saved ? "fill-white" : ""}`} />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={handleShare}
+            className="p-1 rounded-full backdrop-blur-md bg-black/50 text-slate-300 hover:text-white hover:bg-[#E85002] transition-all opacity-0 group-hover:opacity-100"
+            title="Share Prompt Link"
+          >
+            <Share2 className="w-3 h-3" />
+          </button>
+
+          <button
+            onClick={handleSave}
+            className={`p-1 rounded-full backdrop-blur-md transition-all ${
+              saved
+                ? "bg-[#E85002] text-white"
+                : "bg-black/50 text-slate-300 hover:text-white"
+            }`}
+            title="Save"
+          >
+            <Bookmark className={`w-3 h-3 ${saved ? "fill-white" : ""}`} />
+          </button>
+        </div>
       </div>
 
       {/* Bottom Information & 1-Click Copy Action */}

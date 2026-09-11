@@ -2,9 +2,11 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Plus, Edit2, Trash2, Clock, Search } from "lucide-react";
+import Link from "next/link";
+import { Plus, Edit2, Trash2, Clock, Search, ExternalLink, Share2 } from "lucide-react";
 import { ComingSoonFeature } from "@/types";
 import { usePromptStore } from "@/context/PromptContext";
+import { useToast } from "@/components/ui/Toast";
 
 interface ComingSoonManagerTableProps {
   onOpenCreate: () => void;
@@ -16,6 +18,7 @@ export function ComingSoonManagerTable({
   onEditFeature,
 }: ComingSoonManagerTableProps) {
   const { comingSoon, deleteComingSoon } = usePromptStore();
+  const { showToast } = useToast();
   const [search, setSearch] = useState("");
 
   const filtered = comingSoon.filter((f) =>
@@ -26,6 +29,12 @@ export function ComingSoonManagerTable({
     if (confirm(`Delete roadmap feature "${title}"?`)) {
       deleteComingSoon(id);
     }
+  };
+
+  const handleCopyLink = async (f: ComingSoonFeature) => {
+    const url = `${window.location.origin}/coming-soon/${f.slug}`;
+    await navigator.clipboard.writeText(url);
+    showToast("Roadmap Feature Link Copied!", "success", url);
   };
 
   return (
@@ -44,7 +53,7 @@ export function ComingSoonManagerTable({
 
         <button
           onClick={onOpenCreate}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#E85002] hover:bg-[#F16001] text-white font-bold text-xs shadow-lg shadow-[#E85002]/40 transition-all hover:scale-105"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#E85002] to-[#F16001] text-white font-bold text-xs shadow-lg shadow-[#E85002]/20 transition-all hover:scale-105"
         >
           <Plus className="w-4 h-4" />
           <span>Add Roadmap Feature</span>
@@ -74,7 +83,11 @@ export function ComingSoonManagerTable({
                   <tr key={f.id} className="hover:bg-white/[0.02] transition-colors">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-slate-900 border border-white/10 flex-shrink-0">
+                        <Link
+                          href={`/coming-soon/${f.slug}`}
+                          target="_blank"
+                          className="relative w-12 h-12 rounded-xl overflow-hidden bg-slate-900 border border-white/10 flex-shrink-0 hover:border-[#E85002]/40 transition-colors"
+                        >
                           <Image
                             src={f.mediaUrl}
                             alt={f.title}
@@ -82,13 +95,18 @@ export function ComingSoonManagerTable({
                             sizes="48px"
                             className="object-cover"
                           />
-                        </div>
+                        </Link>
                         <div className="min-w-0 max-w-sm">
-                          <div className="font-semibold text-white truncate">
-                            {f.title}
-                          </div>
-                          <div className="text-[11px] text-[#A7A7A7] truncate mt-0.5">
-                            {f.description}
+                          <Link
+                            href={`/coming-soon/${f.slug}`}
+                            target="_blank"
+                            className="font-semibold text-white truncate hover:text-[#E85002] transition-colors flex items-center gap-1.5"
+                          >
+                            <span>{f.title}</span>
+                            <ExternalLink className="w-3 h-3 text-[#A7A7A7] opacity-60 flex-shrink-0" />
+                          </Link>
+                          <div className="text-[11px] text-[#A7A7A7] truncate mt-0.5 font-mono">
+                            /coming-soon/{f.slug}
                           </div>
                         </div>
                       </div>
@@ -102,15 +120,30 @@ export function ComingSoonManagerTable({
                     <td className="p-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <button
+                          onClick={() => handleCopyLink(f)}
+                          className="p-1.5 rounded-lg hover:bg-white/10 text-[#A7A7A7] hover:text-[#E85002]"
+                          title="Copy Sharable URL"
+                        >
+                          <Share2 className="w-3.5 h-3.5" />
+                        </button>
+                        <Link
+                          href={`/coming-soon/${f.slug}`}
+                          target="_blank"
+                          className="p-1.5 rounded-lg hover:bg-white/10 text-[#A7A7A7] hover:text-white"
+                          title="Open Live Page"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </Link>
+                        <button
                           onClick={() => onEditFeature(f)}
-                          className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white"
+                          className="p-1.5 rounded-lg hover:bg-white/10 text-[#A7A7A7] hover:text-white"
                           title="Edit"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => handleDelete(f.id, f.title)}
-                          className="p-1.5 rounded-lg hover:bg-[#E85002]/10 text-slate-400 hover:text-[#E85002]"
+                          className="p-1.5 rounded-lg hover:bg-[#E85002]/10 text-[#A7A7A7] hover:text-[#E85002]"
                           title="Delete"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

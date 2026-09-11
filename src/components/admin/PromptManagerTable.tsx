@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Search,
   Plus,
@@ -15,6 +16,8 @@ import {
   Video,
   Layers,
   RotateCcw,
+  ExternalLink,
+  Share2,
 } from "lucide-react";
 import { Prompt } from "@/types";
 import { usePromptStore } from "@/context/PromptContext";
@@ -74,6 +77,12 @@ export function PromptManagerTable({
     if (confirm(`Are you sure you want to delete "${title}"?`)) {
       deletePrompt(id);
     }
+  };
+
+  const handleCopyLink = async (p: Prompt) => {
+    const url = `${window.location.origin}/prompt/${p.slug}`;
+    await navigator.clipboard.writeText(url);
+    showToast("Prompt Link Copied!", "success", url);
   };
 
   return (
@@ -271,6 +280,21 @@ export function PromptManagerTable({
                       {/* Actions */}
                       <td className="p-4 text-right">
                         <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => handleCopyLink(p)}
+                            className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-[#E85002]"
+                            title="Copy Sharable Link"
+                          >
+                            <Share2 className="w-3.5 h-3.5" />
+                          </button>
+                          <Link
+                            href={`/prompt/${p.slug}`}
+                            target="_blank"
+                            className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white"
+                            title="Open Live Page"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </Link>
                           <button
                             onClick={() => setActiveModalPrompt(p)}
                             className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white"

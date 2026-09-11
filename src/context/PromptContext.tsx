@@ -56,11 +56,11 @@ interface PromptContextType {
   updateCategory: (id: string, updates: Partial<Category>) => void;
   deleteCategory: (id: string) => void;
   // Tutorials CRUD
-  addTutorial: (tut: Omit<Tutorial, "id">) => Tutorial;
+  addTutorial: (tut: Omit<Tutorial, "id" | "slug"> & { slug?: string }) => Tutorial;
   updateTutorial: (id: string, updates: Partial<Tutorial>) => void;
   deleteTutorial: (id: string) => void;
   // Coming Soon CRUD
-  addComingSoon: (feat: Omit<ComingSoonFeature, "id">) => ComingSoonFeature;
+  addComingSoon: (feat: Omit<ComingSoonFeature, "id" | "slug"> & { slug?: string }) => ComingSoonFeature;
   updateComingSoon: (id: string, updates: Partial<ComingSoonFeature>) => void;
   deleteComingSoon: (id: string) => void;
   resetToDefaults: () => void;
@@ -134,14 +134,26 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (storedTutorials) {
-        setTutorials(JSON.parse(storedTutorials));
+        const parsedTuts: Tutorial[] = JSON.parse(storedTutorials);
+        setTutorials(
+          parsedTuts.map((t) => ({
+            ...t,
+            slug: t.slug || slugify(t.title),
+          }))
+        );
       } else {
         setTutorials(initialTutorials);
         localStorage.setItem(LOCAL_STORAGE_TUTORIALS, JSON.stringify(initialTutorials));
       }
 
       if (storedComingSoon) {
-        setComingSoon(JSON.parse(storedComingSoon));
+        const parsedFeats: ComingSoonFeature[] = JSON.parse(storedComingSoon);
+        setComingSoon(
+          parsedFeats.map((f) => ({
+            ...f,
+            slug: f.slug || slugify(f.title),
+          }))
+        );
       } else {
         setComingSoon(initialComingSoon);
         localStorage.setItem(LOCAL_STORAGE_COMING_SOON, JSON.stringify(initialComingSoon));
@@ -415,11 +427,13 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
 
   // Tutorials CRUD
   const addTutorial = useCallback(
-    (tutData: Omit<Tutorial, "id">): Tutorial => {
+    (tutData: Omit<Tutorial, "id" | "slug"> & { slug?: string }): Tutorial => {
       const id = `tut-${Date.now()}`;
+      const slug = tutData.slug || slugify(tutData.title);
       const newTut: Tutorial = {
         ...tutData,
         id,
+        slug,
       };
       setTutorials((prev) => [newTut, ...prev]);
       showToast("Tutorial Published!", "success", newTut.title);
@@ -431,7 +445,15 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
   const updateTutorial = useCallback(
     (id: string, updates: Partial<Tutorial>) => {
       setTutorials((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, ...updates } : t))
+        prev.map((t) =>
+          t.id === id
+            ? {
+                ...t,
+                ...updates,
+                slug: updates.slug || (updates.title ? slugify(updates.title) : t.slug),
+              }
+            : t
+        )
       );
       showToast("Tutorial Updated", "success");
     },
@@ -448,11 +470,13 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
 
   // Coming Soon CRUD
   const addComingSoon = useCallback(
-    (featData: Omit<ComingSoonFeature, "id">): ComingSoonFeature => {
+    (featData: Omit<ComingSoonFeature, "id" | "slug"> & { slug?: string }): ComingSoonFeature => {
       const id = `feat-${Date.now()}`;
+      const slug = featData.slug || slugify(featData.title);
       const newFeat: ComingSoonFeature = {
         ...featData,
         id,
+        slug,
       };
       setComingSoon((prev) => [newFeat, ...prev]);
       showToast("Roadmap Feature Added!", "success", newFeat.title);
@@ -464,7 +488,15 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
   const updateComingSoon = useCallback(
     (id: string, updates: Partial<ComingSoonFeature>) => {
       setComingSoon((prev) =>
-        prev.map((f) => (f.id === id ? { ...f, ...updates } : f))
+        prev.map((f) =>
+          f.id === id
+            ? {
+                ...f,
+                ...updates,
+                slug: updates.slug || (updates.title ? slugify(updates.title) : f.slug),
+              }
+            : f
+        )
       );
       showToast("Roadmap Item Updated", "success");
     },

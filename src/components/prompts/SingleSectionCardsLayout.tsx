@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Sparkles,
   BookOpen,
@@ -16,6 +17,8 @@ import {
   Layers,
   ChevronRight,
   ShieldAlert,
+  Share2,
+  ExternalLink,
 } from "lucide-react";
 import { usePromptStore } from "@/context/PromptContext";
 import { Prompt, Tutorial, ComingSoonFeature } from "@/types";
@@ -43,7 +46,8 @@ export function SingleSectionCardsLayout() {
   const { showToast } = useToast();
   const [copiedTutId, setCopiedTutId] = useState<string | null>(null);
 
-  const handleCopyTutorialPrompt = async (tut: Tutorial) => {
+  const handleCopyTutorialPrompt = async (e: React.MouseEvent, tut: Tutorial) => {
+    e.stopPropagation();
     try {
       await navigator.clipboard.writeText(tut.samplePrompt);
       setCopiedTutId(tut.id);
@@ -54,57 +58,101 @@ export function SingleSectionCardsLayout() {
     }
   };
 
+  const handleShareTutorial = async (e: React.MouseEvent, tut: Tutorial) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/tutorial/${tut.slug}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${tut.title} - fenz.creates`,
+          text: `Check out this AI guide: ${tut.title}`,
+          url,
+        });
+      } catch {}
+    } else {
+      await navigator.clipboard.writeText(url);
+      showToast("Tutorial Link Copied!", "success", url);
+    }
+  };
+
+  const handleShareComingSoon = async (e: React.MouseEvent, feat: ComingSoonFeature) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/coming-soon/${feat.slug}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${feat.title} - fenz.creates Roadmap`,
+          text: `Check out upcoming feature: ${feat.title}`,
+          url,
+        });
+      } catch {}
+    } else {
+      await navigator.clipboard.writeText(url);
+      showToast("Feature Link Copied!", "success", url);
+    }
+  };
+
   // Section Header Info
   const getHeaderInfo = () => {
     if (activeTab === "tutorials") {
       return {
         title: "Prompt Engineering Tutorials",
-        subtitle: "Masterclasses and formula breakdowns for Midjourney, Flux, and SDXL",
+        subtitle: "Master camera angles, lighting prompts, and advanced AI techniques",
         count: `${tutorials.length} guides`,
       };
     }
     if (activeTab === "coming-soon") {
       return {
-        title: "Coming Soon to fenz.creates",
-        subtitle: "Upcoming features and AI video prompt tools in development",
-        count: `${comingSoon.length} updates`,
+        title: "Upcoming Features & Engine Roadmap",
+        subtitle: "Exciting tools and video prompt support in active development",
+        count: `${comingSoon.length} items`,
       };
     }
     if (activeTab === "saved") {
       return {
-        title: "Saved Prompt Formulas",
-        subtitle: "Your personal bookmarks stored in your browser",
+        title: "Your Saved Collection",
+        subtitle: "Prompts you have bookmarked for quick reference and generation",
         count: `${filteredPrompts.length} saved`,
       };
     }
-    if (searchQuery) {
+    if (selectedCategory !== "all") {
+      const cat = categories.find((c) => c.id === selectedCategory);
+      return {
+        title: cat ? `${cat.name} Prompts` : "Category Prompts",
+        subtitle: `Curated formulas and visual styles for ${cat?.name || "this category"}`,
+        count: `${filteredPrompts.length} prompts`,
+      };
+    }
+    if (searchQuery.trim() !== "") {
       return {
         title: `Search: "${searchQuery}"`,
-        subtitle: `Displaying matching prompts across title, tags, and AI model`,
+        subtitle: "Matching titles, tags, and model prompt descriptions",
         count: `${filteredPrompts.length} results`,
       };
     }
-    const cat = categories.find((c) => c.id === selectedCategory);
     return {
-      title: cat ? cat.name : "All Prompt Formulas",
-      subtitle: cat?.description || "Browse and 1-click copy curated prompts",
-      count: `${filteredPrompts.length} prompts`,
+      title: "Discover All Prompts",
+      subtitle: "Explore high-performing prompts across Midjourney, Flux, and more",
+      count: `${filteredPrompts.length} formulas`,
     };
   };
 
   const header = getHeaderInfo();
 
   return (
-    <div className="w-full space-y-6">
-      {/* Single Section Header */}
-      <div className="flex items-center justify-between border-b border-white/5 pb-4">
+    <section className="space-y-6">
+      {/* Section Header */}
+      <div className="flex items-end justify-between border-b border-white/5 pb-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+          <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
             <span>{header.title}</span>
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-            {header.subtitle}
-          </p>
+            {activeTab === "coming-soon" && (
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#E85002]/20 text-[#F16001] border border-[#E85002]/30">
+                Roadmap
+              </span>
+            )}
+          </h2>
+          <p className="text-xs text-slate-400 mt-1">{header.subtitle}</p>
         </div>
 
         <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-slate-300 font-semibold">
@@ -120,11 +168,14 @@ export function SingleSectionCardsLayout() {
             return (
               <div
                 key={tut.id}
-                className="rounded-3xl floating-panel bg-[#0e1017]/95 border border-white/10 p-6 space-y-5 hover:border-violet-500/40 transition-all group shadow-xl flex flex-col justify-between"
+                className="rounded-3xl floating-panel bg-[#0e1017]/95 border border-white/10 p-6 space-y-5 hover:border-[#E85002]/40 transition-all group shadow-xl flex flex-col justify-between"
               >
                 <div className="space-y-4">
                   {/* Top image & badges */}
-                  <div className="relative w-full h-44 rounded-2xl overflow-hidden bg-slate-900 border border-white/10">
+                  <Link
+                    href={`/tutorial/${tut.slug}`}
+                    className="block relative w-full h-44 rounded-2xl overflow-hidden bg-slate-900 border border-white/10 group-hover:border-[#E85002]/30 transition-colors"
+                  >
                     <Image
                       src={tut.mediaUrl}
                       alt={tut.title}
@@ -135,7 +186,7 @@ export function SingleSectionCardsLayout() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
                     <div className="absolute top-3 left-3 flex items-center gap-2">
-                      <span className="px-2.5 py-1 rounded-full bg-violet-600 text-white text-[10px] font-bold shadow-md">
+                      <span className="px-2.5 py-1 rounded-full bg-[#E85002] text-white text-[10px] font-bold shadow-md">
                         {tut.model}
                       </span>
                       <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-slate-200 text-[10px] font-medium border border-white/10">
@@ -143,15 +194,25 @@ export function SingleSectionCardsLayout() {
                       </span>
                     </div>
 
+                    <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+                      <button
+                        onClick={(e) => handleShareTutorial(e, tut)}
+                        className="p-1.5 rounded-full bg-black/60 backdrop-blur-md hover:bg-[#E85002] text-slate-200 hover:text-white border border-white/10 transition-all"
+                        title="Share Tutorial Link"
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
                     <div className="absolute bottom-3 left-3 right-3">
-                      <span className="text-[10px] uppercase font-bold tracking-wider text-violet-300">
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-[#F16001]">
                         {tut.level} Level
                       </span>
-                      <h3 className="text-base font-bold text-white truncate drop-shadow">
+                      <h3 className="text-base font-bold text-white truncate drop-shadow group-hover:text-[#F16001] transition-colors">
                         {tut.title}
                       </h3>
                     </div>
-                  </div>
+                  </Link>
 
                   <p className="text-xs text-slate-300 leading-relaxed">
                     {tut.description}
@@ -162,43 +223,63 @@ export function SingleSectionCardsLayout() {
                     <span className="font-semibold text-white text-[11px] uppercase tracking-wider block mb-1">
                       Key Takeaways:
                     </span>
-                    {tut.content.map((point, i) => (
-                      <div key={i} className="text-slate-400 text-[11px] leading-relaxed">
+                    {tut.content.slice(0, 2).map((point, i) => (
+                      <div key={i} className="text-slate-400 text-[11px] leading-relaxed line-clamp-1">
                         {point}
                       </div>
                     ))}
                   </div>
 
                   {/* Sample Formula Box */}
-                  <div className="p-3 rounded-xl bg-black/50 border border-violet-500/20 text-xs font-mono text-slate-300 space-y-2">
-                    <span className="text-[10px] font-bold text-violet-400 uppercase tracking-wider block">
+                  <div className="p-3 rounded-xl bg-black/50 border border-[#E85002]/20 text-xs font-mono text-slate-300 space-y-2">
+                    <span className="text-[10px] font-bold text-[#E85002] uppercase tracking-wider block">
                       Sample Formula:
                     </span>
                     <p className="text-[11px] line-clamp-2">&ldquo;{tut.samplePrompt}&rdquo;</p>
                   </div>
                 </div>
 
-                {/* Copy Sample Formula Button */}
-                <button
-                  onClick={() => handleCopyTutorialPrompt(tut)}
-                  className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
-                    isCopied
-                      ? "bg-emerald-500 text-white"
-                      : "bg-white text-black hover:bg-slate-200"
-                  }`}
-                >
-                  {isCopied ? (
-                    <>
-                      <Check className="w-3.5 h-3.5" />
-                      <span>Formula Copied to Clipboard!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3.5 h-3.5" />
-                      <span>Copy Tutorial Prompt Formula</span>
-                    </>
-                  )}
-                </button>
+                {/* Actions: Read Full Guide & Copy Formula */}
+                <div className="space-y-2 pt-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link
+                      href={`/tutorial/${tut.slug}`}
+                      className="py-2.5 px-3 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white flex items-center justify-center gap-1.5 transition-all"
+                    >
+                      <span>Read Full Guide</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
+
+                    <button
+                      onClick={(e) => handleShareTutorial(e, tut)}
+                      className="py-2.5 px-3 rounded-xl text-xs font-bold bg-[#E85002]/15 hover:bg-[#E85002]/30 text-[#F16001] flex items-center justify-center gap-1.5 transition-all border border-[#E85002]/30"
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                      <span>Share Link</span>
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={(e) => handleCopyTutorialPrompt(e, tut)}
+                    className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                      isCopied
+                        ? "bg-emerald-500 text-white"
+                        : "bg-white text-black hover:bg-slate-200"
+                    }`}
+                  >
+                    {isCopied ? (
+                      <>
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Formula Copied to Clipboard!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>Copy Tutorial Formula</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             );
           })}
@@ -211,10 +292,13 @@ export function SingleSectionCardsLayout() {
           {comingSoon.map((feat) => (
             <div
               key={feat.id}
-              className="rounded-3xl floating-panel bg-[#0e1017]/95 border border-white/10 p-5 space-y-4 hover:border-[#E85002]/40 transition-all group flex flex-col justify-between"
+              className="rounded-3xl floating-panel bg-[#0e1017]/95 border border-white/10 p-5 space-y-4 hover:border-[#E85002]/40 transition-all group flex flex-col justify-between shadow-xl"
             >
               <div className="space-y-3">
-                <div className="relative w-full h-40 rounded-2xl overflow-hidden bg-slate-900 border border-white/10">
+                <Link
+                  href={`/coming-soon/${feat.slug}`}
+                  className="block relative w-full h-40 rounded-2xl overflow-hidden bg-slate-900 border border-white/10 group-hover:border-[#E85002]/30 transition-colors"
+                >
                   <Image
                     src={feat.mediaUrl}
                     alt={feat.title}
@@ -230,14 +314,27 @@ export function SingleSectionCardsLayout() {
                     </span>
                   </div>
 
+                  <div className="absolute top-3 right-3 z-10">
+                    <button
+                      onClick={(e) => handleShareComingSoon(e, feat)}
+                      className="p-1.5 rounded-full bg-black/60 backdrop-blur-md hover:bg-[#E85002] text-slate-200 hover:text-white border border-white/10 transition-all"
+                      title="Share Feature Link"
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
                   <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md text-[10px] font-mono text-slate-300">
                     ETA: {feat.eta}
                   </div>
-                </div>
+                </Link>
 
-                <h3 className="text-base font-bold text-white tracking-tight">
-                  {feat.title}
-                </h3>
+                <Link href={`/coming-soon/${feat.slug}`}>
+                  <h3 className="text-base font-bold text-white tracking-tight group-hover:text-[#F16001] transition-colors">
+                    {feat.title}
+                  </h3>
+                </Link>
+
                 <p className="text-xs text-slate-400 leading-relaxed">
                   {feat.description}
                 </p>
@@ -247,18 +344,30 @@ export function SingleSectionCardsLayout() {
                     Highlights:
                   </span>
                   <ul className="list-disc list-inside text-[11px] text-slate-300 space-y-0.5">
-                    {feat.highlights.map((h, i) => (
+                    {feat.highlights.slice(0, 2).map((h, i) => (
                       <li key={i}>{h}</li>
                     ))}
                   </ul>
                 </div>
               </div>
 
-              <div className="pt-2 text-center">
-                <span className="text-xs font-semibold text-[#E85002] flex items-center justify-center gap-1">
-                  <span>Launching {feat.eta}</span>
+              <div className="pt-2 flex items-center justify-between gap-2 border-t border-white/5">
+                <Link
+                  href={`/coming-soon/${feat.slug}`}
+                  className="text-xs font-semibold text-[#E85002] hover:text-[#F16001] flex items-center gap-1 transition-colors"
+                >
+                  <span>Explore Feature</span>
                   <ChevronRight className="w-3.5 h-3.5" />
-                </span>
+                </Link>
+
+                <button
+                  onClick={(e) => handleShareComingSoon(e, feat)}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-[#E85002]/20 text-[11px] text-slate-300 hover:text-[#F16001] transition-colors border border-white/5"
+                  title="Copy Direct Link"
+                >
+                  <Share2 className="w-3 h-3" />
+                  <span>Share</span>
+                </button>
               </div>
             </div>
           ))}
@@ -305,6 +414,6 @@ export function SingleSectionCardsLayout() {
           )}
         </>
       )}
-    </div>
+    </section>
   );
 }

@@ -45,6 +45,7 @@ export interface Category {
 
 export interface Tutorial {
   id: string;
+  slug: string;
   title: string;
   description: string;
   readTime: string;
@@ -54,16 +55,19 @@ export interface Tutorial {
   content: string[];
   tips: string[];
   samplePrompt: string;
+  createdAt?: string;
 }
 
 export interface ComingSoonFeature {
   id: string;
+  slug: string;
   title: string;
   description: string;
   badge: string;
   eta: string;
   mediaUrl: string;
   highlights: string[];
+  createdAt?: string;
 }
 
 export type ViewTab = "home" | "prompts" | "coming-soon" | "tutorials" | "saved" | "discover" | "trending" | "new";
