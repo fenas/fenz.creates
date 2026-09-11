@@ -44,7 +44,7 @@ export function ComingSoonManagerTable({
 
         <button
           onClick={onOpenCreate}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs shadow-lg shadow-amber-950/40 transition-all hover:scale-105"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#E85002] hover:bg-[#F16001] text-white font-bold text-xs shadow-lg shadow-[#E85002]/40 transition-all hover:scale-105"
         >
           <Plus className="w-4 h-4" />
           <span>Add Roadmap Feature</span>
@@ -54,7 +54,7 @@ export function ComingSoonManagerTable({
       <div className="rounded-2xl floating-panel bg-[#0c0e15] border border-white/5 overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-white/[0.02] border-b border-white/5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+            <thead className="bg-white/[0.02] border-b border-white/5 text-[11px] font-semibold text-[#A7A7A7] uppercase tracking-wider">
               <tr>
                 <th className="p-4">Roadmap Feature</th>
                 <th className="p-4">Badge / Status</th>
@@ -65,7 +65,7 @@ export function ComingSoonManagerTable({
             <tbody className="divide-y divide-white/5">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="p-8 text-center text-slate-400">
+                  <td colSpan={4} className="p-8 text-center text-[#A7A7A7]">
                     No roadmap features added yet. Click &quot;Add Roadmap Feature&quot; to publish one.
                   </td>
                 </tr>
@@ -87,14 +87,14 @@ export function ComingSoonManagerTable({
                           <div className="font-semibold text-white truncate">
                             {f.title}
                           </div>
-                          <div className="text-[11px] text-slate-400 truncate mt-0.5">
+                          <div className="text-[11px] text-[#A7A7A7] truncate mt-0.5">
                             {f.description}
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="p-4">
-                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#E85002]/20 text-[#F16001] border border-[#E85002]/30">
                         {f.badge}
                       </span>
                     </td>
@@ -110,7 +110,7 @@ export function ComingSoonManagerTable({
                         </button>
                         <button
                           onClick={() => handleDelete(f.id, f.title)}
-                          className="p-1.5 rounded-lg hover:bg-amber-500/10 text-slate-400 hover:text-amber-400"
+                          className="p-1.5 rounded-lg hover:bg-[#E85002]/10 text-slate-400 hover:text-[#E85002]"
                           title="Delete"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

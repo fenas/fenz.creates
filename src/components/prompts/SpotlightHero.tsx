@@ -60,8 +60,8 @@ export function SpotlightHero({ featuredPrompt }: SpotlightHeroProps) {
       <div className="relative z-10 max-w-xl space-y-3">
         {/* Top Badges */}
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-amber-300 text-[11px] font-semibold border border-amber-500/30">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-[#F16001] text-[11px] font-semibold border border-[#E85002]/40">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#E85002] animate-pulse" />
             <span>🔥 Now Trending</span>
           </div>
 

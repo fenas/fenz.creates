@@ -111,7 +111,7 @@ export function SlimIconSidebar() {
 
                     {/* Notification Badge */}
                     {item.badge && (
-                      <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-400 shadow-sm shadow-amber-500/50" />
+                      <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#E85002] shadow-sm shadow-[#E85002]/60" />
                     )}
                   </button>
 
@@ -119,7 +119,7 @@ export function SlimIconSidebar() {
                   <div className="absolute left-full ml-3.5 px-4 py-2 rounded-full bg-[#1c1f2b] text-white text-xs font-bold shadow-2xl border border-white/10 whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2 transition-all duration-200 z-50 flex items-center gap-2">
                     <span>{item.label}</span>
                     {item.badge && (
-                      <span className="px-1.5 py-0.2 rounded-full bg-amber-400 text-black text-[9px] font-bold">
+                      <span className="px-1.5 py-0.2 rounded-full bg-[#E85002] text-white text-[9px] font-bold">
                         {item.badge}
                       </span>
                     )}
@@ -146,7 +146,7 @@ export function SlimIconSidebar() {
                   }`}
                 />
                 {savedPromptIds.length > 0 && (
-                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-400" />
+                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#E85002]" />
                 )}
               </button>
 
@@ -198,7 +198,7 @@ export function SlimIconSidebar() {
                 <div className="relative">
                   <Icon className="w-5 h-5" />
                   {item.badge && (
-                    <span className="absolute -top-1 -right-2 w-3.5 h-3.5 bg-amber-400 text-black text-[8px] font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1 -right-2 w-3.5 h-3.5 bg-[#E85002] text-white text-[8px] font-bold rounded-full flex items-center justify-center">
                       {item.badge}
                     </span>
                   )}

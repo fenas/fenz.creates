@@ -62,26 +62,26 @@ export function PosterPromptCard({ prompt }: PosterPromptCardProps) {
           onClick={handleSave}
           className={`p-1 rounded-full backdrop-blur-md transition-all ${
             saved
-              ? "bg-amber-400 text-black"
+              ? "bg-[#E85002] text-white"
               : "bg-black/50 text-slate-300 hover:text-white"
           }`}
           title="Save"
         >
-          <Bookmark className={`w-3 h-3 ${saved ? "fill-black" : ""}`} />
+          <Bookmark className={`w-3 h-3 ${saved ? "fill-white" : ""}`} />
         </button>
       </div>
 
       {/* Bottom Information & 1-Click Copy Action */}
       <div className="relative z-10 flex items-end justify-between gap-2">
         <div className="min-w-0 flex-1 space-y-0.5">
-          <h3 className="text-xs font-bold text-white truncate drop-shadow-sm group-hover:text-amber-200 transition-colors">
+          <h3 className="text-xs font-bold text-white truncate drop-shadow-sm group-hover:text-[#F16001] transition-colors">
             {prompt.title}
           </h3>
           <p className="text-[10px] text-slate-300 font-mono truncate opacity-80">
             {prompt.promptText}
           </p>
-          <div className="flex items-center gap-1.5 text-[9px] text-slate-400 font-semibold pt-0.5">
-            <span className="text-amber-400">{prompt.model}</span>
+          <div className="flex items-center gap-1.5 text-[9px] text-[#A7A7A7] font-semibold pt-0.5">
+            <span className="text-[#E85002]">{prompt.model}</span>
             <span>•</span>
             <span>{formatNumber(prompt.copyCount || 0)} copies</span>
           </div>

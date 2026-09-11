@@ -85,12 +85,12 @@ export function MainDashboard() {
               }}
               className="flex items-center gap-2 group"
             >
-              <div className="w-7 h-7 rounded-lg bg-amber-400 flex items-center justify-center font-black text-black text-base shadow-lg shadow-amber-950/50">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#E85002] to-[#F16001] flex items-center justify-center font-black text-white text-base shadow-lg shadow-[#E85002]/40">
                 F
               </div>
               <span className="font-extrabold text-base tracking-tight text-white">
-                <span className="text-amber-400 font-black tracking-wider">FENZ</span>
-                <span className="text-slate-200">.CREATES</span>
+                <span className="text-[#E85002] font-black tracking-wider">FENZ</span>
+                <span className="text-[#F9F9F9]">.CREATES</span>
               </span>
             </Link>
           </div>
@@ -105,12 +105,12 @@ export function MainDashboard() {
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all ${
                 activeTab === "discover"
                   ? "bg-[#202433] text-white shadow-sm border border-white/10"
-                  : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
+                  : "text-[#A7A7A7] hover:text-white hover:bg-white/[0.04]"
               }`}
             >
               <Home
                 className={`w-4 h-4 ${
-                  activeTab === "discover" ? "text-amber-400" : "text-slate-400"
+                  activeTab === "discover" ? "text-[#E85002]" : "text-slate-400"
                 }`}
               />
               <span>Home</span>
@@ -121,12 +121,12 @@ export function MainDashboard() {
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all ${
                 activeTab === "trending"
                   ? "bg-[#202433] text-white shadow-sm border border-white/10"
-                  : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
+                  : "text-[#A7A7A7] hover:text-white hover:bg-white/[0.04]"
               }`}
             >
               <Compass
                 className={`w-4 h-4 ${
-                  activeTab === "trending" ? "text-amber-400" : "text-slate-400"
+                  activeTab === "trending" ? "text-[#E85002]" : "text-slate-400"
                 }`}
               />
               <span>Discovery</span>
@@ -137,18 +137,18 @@ export function MainDashboard() {
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all ${
                 activeTab === "new"
                   ? "bg-[#202433] text-white shadow-sm border border-white/10"
-                  : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
+                  : "text-[#A7A7A7] hover:text-white hover:bg-white/[0.04]"
               }`}
             >
               <div className="flex items-center gap-3">
                 <Clock
                   className={`w-4 h-4 ${
-                    activeTab === "new" ? "text-amber-400" : "text-slate-400"
+                    activeTab === "new" ? "text-[#E85002]" : "text-slate-400"
                   }`}
                 />
                 <span>Coming soon</span>
               </div>
-              <span className="w-4 h-4 rounded-full bg-amber-400 text-black text-[9px] font-bold flex items-center justify-center">
+              <span className="w-4 h-4 rounded-full bg-[#E85002] text-white text-[9px] font-bold flex items-center justify-center">
                 3
               </span>
             </button>
@@ -271,7 +271,7 @@ export function MainDashboard() {
             {/* Surprise me quick button */}
             <button
               onClick={() => triggerRandomPrompt()}
-              className="p-2 rounded-full netflix-pill text-amber-400 hover:text-amber-300 transition-colors"
+              className="p-2 rounded-full netflix-pill text-[#E85002] hover:text-[#F16001] transition-colors"
               title="Surprise Me"
             >
               <Dices className="w-4 h-4" />
@@ -280,11 +280,11 @@ export function MainDashboard() {
             {/* Notification Bell */}
             <button
               onClick={() => setIsSubmitModalOpen(true)}
-              className="relative p-2 rounded-full netflix-pill text-slate-300 hover:text-white transition-colors"
+              className="relative p-2 rounded-full netflix-pill text-[#A7A7A7] hover:text-white transition-colors"
               title="Submit Prompt"
             >
               <Bell className="w-4 h-4" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-amber-400 rounded-full" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-[#E85002] rounded-full" />
             </button>
 
             {/* Profile Chip */}

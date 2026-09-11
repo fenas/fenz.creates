@@ -144,7 +144,7 @@ export default function AdminPage() {
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={handleOpenCreatePrompt}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black font-bold text-xs shadow-lg shadow-amber-950/40 transition-all hover:scale-105"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#E85002] to-[#F16001] hover:from-[#F16001] hover:to-[#E85002] text-white font-bold text-xs shadow-lg shadow-[#E85002]/40 transition-all hover:scale-105"
             >
               <Plus className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Upload Prompt</span>
@@ -152,7 +152,7 @@ export default function AdminPage() {
 
             <button
               onClick={logoutAdmin}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl glass-pill text-xs font-semibold text-slate-400 hover:text-amber-400 hover:border-amber-500/30 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl glass-pill text-xs font-semibold text-slate-400 hover:text-[#E85002] hover:border-[#E85002]/30 transition-colors"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Logout</span>
@@ -174,7 +174,7 @@ export default function AdminPage() {
             <div className="text-[11px] text-slate-400 flex items-center gap-2">
               <span className="text-emerald-400 font-semibold">{publishedCount} active</span>
               <span>•</span>
-              <span className="text-amber-400 font-semibold">{draftCount} drafts</span>
+              <span className="text-[#F16001] font-semibold">{draftCount} drafts</span>
             </div>
           </div>
 
@@ -203,7 +203,7 @@ export default function AdminPage() {
           <div className="p-5 rounded-2xl floating-panel bg-[#0d0f17] border border-white/5 space-y-1">
             <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
               <span>Roadmap Features</span>
-              <Clock className="w-4 h-4 text-amber-400" />
+              <Clock className="w-4 h-4 text-[#E85002]" />
             </div>
             <div className="text-2xl font-bold text-white">{comingSoon.length}</div>
             <div className="text-[11px] text-slate-400">
@@ -218,8 +218,8 @@ export default function AdminPage() {
             onClick={() => setActiveAdminTab("prompts")}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
               activeAdminTab === "prompts"
-                ? "bg-amber-400 text-black shadow-lg shadow-amber-950/40"
-                : "glass-pill text-slate-400 hover:text-white"
+                ? "bg-[#E85002] text-white shadow-lg shadow-[#E85002]/40"
+                : "glass-pill text-[#A7A7A7] hover:text-white"
             }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
@@ -230,8 +230,8 @@ export default function AdminPage() {
             onClick={() => setActiveAdminTab("tutorials")}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
               activeAdminTab === "tutorials"
-                ? "bg-amber-400 text-black shadow-lg shadow-amber-950/40"
-                : "glass-pill text-slate-400 hover:text-white"
+                ? "bg-[#E85002] text-white shadow-lg shadow-[#E85002]/40"
+                : "glass-pill text-[#A7A7A7] hover:text-white"
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
@@ -242,8 +242,8 @@ export default function AdminPage() {
             onClick={() => setActiveAdminTab("coming-soon")}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
               activeAdminTab === "coming-soon"
-                ? "bg-amber-400 text-black shadow-lg shadow-amber-950/40"
-                : "glass-pill text-slate-400 hover:text-white"
+                ? "bg-[#E85002] text-white shadow-lg shadow-[#E85002]/40"
+                : "glass-pill text-[#A7A7A7] hover:text-white"
             }`}
           >
             <Clock className="w-3.5 h-3.5" />
@@ -254,8 +254,8 @@ export default function AdminPage() {
             onClick={() => setActiveAdminTab("categories")}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
               activeAdminTab === "categories"
-                ? "bg-amber-400 text-black shadow-lg shadow-amber-950/40"
-                : "glass-pill text-slate-400 hover:text-white"
+                ? "bg-[#E85002] text-white shadow-lg shadow-[#E85002]/40"
+                : "glass-pill text-[#A7A7A7] hover:text-white"
             }`}
           >
             <Layers className="w-3.5 h-3.5" />

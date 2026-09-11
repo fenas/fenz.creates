@@ -236,7 +236,7 @@ export function PromptEditorModal({
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-400">Upload local file or URL:</span>
-                  <label className="text-violet-400 hover:text-violet-300 cursor-pointer flex items-center gap-1">
+                  <label className="text-[#F16001] hover:text-[#E85002] cursor-pointer flex items-center gap-1 font-semibold">
                     <Upload className="w-3 h-3" /> Browse File
                     <input
                       type="file"
@@ -248,7 +248,8 @@ export function PromptEditorModal({
                 </div>
 
                 <input
-                  type="text"
+                  type="url"
+                  required
                   value={mediaUrl}
                   onChange={(e) => setMediaUrl(e.target.value)}
                   placeholder="https://images.unsplash.com/..."
@@ -256,10 +257,10 @@ export function PromptEditorModal({
                 />
               </div>
 
-              {/* Media Type Toggle */}
+              {/* Media Type Switcher (Image vs Video) */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                  Content Type (Image vs Video)
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  Media Type
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
@@ -267,7 +268,7 @@ export function PromptEditorModal({
                     onClick={() => setMediaType("image")}
                     className={`py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
                       mediaType === "image"
-                        ? "bg-violet-600 text-white"
+                        ? "bg-[#252a3a] text-white border border-white/20 shadow-sm"
                         : "glass-pill text-slate-400 hover:text-slate-200"
                     }`}
                   >
@@ -279,7 +280,7 @@ export function PromptEditorModal({
                     onClick={() => setMediaType("video")}
                     className={`py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
                       mediaType === "video"
-                        ? "bg-amber-500 text-black"
+                        ? "bg-[#E85002] text-white font-bold"
                         : "glass-pill text-slate-400 hover:text-slate-200"
                     }`}
                   >
@@ -304,7 +305,7 @@ export function PromptEditorModal({
                     className={`px-3 py-1 rounded-xl text-xs font-semibold ${
                       status === "published"
                         ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                        : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                        : "bg-[#E85002]/20 text-[#F16001] border border-[#E85002]/30"
                     }`}
                   >
                     <option value="published" className="bg-[#0f1117] text-white">
@@ -327,13 +328,13 @@ export function PromptEditorModal({
                     type="checkbox"
                     checked={featured}
                     onChange={(e) => setFeatured(e.target.checked)}
-                    className="w-4 h-4 accent-violet-600 rounded cursor-pointer"
+                    className="w-4 h-4 accent-[#E85002] rounded cursor-pointer"
                   />
                 </div>
 
                 <div className="flex items-center justify-between pt-2 border-t border-white/5">
                   <div>
-                    <div className="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
+                    <div className="text-xs font-semibold text-[#F16001] flex items-center gap-1.5">
                       <span>🌟 Hero Banner Post</span>
                     </div>
                     <div className="text-[10px] text-slate-400">
@@ -344,7 +345,7 @@ export function PromptEditorModal({
                     type="checkbox"
                     checked={isHeroBanner}
                     onChange={(e) => setIsHeroBanner(e.target.checked)}
-                    className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+                    className="w-4 h-4 accent-[#E85002] rounded cursor-pointer"
                   />
                 </div>
               </div>
@@ -542,7 +543,7 @@ export function PromptEditorModal({
             </button>
             <button
               type="submit"
-              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-violet-600 hover:from-amber-400 hover:to-violet-500 text-white font-semibold text-xs shadow-lg shadow-amber-950/40 hover:scale-[1.02] active:scale-[0.98]"
+              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#E85002] to-[#F16001] hover:from-[#F16001] hover:to-[#E85002] text-white font-bold text-xs shadow-lg shadow-[#E85002]/40 hover:scale-[1.02] active:scale-[0.98]"
             >
               <Save className="w-4 h-4" />
               <span>{isEditing ? "Save Changes" : "Create Prompt"}</span>

@@ -61,8 +61,8 @@ export function UnifiedHeader() {
               onClick={() => setSelectedMediaType("all")}
               className={`px-2.5 py-1 rounded-lg transition-all ${
                 selectedMediaType === "all"
-                  ? "bg-amber-400 text-black font-bold shadow-sm"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-[#E85002] text-white font-bold shadow-sm shadow-[#E85002]/30"
+                  : "text-[#A7A7A7] hover:text-white"
               }`}
             >
               All
@@ -71,8 +71,8 @@ export function UnifiedHeader() {
               onClick={() => setSelectedMediaType("image")}
               className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all ${
                 selectedMediaType === "image"
-                  ? "bg-amber-400 text-black font-bold shadow-sm"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-[#E85002] text-white font-bold shadow-sm shadow-[#E85002]/30"
+                  : "text-[#A7A7A7] hover:text-white"
               }`}
             >
               <ImageIcon className="w-3 h-3" />
@@ -82,8 +82,8 @@ export function UnifiedHeader() {
               onClick={() => setSelectedMediaType("video")}
               className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all ${
                 selectedMediaType === "video"
-                  ? "bg-amber-400 text-black font-bold shadow-sm"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-[#E85002] text-white font-bold shadow-sm shadow-[#E85002]/30"
+                  : "text-[#A7A7A7] hover:text-white"
               }`}
             >
               <Video className="w-3 h-3" />
@@ -94,10 +94,10 @@ export function UnifiedHeader() {
           {/* Surprise Me Button */}
           <button
             onClick={() => triggerRandomPrompt()}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 hover:text-amber-200 font-semibold text-xs transition-all hover:scale-105"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#E85002]/15 hover:bg-[#E85002]/25 border border-[#E85002]/30 text-[#F16001] hover:text-[#F9F9F9] font-semibold text-xs transition-all hover:scale-105"
             title="Random Prompt"
           >
-            <Dices className="w-3.5 h-3.5 text-amber-400" />
+            <Dices className="w-3.5 h-3.5 text-[#E85002]" />
             <span>Surprise Me</span>
           </button>
         </div>

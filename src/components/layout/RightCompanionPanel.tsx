@@ -77,15 +77,15 @@ export function RightCompanionPanel() {
         <div className="space-y-3">
           <div className="flex items-center justify-between text-xs">
             <span className="font-bold text-white tracking-tight flex items-center gap-1.5">
-              <Flame className="w-3.5 h-3.5 text-amber-400" />
+              <Flame className="w-3.5 h-3.5 text-[#E85002]" />
               Trending Now
             </span>
-            <div className="flex items-center gap-1 text-[11px] text-slate-400 font-medium">
+            <div className="flex items-center gap-1 text-[11px] text-[#A7A7A7] font-medium">
               <span>Sort by:</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="bg-transparent text-slate-200 font-semibold cursor-pointer focus:outline-none"
+                className="bg-transparent text-[#F9F9F9] font-semibold cursor-pointer focus:outline-none"
               >
                 <option value="trending" className="bg-[#0f1117]">Today</option>
                 <option value="newest" className="bg-[#0f1117]">Newest</option>
@@ -103,13 +103,13 @@ export function RightCompanionPanel() {
                 <div
                   key={p.id}
                   onClick={() => setActiveModalPrompt(p)}
-                  className="group relative rounded-2xl overflow-hidden bg-[#141724] border border-white/10 p-3 flex items-center justify-between gap-3 cursor-pointer hover:border-amber-400/40 hover:bg-[#191d2d] transition-all"
+                  className="group relative rounded-2xl overflow-hidden bg-[#141418] border border-white/10 p-3 flex items-center justify-between gap-3 cursor-pointer hover:border-[#E85002]/40 hover:bg-[#1a1a20] transition-all"
                 >
                   <div className="min-w-0 flex-1 space-y-1">
-                    <span className="text-[9px] font-bold text-amber-400 uppercase tracking-wider">
+                    <span className="text-[9px] font-bold text-[#E85002] uppercase tracking-wider">
                       {p.model}
                     </span>
-                    <h4 className="text-xs font-bold text-white truncate group-hover:text-amber-300 transition-colors">
+                    <h4 className="text-xs font-bold text-white truncate group-hover:text-[#F16001] transition-colors">
                       {p.title}
                     </h4>
                     <p className="text-[10px] text-slate-400 truncate font-mono">

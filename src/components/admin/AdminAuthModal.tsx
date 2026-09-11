@@ -40,13 +40,13 @@ export function AdminAuthModal() {
       <div className="w-full max-w-md rounded-3xl floating-panel bg-[#0d0f17]/95 border border-white/10 p-8 shadow-2xl space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center mx-auto shadow-lg shadow-amber-950/40">
-            <Lock className="w-6 h-6 text-amber-400" />
+          <div className="w-14 h-14 rounded-2xl bg-[#E85002]/20 border border-[#E85002]/30 flex items-center justify-center mx-auto shadow-lg shadow-[#E85002]/30">
+            <Lock className="w-6 h-6 text-[#E85002]" />
           </div>
           <h1 className="text-xl font-bold text-white tracking-tight">
             Admin Studio Portal
           </h1>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-[#A7A7A7]">
             Sign in to upload and manage prompts, tutorials, and roadmap content.
           </p>
         </div>
@@ -85,7 +85,7 @@ export function AdminAuthModal() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-[11px] text-slate-400 hover:text-white flex items-center gap-1"
+                className="text-[11px] text-[#A7A7A7] hover:text-white flex items-center gap-1"
               >
                 {showPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
                 <span>{showPassword ? "Hide" : "Show"}</span>
@@ -123,7 +123,7 @@ export function AdminAuthModal() {
 
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-black font-bold text-xs shadow-lg shadow-amber-950/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-[#C10801] via-[#E85002] to-[#F16001] hover:from-[#E85002] hover:to-[#F16001] text-white font-bold text-xs shadow-lg shadow-[#E85002]/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
             <span>Sign In to Admin Studio</span>
             <ArrowRight className="w-4 h-4" />
@@ -135,7 +135,7 @@ export function AdminAuthModal() {
           <button
             onClick={handleAutofill}
             type="button"
-            className="text-xs text-amber-400 hover:text-amber-300 font-semibold flex items-center justify-center gap-1.5 mx-auto transition-colors"
+            className="text-xs text-[#E85002] hover:text-[#F16001] font-semibold flex items-center justify-center gap-1.5 mx-auto transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>Click to Auto-fill & Login as fenas.fnz@gmail.com</span>

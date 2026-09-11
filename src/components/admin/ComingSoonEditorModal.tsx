@@ -88,14 +88,14 @@ export function ComingSoonEditorModal({
         {/* Header */}
         <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between bg-[#0a0c12]/90">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
-              <Clock className="w-4 h-4 text-amber-400" />
+            <div className="w-8 h-8 rounded-xl bg-[#E85002]/20 border border-[#E85002]/30 flex items-center justify-center">
+              <Clock className="w-4 h-4 text-[#E85002]" />
             </div>
             <div>
               <h2 className="text-base font-bold text-white">
                 {isEditing ? "Edit Roadmap Feature" : "Upload Coming Soon Feature"}
               </h2>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-[#A7A7A7]">
                 Announce upcoming tools, video prompt engines, and roadmap items
               </p>
             </div>
@@ -203,7 +203,7 @@ export function ComingSoonEditorModal({
             </button>
             <button
               type="submit"
-              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black font-bold text-xs shadow-lg shadow-amber-950/50"
+              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-[#E85002] to-[#F16001] hover:from-[#F16001] hover:to-[#E85002] text-white font-bold text-xs shadow-lg shadow-[#E85002]/40"
             >
               <Save className="w-4 h-4" />
               <span>{isEditing ? "Save Feature" : "Publish to Roadmap"}</span>
