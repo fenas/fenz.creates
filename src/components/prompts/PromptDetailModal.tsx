@@ -256,12 +256,12 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
               {prompt.negativePrompt && (
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-red-300/80 uppercase tracking-wider">
+                    <span className="text-xs font-semibold text-amber-300/80 uppercase tracking-wider">
                       Negative Prompt (Avoid)
                     </span>
                     <button
                       onClick={handleCopyNegative}
-                      className="text-xs text-red-400 hover:text-red-300 flex items-center gap-1"
+                      className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1"
                     >
                       {copiedNegative ? (
                         <Check className="w-3 h-3" />
@@ -271,7 +271,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                       <span>{copiedNegative ? "Copied" : "Copy"}</span>
                     </button>
                   </div>
-                  <div className="rounded-xl bg-red-950/20 border border-red-500/20 p-3 font-mono text-xs text-red-200/90 select-all">
+                  <div className="rounded-xl bg-amber-950/20 border border-amber-500/20 p-3 font-mono text-xs text-amber-200/90 select-all">
                     {prompt.negativePrompt}
                   </div>
                 </div>

@@ -40,8 +40,8 @@ export function AdminAuthModal() {
       <div className="w-full max-w-md rounded-3xl floating-panel bg-[#0d0f17]/95 border border-white/10 p-8 shadow-2xl space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="w-14 h-14 rounded-2xl bg-red-600/20 border border-red-500/30 flex items-center justify-center mx-auto shadow-lg shadow-red-950/40">
-            <Lock className="w-6 h-6 text-red-500" />
+          <div className="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center mx-auto shadow-lg shadow-amber-950/40">
+            <Lock className="w-6 h-6 text-amber-400" />
           </div>
           <h1 className="text-xl font-bold text-white tracking-tight">
             Admin Studio Portal
@@ -123,7 +123,7 @@ export function AdminAuthModal() {
 
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-red-600 via-violet-600 to-red-600 hover:from-red-500 hover:to-violet-500 text-white font-semibold text-xs shadow-lg shadow-red-950/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-black font-bold text-xs shadow-lg shadow-amber-950/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
             <span>Sign In to Admin Studio</span>
             <ArrowRight className="w-4 h-4" />

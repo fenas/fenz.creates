@@ -48,9 +48,9 @@ export function LeftDock() {
               : "text-slate-400 hover:text-white hover:bg-white/10"
           }`}
         >
-          <Heart className={`w-4 h-4 ${savedPromptIds.length > 0 && activeTab === "saved" ? "fill-current text-red-400" : ""}`} />
+          <Heart className={`w-4 h-4 ${savedPromptIds.length > 0 && activeTab === "saved" ? "fill-current text-amber-400" : ""}`} />
           {savedPromptIds.length > 0 && (
-            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500" />
+            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-400" />
           )}
         </button>
 

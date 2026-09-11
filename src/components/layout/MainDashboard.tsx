@@ -85,11 +85,11 @@ export function MainDashboard() {
               }}
               className="flex items-center gap-2 group"
             >
-              <div className="w-7 h-7 rounded-lg bg-red-600 flex items-center justify-center font-black text-white text-base shadow-lg shadow-red-950/50">
+              <div className="w-7 h-7 rounded-lg bg-amber-400 flex items-center justify-center font-black text-black text-base shadow-lg shadow-amber-950/50">
                 F
               </div>
               <span className="font-extrabold text-base tracking-tight text-white">
-                <span className="text-red-500 font-black tracking-wider">FENZ</span>
+                <span className="text-amber-400 font-black tracking-wider">FENZ</span>
                 <span className="text-slate-200">.CREATES</span>
               </span>
             </Link>
@@ -110,7 +110,7 @@ export function MainDashboard() {
             >
               <Home
                 className={`w-4 h-4 ${
-                  activeTab === "discover" ? "text-red-500" : "text-slate-400"
+                  activeTab === "discover" ? "text-amber-400" : "text-slate-400"
                 }`}
               />
               <span>Home</span>
@@ -126,7 +126,7 @@ export function MainDashboard() {
             >
               <Compass
                 className={`w-4 h-4 ${
-                  activeTab === "trending" ? "text-red-500" : "text-slate-400"
+                  activeTab === "trending" ? "text-amber-400" : "text-slate-400"
                 }`}
               />
               <span>Discovery</span>
@@ -143,12 +143,12 @@ export function MainDashboard() {
               <div className="flex items-center gap-3">
                 <Clock
                   className={`w-4 h-4 ${
-                    activeTab === "new" ? "text-red-500" : "text-slate-400"
+                    activeTab === "new" ? "text-amber-400" : "text-slate-400"
                   }`}
                 />
                 <span>Coming soon</span>
               </div>
-              <span className="w-4 h-4 rounded-full bg-red-600 text-white text-[9px] font-bold flex items-center justify-center">
+              <span className="w-4 h-4 rounded-full bg-amber-400 text-black text-[9px] font-bold flex items-center justify-center">
                 3
               </span>
             </button>
@@ -284,7 +284,7 @@ export function MainDashboard() {
               title="Submit Prompt"
             >
               <Bell className="w-4 h-4" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-600 rounded-full" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-amber-400 rounded-full" />
             </button>
 
             {/* Profile Chip */}

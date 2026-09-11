@@ -44,7 +44,7 @@ export function ComingSoonManagerTable({
 
         <button
           onClick={onOpenCreate}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold text-xs shadow-lg shadow-red-950/40 transition-all hover:scale-105"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs shadow-lg shadow-amber-950/40 transition-all hover:scale-105"
         >
           <Plus className="w-4 h-4" />
           <span>Add Roadmap Feature</span>
@@ -94,7 +94,7 @@ export function ComingSoonManagerTable({
                       </div>
                     </td>
                     <td className="p-4">
-                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-600/20 text-red-300 border border-red-500/30">
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
                         {f.badge}
                       </span>
                     </td>
@@ -110,7 +110,7 @@ export function ComingSoonManagerTable({
                         </button>
                         <button
                           onClick={() => handleDelete(f.id, f.title)}
-                          className="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400"
+                          className="p-1.5 rounded-lg hover:bg-amber-500/10 text-slate-400 hover:text-amber-400"
                           title="Delete"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

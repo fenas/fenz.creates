@@ -77,7 +77,7 @@ export function RightCompanionPanel() {
         <div className="space-y-3">
           <div className="flex items-center justify-between text-xs">
             <span className="font-bold text-white tracking-tight flex items-center gap-1.5">
-              <Flame className="w-3.5 h-3.5 text-red-500" />
+              <Flame className="w-3.5 h-3.5 text-amber-400" />
               Trending Now
             </span>
             <div className="flex items-center gap-1 text-[11px] text-slate-400 font-medium">
@@ -103,13 +103,13 @@ export function RightCompanionPanel() {
                 <div
                   key={p.id}
                   onClick={() => setActiveModalPrompt(p)}
-                  className="group relative rounded-2xl overflow-hidden bg-[#141724] border border-white/10 p-3 flex items-center justify-between gap-3 cursor-pointer hover:border-red-500/40 hover:bg-[#191d2d] transition-all"
+                  className="group relative rounded-2xl overflow-hidden bg-[#141724] border border-white/10 p-3 flex items-center justify-between gap-3 cursor-pointer hover:border-amber-400/40 hover:bg-[#191d2d] transition-all"
                 >
                   <div className="min-w-0 flex-1 space-y-1">
-                    <span className="text-[9px] font-bold text-red-500 uppercase tracking-wider">
+                    <span className="text-[9px] font-bold text-amber-400 uppercase tracking-wider">
                       {p.model}
                     </span>
-                    <h4 className="text-xs font-bold text-white truncate group-hover:text-red-300 transition-colors">
+                    <h4 className="text-xs font-bold text-white truncate group-hover:text-amber-300 transition-colors">
                       {p.title}
                     </h4>
                     <p className="text-[10px] text-slate-400 truncate font-mono">

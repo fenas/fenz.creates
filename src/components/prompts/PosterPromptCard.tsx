@@ -62,12 +62,12 @@ export function PosterPromptCard({ prompt }: PosterPromptCardProps) {
           onClick={handleSave}
           className={`p-1 rounded-full backdrop-blur-md transition-all ${
             saved
-              ? "bg-red-500 text-white"
+              ? "bg-amber-400 text-black"
               : "bg-black/50 text-slate-300 hover:text-white"
           }`}
           title="Save"
         >
-          <Bookmark className={`w-3 h-3 ${saved ? "fill-white" : ""}`} />
+          <Bookmark className={`w-3 h-3 ${saved ? "fill-black" : ""}`} />
         </button>
       </div>
 

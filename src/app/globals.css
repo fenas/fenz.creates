@@ -8,10 +8,10 @@
     --bg-card-hover: rgba(26, 30, 44, 0.85);
     --border-glass: rgba(255, 255, 255, 0.08);
     --border-glass-hover: rgba(255, 255, 255, 0.18);
-    --accent-red: #e50914;
+    --accent-yellow: #facc15;
+    --accent-amber: #f59e0b;
     --accent-violet: #8b5cf6;
     --accent-indigo: #6366f1;
-    --accent-amber: #f59e0b;
     --text-primary: #f8fafc;
     --text-secondary: #94a3b8;
     --text-muted: #64748b;
@@ -37,7 +37,7 @@
 .room-backdrop {
   background-image: radial-gradient(circle at 50% 20%, rgba(20, 24, 36, 0.6) 0%, rgba(6, 7, 10, 0.95) 80%),
     radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 10% 30%, rgba(229, 9, 20, 0.06) 0%, transparent 40%);
+    radial-gradient(circle at 10% 30%, rgba(245, 158, 11, 0.06) 0%, transparent 40%);
   background-attachment: fixed;
   background-size: cover;
 }
@@ -146,6 +146,6 @@
 
 .glass-input:focus {
   outline: none;
-  border-color: rgba(229, 9, 20, 0.5);
-  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.15);
+  border-color: rgba(234, 179, 8, 0.5);
+  box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.15);
 }

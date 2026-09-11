@@ -61,7 +61,7 @@ export function UnifiedHeader() {
               onClick={() => setSelectedMediaType("all")}
               className={`px-2.5 py-1 rounded-lg transition-all ${
                 selectedMediaType === "all"
-                  ? "bg-red-600 text-white font-bold"
+                  ? "bg-amber-400 text-black font-bold shadow-sm"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -71,7 +71,7 @@ export function UnifiedHeader() {
               onClick={() => setSelectedMediaType("image")}
               className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all ${
                 selectedMediaType === "image"
-                  ? "bg-red-600 text-white font-bold"
+                  ? "bg-amber-400 text-black font-bold shadow-sm"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -82,7 +82,7 @@ export function UnifiedHeader() {
               onClick={() => setSelectedMediaType("video")}
               className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all ${
                 selectedMediaType === "video"
-                  ? "bg-red-600 text-white font-bold"
+                  ? "bg-amber-400 text-black font-bold shadow-sm"
                   : "text-slate-400 hover:text-white"
               }`}
             >

@@ -144,7 +144,7 @@ export default function AdminPage() {
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={handleOpenCreatePrompt}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-red-600 to-violet-600 hover:from-red-500 hover:to-violet-500 text-white font-semibold text-xs shadow-lg shadow-red-950/40 transition-all hover:scale-105"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black font-bold text-xs shadow-lg shadow-amber-950/40 transition-all hover:scale-105"
             >
               <Plus className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Upload Prompt</span>
@@ -152,7 +152,7 @@ export default function AdminPage() {
 
             <button
               onClick={logoutAdmin}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl glass-pill text-xs font-semibold text-slate-400 hover:text-red-400 hover:border-red-500/30 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl glass-pill text-xs font-semibold text-slate-400 hover:text-amber-400 hover:border-amber-500/30 transition-colors"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Logout</span>
@@ -203,7 +203,7 @@ export default function AdminPage() {
           <div className="p-5 rounded-2xl floating-panel bg-[#0d0f17] border border-white/5 space-y-1">
             <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
               <span>Roadmap Features</span>
-              <Clock className="w-4 h-4 text-red-500" />
+              <Clock className="w-4 h-4 text-amber-400" />
             </div>
             <div className="text-2xl font-bold text-white">{comingSoon.length}</div>
             <div className="text-[11px] text-slate-400">
@@ -216,9 +216,9 @@ export default function AdminPage() {
         <div className="flex items-center gap-2 border-b border-white/5 pb-2 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveAdminTab("prompts")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
               activeAdminTab === "prompts"
-                ? "bg-red-600 text-white shadow-lg shadow-red-950/50"
+                ? "bg-amber-400 text-black shadow-lg shadow-amber-950/40"
                 : "glass-pill text-slate-400 hover:text-white"
             }`}
           >
@@ -228,9 +228,9 @@ export default function AdminPage() {
 
           <button
             onClick={() => setActiveAdminTab("tutorials")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
               activeAdminTab === "tutorials"
-                ? "bg-red-600 text-white shadow-lg shadow-red-950/50"
+                ? "bg-amber-400 text-black shadow-lg shadow-amber-950/40"
                 : "glass-pill text-slate-400 hover:text-white"
             }`}
           >
@@ -240,9 +240,9 @@ export default function AdminPage() {
 
           <button
             onClick={() => setActiveAdminTab("coming-soon")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
               activeAdminTab === "coming-soon"
-                ? "bg-red-600 text-white shadow-lg shadow-red-950/50"
+                ? "bg-amber-400 text-black shadow-lg shadow-amber-950/40"
                 : "glass-pill text-slate-400 hover:text-white"
             }`}
           >
@@ -252,9 +252,9 @@ export default function AdminPage() {
 
           <button
             onClick={() => setActiveAdminTab("categories")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
               activeAdminTab === "categories"
-                ? "bg-red-600 text-white shadow-lg shadow-red-950/50"
+                ? "bg-amber-400 text-black shadow-lg shadow-amber-950/40"
                 : "glass-pill text-slate-400 hover:text-white"
             }`}
           >

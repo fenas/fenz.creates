@@ -213,17 +213,17 @@ export function PromptDetailClient({
             {/* Negative prompt */}
             {prompt.negativePrompt && (
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs font-semibold text-red-300/80 uppercase">
+                <div className="flex items-center justify-between text-xs font-semibold text-amber-300/80 uppercase">
                   <span>Negative Prompt</span>
                   <button
                     onClick={handleCopyNegative}
-                    className="text-red-400 hover:text-red-300 flex items-center gap-1"
+                    className="text-amber-400 hover:text-amber-300 flex items-center gap-1"
                   >
                     {copiedNegative ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                     <span>{copiedNegative ? "Copied" : "Copy"}</span>
                   </button>
                 </div>
-                <div className="rounded-xl bg-red-950/20 border border-red-500/20 p-3 font-mono text-xs text-red-200 select-all">
+                <div className="rounded-xl bg-amber-950/20 border border-amber-500/20 p-3 font-mono text-xs text-amber-200 select-all">
                   {prompt.negativePrompt}
                 </div>
               </div>

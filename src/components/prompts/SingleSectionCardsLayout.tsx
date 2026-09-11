@@ -211,7 +211,7 @@ export function SingleSectionCardsLayout() {
           {comingSoon.map((feat) => (
             <div
               key={feat.id}
-              className="rounded-3xl floating-panel bg-[#0e1017]/95 border border-white/10 p-5 space-y-4 hover:border-red-500/40 transition-all group flex flex-col justify-between"
+              className="rounded-3xl floating-panel bg-[#0e1017]/95 border border-white/10 p-5 space-y-4 hover:border-amber-400/40 transition-all group flex flex-col justify-between"
             >
               <div className="space-y-3">
                 <div className="relative w-full h-40 rounded-2xl overflow-hidden bg-slate-900 border border-white/10">
@@ -225,7 +225,7 @@ export function SingleSectionCardsLayout() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
                   <div className="absolute top-3 left-3">
-                    <span className="px-2.5 py-1 rounded-full bg-red-600 text-white text-[10px] font-bold shadow-md">
+                    <span className="px-2.5 py-1 rounded-full bg-amber-400 text-black text-[10px] font-bold shadow-md">
                       {feat.badge}
                     </span>
                   </div>
@@ -255,7 +255,7 @@ export function SingleSectionCardsLayout() {
               </div>
 
               <div className="pt-2 text-center">
-                <span className="text-xs font-semibold text-red-400 flex items-center justify-center gap-1">
+                <span className="text-xs font-semibold text-amber-400 flex items-center justify-center gap-1">
                   <span>Launching {feat.eta}</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </span>
@@ -270,8 +270,8 @@ export function SingleSectionCardsLayout() {
         <>
           {filteredPrompts.length === 0 ? (
             <div className="w-full py-20 px-4 flex flex-col items-center justify-center text-center">
-              <div className="w-16 h-16 rounded-3xl bg-red-600/10 border border-red-500/20 flex items-center justify-center mb-4 shadow-xl">
-                <SearchX className="w-8 h-8 text-red-400" />
+              <div className="w-16 h-16 rounded-3xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center mb-4 shadow-xl">
+                <SearchX className="w-8 h-8 text-amber-400" />
               </div>
 
               <h3 className="text-lg font-bold text-white mb-1">
@@ -290,7 +290,7 @@ export function SingleSectionCardsLayout() {
                   setSelectedCategory("all");
                   setActiveTab("prompts");
                 }}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold text-xs shadow-lg shadow-red-950/50 hover:scale-105 active:scale-95 transition-all"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs shadow-lg shadow-amber-950/50 hover:scale-105 active:scale-95 transition-all"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Reset Filters & Explore</span>

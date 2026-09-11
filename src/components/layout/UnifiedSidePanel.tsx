@@ -54,7 +54,7 @@ export function UnifiedSidePanel({
       label: "Coming soon",
       icon: Clock,
       badge: "3",
-      badgeColor: "bg-red-600 text-white",
+      badgeColor: "bg-amber-400 text-black",
     },
     {
       id: "tutorials" as ViewTab,
@@ -97,13 +97,13 @@ export function UnifiedSidePanel({
               }}
               className="flex items-center gap-2.5 overflow-hidden group focus:outline-none"
             >
-              <div className="w-8 h-8 rounded-xl bg-red-600 flex items-center justify-center font-black text-white text-base shadow-lg shadow-red-950/50 flex-shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-8 h-8 rounded-xl bg-amber-400 flex items-center justify-center font-black text-black text-base shadow-lg shadow-amber-950/50 flex-shrink-0 group-hover:scale-105 transition-transform">
                 F
               </div>
               {!isCollapsed && (
                 <div className="flex flex-col truncate">
                   <span className="font-extrabold text-sm tracking-tight text-white flex items-center gap-1">
-                    <span className="text-red-500 font-black tracking-wider">FENZ</span>
+                    <span className="text-amber-400 font-black tracking-wider">FENZ</span>
                     <span className="text-slate-200">.CREATES</span>
                   </span>
                   <span className="text-[9px] text-slate-400 uppercase tracking-widest font-semibold">
@@ -164,7 +164,7 @@ export function UnifiedSidePanel({
 
                   {/* Collapsed Badge Dot */}
                   {item.badge && isCollapsed && (
-                    <span className="absolute top-2 right-3 w-2 h-2 rounded-full bg-red-600" />
+                    <span className="absolute top-2 right-3 w-2 h-2 rounded-full bg-amber-400" />
                   )}
                 </button>
               );
@@ -205,7 +205,7 @@ export function UnifiedSidePanel({
               <span className="font-mono text-white">v2.4</span>
             </div>
             <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
-              <div className="bg-gradient-to-r from-red-600 to-violet-600 h-full w-3/4 rounded-full" />
+              <div className="bg-gradient-to-r from-amber-500 to-yellow-400 h-full w-3/4 rounded-full" />
             </div>
             <p className="text-[10px] text-slate-400">
               Free to copy and remix prompts for AI creators.
@@ -218,7 +218,7 @@ export function UnifiedSidePanel({
           <button
             onClick={() => setIsSubmitModalOpen(true)}
             title="Submit Prompt"
-            className={`w-full flex items-center gap-2.5 py-2.5 px-3 rounded-xl bg-gradient-to-r from-red-600 to-violet-600 hover:from-red-500 hover:to-violet-500 text-white text-xs font-semibold shadow-lg shadow-red-950/40 transition-all hover:scale-[1.02] active:scale-[0.98] ${
+            className={`w-full flex items-center gap-2.5 py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black text-xs font-bold shadow-lg shadow-amber-950/40 transition-all hover:scale-[1.02] active:scale-[0.98] ${
               isCollapsed ? "justify-center px-0" : ""
             }`}
           >
@@ -257,7 +257,7 @@ export function UnifiedSidePanel({
                 <div className="relative">
                   <Icon className="w-5 h-5" />
                   {item.badge && (
-                    <span className="absolute -top-1 -right-2 w-3.5 h-3.5 bg-red-600 text-white text-[8px] font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1 -right-2 w-3.5 h-3.5 bg-amber-400 text-black text-[8px] font-bold rounded-full flex items-center justify-center">
                       {item.badge}
                     </span>
                   )}
