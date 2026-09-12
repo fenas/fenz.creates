@@ -145,19 +145,19 @@ export function PromptManagerTable({
       </div>
 
       {/* Prompts Table / Card List */}
-      <div className="rounded-2xl glass-panel bg-[#0c0e15] border border-white/5 overflow-hidden shadow-xl">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
+      <div className="rounded-2xl glass-panel bg-[#0c0e15] border border-white/5 overflow-hidden shadow-xl w-full">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left text-xs text-slate-300 table-auto">
             <thead className="bg-white/[0.02] border-b border-white/5 text-[11px] font-semibold text-[#A7A7A7] uppercase tracking-wider">
               <tr>
-                <th className="p-4">Prompt & Artwork</th>
-                <th className="p-4 hidden md:table-cell">Model / AR</th>
-                <th className="p-4 hidden lg:table-cell">Category</th>
-                <th className="p-4 text-center">Hero Banner</th>
-                <th className="p-4 text-center">Status</th>
-                <th className="p-4 text-center hidden sm:table-cell">Featured</th>
-                <th className="p-4 text-right hidden sm:table-cell">Copies</th>
-                <th className="p-4 text-right">Actions</th>
+                <th className="p-4 min-w-[260px]">Prompt & Artwork</th>
+                <th className="p-4 w-[130px] hidden md:table-cell">Model / AR</th>
+                <th className="p-4 w-[130px] hidden lg:table-cell">Category</th>
+                <th className="p-4 w-[140px] text-center">Hero Banner</th>
+                <th className="p-4 w-[110px] text-center">Status</th>
+                <th className="p-4 w-[90px] text-center hidden sm:table-cell">Featured</th>
+                <th className="p-4 w-[90px] text-right hidden sm:table-cell">Copies</th>
+                <th className="p-4 w-[170px] text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -181,8 +181,12 @@ export function PromptManagerTable({
                     >
                       {/* Prompt & Artwork */}
                       <td className="p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-slate-900 border border-white/10 flex-shrink-0">
+                        <div className="flex items-center gap-3.5">
+                          <Link
+                            href={`/prompt/${p.slug}`}
+                            target="_blank"
+                            className="relative w-12 h-12 rounded-xl overflow-hidden bg-slate-900 border border-white/10 flex-shrink-0 hover:border-[#E85002]/40 transition-colors"
+                          >
                             <Image
                               src={p.mediaUrl}
                               alt={p.title}
@@ -190,14 +194,18 @@ export function PromptManagerTable({
                               sizes="48px"
                               className="object-cover"
                             />
-                          </div>
-                          <div className="min-w-0 max-w-xs sm:max-w-sm">
-                            <div className="font-semibold text-white truncate flex items-center gap-1.5">
-                              <span>{p.title}</span>
+                          </Link>
+                          <div className="min-w-0 flex-1 max-w-sm sm:max-w-md lg:max-w-xl">
+                            <Link
+                              href={`/prompt/${p.slug}`}
+                              target="_blank"
+                              className="font-semibold text-white truncate flex items-center gap-1.5 hover:text-[#E85002] transition-colors"
+                            >
+                              <span className="truncate">{p.title}</span>
                               {p.type === "video" && (
-                                <Video className="w-3 h-3 text-[#E85002]" />
+                                <Video className="w-3 h-3 text-[#E85002] flex-shrink-0" />
                               )}
-                            </div>
+                            </Link>
                             <div className="text-[11px] text-[#A7A7A7] truncate font-mono mt-0.5">
                               {p.promptText}
                             </div>
@@ -206,7 +214,7 @@ export function PromptManagerTable({
                       </td>
 
                       {/* Model & Aspect Ratio */}
-                      <td className="p-4 hidden md:table-cell">
+                      <td className="p-4 hidden md:table-cell whitespace-nowrap">
                         <div className="space-y-0.5">
                           <div className="font-medium text-slate-200">{p.model}</div>
                           <div className="flex items-center gap-1.5">
@@ -218,14 +226,14 @@ export function PromptManagerTable({
                       </td>
 
                       {/* Category */}
-                      <td className="p-4 hidden lg:table-cell">
+                      <td className="p-4 hidden lg:table-cell whitespace-nowrap">
                         <span className="px-2.5 py-1 rounded-full text-[10px] font-medium bg-white/5 border border-white/10 text-slate-300">
                           {category?.name || "Uncategorized"}
                         </span>
                       </td>
 
                       {/* Hero Banner Toggle */}
-                      <td className="p-4 text-center">
+                      <td className="p-4 text-center whitespace-nowrap">
                         {isCurrentBanner ? (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#E85002]/20 text-[#F16001] border border-[#E85002]/40 shadow-sm shadow-[#E85002]/40">
                             <span>🌟 Active Banner</span>
@@ -242,7 +250,7 @@ export function PromptManagerTable({
                       </td>
 
                       {/* Status Toggle */}
-                      <td className="p-4 text-center">
+                      <td className="p-4 text-center whitespace-nowrap">
                         <button
                           onClick={() => handleToggleStatus(p)}
                           className={`px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all ${
@@ -256,7 +264,7 @@ export function PromptManagerTable({
                       </td>
 
                       {/* Featured Toggle */}
-                      <td className="p-4 text-center hidden sm:table-cell">
+                      <td className="p-4 text-center hidden sm:table-cell whitespace-nowrap">
                         <button
                           onClick={() => handleToggleFeatured(p)}
                           className={`p-1.5 rounded-lg transition-colors ${
@@ -273,12 +281,12 @@ export function PromptManagerTable({
                       </td>
 
                       {/* Copy Count */}
-                      <td className="p-4 text-right font-mono font-medium hidden sm:table-cell">
+                      <td className="p-4 text-right font-mono font-medium hidden sm:table-cell whitespace-nowrap">
                         {formatNumber(p.copyCount || 0)}
                       </td>
 
                       {/* Actions */}
-                      <td className="p-4 text-right">
+                      <td className="p-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1">
                           <button
                             onClick={() => handleCopyLink(p)}

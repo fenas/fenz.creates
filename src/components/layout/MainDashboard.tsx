@@ -184,17 +184,6 @@ export function MainDashboard() {
             </div>
           </div>
         </div>
-
-        {/* Bottom Rail Action */}
-        <div className="pt-4 border-t border-white/5 space-y-2">
-          <Link
-            href="/admin"
-            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-white/[0.04] transition-colors"
-          >
-            <Settings className="w-4 h-4 text-slate-400" />
-            <span>Settings</span>
-          </Link>
-        </div>
       </div>
 
       {/* Internal Center Content Area */}
@@ -288,9 +277,8 @@ export function MainDashboard() {
             </button>
 
             {/* Profile Chip */}
-            <Link
-              href="/admin"
-              className="flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-full netflix-pill group"
+            <div
+              className="flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-full netflix-pill group cursor-default"
             >
               <div className="relative w-6 h-6 rounded-full overflow-hidden bg-slate-800 border border-white/10">
                 <Image
@@ -305,12 +293,11 @@ export function MainDashboard() {
                 <span className="text-[11px] font-bold text-white leading-tight">
                   Fenas Sharma
                 </span>
-                <span className="text-[9px] text-slate-400 leading-tight">
+                <span className="text-[9px] text-[#A7A7A7] leading-tight">
                   @fenz.creates
                 </span>
               </div>
-              <ChevronDown className="w-3 h-3 text-slate-400 group-hover:text-white transition-colors ml-0.5" />
-            </Link>
+            </div>
           </div>
         </div>
 

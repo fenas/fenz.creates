@@ -7,7 +7,6 @@ import {
   Compass,
   Flame,
   Clock,
-  Bookmark,
   PlusCircle,
   ShieldCheck,
   Sparkles,
@@ -24,7 +23,6 @@ export function Sidebar() {
   const {
     activeTab,
     setActiveTab,
-    savedPromptIds,
     categories,
     selectedCategory,
     setSelectedCategory,
@@ -57,12 +55,6 @@ export function Sidebar() {
       label: "Recently Added",
       icon: Clock,
       count: null,
-    },
-    {
-      id: "saved" as ViewTab,
-      label: "Saved Prompts",
-      icon: Bookmark,
-      count: savedPromptIds.length > 0 ? savedPromptIds.length : null,
     },
   ];
 
@@ -196,25 +188,11 @@ export function Sidebar() {
           <button
             onClick={() => setIsSubmitModalOpen(true)}
             title="Submit Prompt"
-            className="w-full flex items-center justify-center lg:justify-start gap-2.5 px-3 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-medium text-xs shadow-lg shadow-violet-950/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full flex items-center justify-center lg:justify-start gap-2.5 px-3 py-2.5 rounded-xl bg-gradient-to-r from-[#E85002] to-[#F16001] hover:from-[#F16001] hover:to-[#E85002] text-white font-medium text-xs shadow-lg shadow-[#E85002]/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
             <PlusCircle className="w-4 h-4 flex-shrink-0" />
             <span className="hidden lg:inline">Submit Prompt</span>
           </button>
-
-          {/* Admin link */}
-          <Link
-            href="/admin"
-            title="Admin Portal"
-            className={`w-full flex items-center justify-center lg:justify-start gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
-              isAdminRoute
-                ? "bg-amber-500/15 text-amber-300 border border-amber-500/30"
-                : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]"
-            }`}
-          >
-            <ShieldCheck className="w-4 h-4 flex-shrink-0 text-amber-400" />
-            <span className="hidden lg:inline">Admin Studio</span>
-          </Link>
         </div>
       </aside>
 

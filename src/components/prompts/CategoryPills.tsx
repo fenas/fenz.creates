@@ -32,8 +32,6 @@ export function CategoryPills() {
     selectedCategory,
     setSelectedCategory,
     prompts,
-    activeTab,
-    setActiveTab,
   } = usePromptStore();
 
   // Count prompts per category
@@ -51,7 +49,6 @@ export function CategoryPills() {
         <button
           onClick={() => {
             setSelectedCategory("all");
-            if (activeTab === "saved") setActiveTab("discover");
           }}
           className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-semibold whitespace-nowrap transition-all duration-200 flex-shrink-0 ${
             selectedCategory === "all"
@@ -83,7 +80,6 @@ export function CategoryPills() {
               key={cat.id}
               onClick={() => {
                 setSelectedCategory(cat.id);
-                if (activeTab === "saved") setActiveTab("discover");
               }}
               className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-semibold whitespace-nowrap transition-all duration-200 flex-shrink-0 ${
                 isSelected

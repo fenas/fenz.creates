@@ -7,7 +7,6 @@ import {
   Sparkles,
   Clock,
   BookOpen,
-  Bookmark,
   PlusCircle,
   Settings,
   ChevronLeft,
@@ -32,7 +31,6 @@ export function UnifiedSidePanel({
     activeTab,
     setActiveTab,
     setSelectedCategory,
-    savedPromptIds,
     setIsSubmitModalOpen,
   } = usePromptStore();
 
@@ -170,30 +168,6 @@ export function UnifiedSidePanel({
               );
             })}
 
-            {/* Saved Tab */}
-            <button
-              onClick={() => setActiveTab("saved")}
-              title="Saved Prompts"
-              className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-xs font-semibold transition-all group ${
-                activeTab === "saved"
-                  ? "bg-[#202433] text-white shadow-md shadow-black/40 border border-white/10"
-                  : "text-slate-400 hover:text-white hover:bg-white/[0.05]"
-              } ${isCollapsed ? "justify-center px-0" : ""}`}
-            >
-              <Bookmark
-                className={`w-4 h-4 flex-shrink-0 ${
-                  activeTab === "saved" ? "text-white fill-white" : "text-slate-400 group-hover:text-white"
-                }`}
-              />
-              {!isCollapsed && (
-                <span className="truncate flex-1 text-left">Saved Formulas</span>
-              )}
-              {savedPromptIds.length > 0 && !isCollapsed && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-slate-300">
-                  {savedPromptIds.length}
-                </span>
-              )}
-            </button>
           </div>
         </div>
 
@@ -213,7 +187,7 @@ export function UnifiedSidePanel({
           </div>
         )}
 
-        {/* Bottom Actions: Submit & Admin Settings */}
+        {/* Bottom Actions: Submit */}
         <div className="p-3 border-t border-white/5 space-y-2">
           <button
             onClick={() => setIsSubmitModalOpen(true)}
@@ -225,17 +199,6 @@ export function UnifiedSidePanel({
             <PlusCircle className="w-4 h-4 flex-shrink-0" />
             {!isCollapsed && <span className="truncate">Submit Prompt</span>}
           </button>
-
-          <Link
-            href="/admin"
-            title="Admin Studio Settings"
-            className={`w-full flex items-center gap-2.5 py-2 px-3 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-white/[0.05] transition-colors ${
-              isCollapsed ? "justify-center px-0" : ""
-            }`}
-          >
-            <Settings className="w-4 h-4 flex-shrink-0 text-slate-400" />
-            {!isCollapsed && <span className="truncate">Settings / Studio</span>}
-          </Link>
         </div>
       </aside>
 

@@ -4,19 +4,17 @@ import React from "react";
 import Link from "next/link";
 import {
   Home,
-  Heart,
   Download,
   User,
   Settings,
   Sparkles,
-  Bookmark,
   ShieldCheck,
   Compass,
 } from "lucide-react";
 import { usePromptStore } from "@/context/PromptContext";
 
 export function LeftDock() {
-  const { activeTab, setActiveTab, setSelectedCategory, setIsSubmitModalOpen, savedPromptIds } =
+  const { activeTab, setActiveTab, setSelectedCategory, setIsSubmitModalOpen } =
     usePromptStore();
 
   return (
@@ -36,22 +34,6 @@ export function LeftDock() {
           }`}
         >
           <Home className="w-4 h-4" />
-        </button>
-
-        {/* Favorites / Saved Button */}
-        <button
-          onClick={() => setActiveTab("saved")}
-          title="Saved Prompts"
-          className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-            activeTab === "saved"
-              ? "bg-[#282d3d] text-white shadow-md shadow-black/40 scale-105"
-              : "text-slate-400 hover:text-white hover:bg-white/10"
-          }`}
-        >
-          <Heart className={`w-4 h-4 ${savedPromptIds.length > 0 && activeTab === "saved" ? "fill-current text-[#E85002]" : ""}`} />
-          {savedPromptIds.length > 0 && (
-            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#E85002]" />
-          )}
         </button>
 
         {/* Trending / Downloads Button */}
@@ -75,15 +57,6 @@ export function LeftDock() {
         >
           <User className="w-4 h-4" />
         </button>
-
-        {/* Admin / Settings Link */}
-        <Link
-          href="/admin"
-          title="Admin Studio Settings"
-          className="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all"
-        >
-          <Settings className="w-4 h-4" />
-        </Link>
       </div>
     </aside>
   );

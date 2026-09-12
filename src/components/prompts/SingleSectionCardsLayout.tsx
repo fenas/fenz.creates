@@ -108,13 +108,6 @@ export function SingleSectionCardsLayout() {
         count: `${comingSoon.length} items`,
       };
     }
-    if (activeTab === "saved") {
-      return {
-        title: "Your Saved Collection",
-        subtitle: "Prompts you have bookmarked for quick reference and generation",
-        count: `${filteredPrompts.length} saved`,
-      };
-    }
     if (selectedCategory !== "all") {
       const cat = categories.find((c) => c.id === selectedCategory);
       return {
@@ -388,9 +381,7 @@ export function SingleSectionCardsLayout() {
               </h3>
 
               <p className="text-sm text-slate-400 max-w-sm mb-6">
-                {activeTab === "saved"
-                  ? "You haven't bookmarked any prompt formulas yet. Click the bookmark icon on any card to save it here."
-                  : `No formulas matching your search query or category filter.`}
+                No formulas matching your search query or category filter.
               </p>
 
               <button

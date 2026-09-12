@@ -96,7 +96,7 @@ export function CategoryManager() {
       {/* Category List */}
       <div className="lg:col-span-7 space-y-3">
         <h3 className="text-sm font-bold text-white flex items-center gap-2">
-          <Layers className="w-4 h-4 text-violet-400" />
+          <Layers className="w-4 h-4 text-[#E85002]" />
           Active Categories ({categories.length})
         </h3>
 
@@ -147,7 +147,7 @@ export function CategoryManager() {
                       </button>
                       <button
                         onClick={() => saveEdit(cat.id)}
-                        className="px-3 py-1 rounded-lg bg-emerald-600 text-white text-xs font-semibold"
+                        className="px-3 py-1 rounded-lg bg-[#E85002] text-white text-xs font-semibold"
                       >
                         Save
                       </button>
@@ -157,16 +157,16 @@ export function CategoryManager() {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2 font-semibold text-white text-sm">
-                        <span className="p-1.5 rounded-lg bg-violet-600/15 text-violet-400 border border-violet-500/20">
+                        <span className="p-1.5 rounded-lg bg-[#E85002]/15 text-[#F16001] border border-[#E85002]/20">
                           <Sparkles className="w-3.5 h-3.5" />
                         </span>
                         <span>{cat.name}</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 text-slate-400 font-mono">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 text-[#A7A7A7] font-mono">
                           {count} prompts
                         </span>
                       </div>
                       {cat.description && (
-                        <p className="text-xs text-slate-400 mt-1 line-clamp-2">
+                        <p className="text-xs text-[#A7A7A7] mt-1 line-clamp-2">
                           {cat.description}
                         </p>
                       )}
@@ -175,14 +175,14 @@ export function CategoryManager() {
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => startEdit(cat)}
-                        className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white"
+                        className="p-1.5 rounded-lg hover:bg-white/10 text-[#A7A7A7] hover:text-white"
                         title="Edit"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => handleDelete(cat.id, cat.name)}
-                        className="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400"
+                        className="p-1.5 rounded-lg hover:bg-[#E85002]/10 text-[#A7A7A7] hover:text-[#E85002]"
                         title="Delete"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -200,7 +200,7 @@ export function CategoryManager() {
       <div className="lg:col-span-5">
         <div className="p-5 rounded-3xl glass-panel bg-[#0d0f17] border border-white/10 space-y-4">
           <h3 className="text-sm font-bold text-white flex items-center gap-2">
-            <Plus className="w-4 h-4 text-violet-400" />
+            <Plus className="w-4 h-4 text-[#E85002]" />
             Add New Category
           </h3>
 
@@ -251,7 +251,7 @@ export function CategoryManager() {
 
             <button
               type="submit"
-              className="w-full py-2.5 px-4 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-xs transition-all shadow-lg shadow-violet-950/50 hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#E85002] to-[#F16001] hover:from-[#F16001] hover:to-[#E85002] text-white font-bold text-xs transition-all shadow-lg shadow-[#E85002]/30 hover:scale-[1.02] active:scale-[0.98]"
             >
               Create Category
             </button>

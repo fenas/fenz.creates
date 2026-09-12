@@ -8,7 +8,7 @@
     --bg-card-hover: rgba(36, 36, 40, 0.9);
     --border-glass: rgba(255, 255, 255, 0.08);
     --border-glass-hover: rgba(255, 255, 255, 0.18);
-    
+
     /* Official Brand Palette Tokens */
     --brand-orange: #E85002;
     --brand-orange-bright: #F16001;
@@ -18,7 +18,7 @@
     --brand-gray: #646464;
     --brand-light-gray: #A7A7A7;
     --brand-white: #F9F9F9;
-    
+
     --text-primary: #F9F9F9;
     --text-secondary: #A7A7A7;
     --text-muted: #646464;

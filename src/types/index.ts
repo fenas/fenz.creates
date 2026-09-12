@@ -70,6 +70,6 @@ export interface ComingSoonFeature {
   createdAt?: string;
 }
 
-export type ViewTab = "home" | "prompts" | "coming-soon" | "tutorials" | "saved" | "discover" | "trending" | "new";
+export type ViewTab = "home" | "prompts" | "coming-soon" | "tutorials" | "discover" | "trending" | "new";
 
 export type SortOption = "trending" | "newest" | "most-copied" | "alphabetical";

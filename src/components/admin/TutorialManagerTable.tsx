@@ -62,22 +62,22 @@ export function TutorialManagerTable({
         </button>
       </div>
 
-      <div className="rounded-2xl floating-panel bg-[#0c0e15] border border-white/5 overflow-hidden shadow-xl">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-white/[0.02] border-b border-white/5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+      <div className="rounded-2xl floating-panel bg-[#0c0e15] border border-white/5 overflow-hidden shadow-xl w-full">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left text-xs text-slate-300 table-auto">
+            <thead className="bg-white/[0.02] border-b border-white/5 text-[11px] font-semibold text-[#A7A7A7] uppercase tracking-wider">
               <tr>
-                <th className="p-4">Tutorial Guide</th>
-                <th className="p-4">Model Focus</th>
-                <th className="p-4">Level</th>
-                <th className="p-4">Read Time</th>
-                <th className="p-4 text-right">Actions</th>
+                <th className="p-4 min-w-[320px]">Tutorial Guide</th>
+                <th className="p-4 w-[160px]">Model Focus</th>
+                <th className="p-4 w-[120px]">Level</th>
+                <th className="p-4 w-[140px]">Read Time</th>
+                <th className="p-4 w-[180px] text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-slate-400">
+                  <td colSpan={5} className="p-8 text-center text-[#A7A7A7]">
                     No tutorials uploaded yet. Click &quot;Upload Tutorial&quot; to publish one.
                   </td>
                 </tr>
@@ -99,13 +99,13 @@ export function TutorialManagerTable({
                             className="object-cover"
                           />
                         </Link>
-                        <div className="min-w-0 max-w-sm">
+                        <div className="min-w-0 flex-1 max-w-sm sm:max-w-md lg:max-w-xl">
                           <Link
                             href={`/tutorial/${t.slug}`}
                             target="_blank"
                             className="font-semibold text-white truncate hover:text-[#E85002] transition-colors flex items-center gap-1.5"
                           >
-                            <span>{t.title}</span>
+                            <span className="truncate">{t.title}</span>
                             <ExternalLink className="w-3 h-3 text-[#A7A7A7] opacity-60 flex-shrink-0" />
                           </Link>
                           <div className="text-[11px] text-[#A7A7A7] truncate mt-0.5 font-mono">
@@ -114,14 +114,14 @@ export function TutorialManagerTable({
                         </div>
                       </div>
                     </td>
-                    <td className="p-4 font-semibold text-[#E85002]">{t.model}</td>
-                    <td className="p-4">
+                    <td className="p-4 font-semibold text-[#E85002] whitespace-nowrap">{t.model}</td>
+                    <td className="p-4 whitespace-nowrap">
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white/5 text-slate-300">
                         {t.level}
                       </span>
                     </td>
-                    <td className="p-4 text-[#A7A7A7] font-mono">{t.readTime}</td>
-                    <td className="p-4 text-right">
+                    <td className="p-4 text-[#A7A7A7] font-mono whitespace-nowrap">{t.readTime}</td>
+                    <td className="p-4 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1.5">
                         <button
                           onClick={() => handleCopyLink(t)}

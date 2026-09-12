@@ -7,7 +7,6 @@ import {
   Sparkles,
   Clock,
   BookOpen,
-  Bookmark,
   Settings,
   Images,
 } from "lucide-react";
@@ -20,7 +19,6 @@ export function SlimIconSidebar() {
     activeTab,
     setActiveTab,
     setSelectedCategory,
-    savedPromptIds,
   } = usePromptStore();
 
   const navItems = [
@@ -128,55 +126,7 @@ export function SlimIconSidebar() {
               );
             })}
 
-            {/* Saved Formulas Button */}
-            <div className="relative group flex items-center justify-center w-full">
-              <button
-                onClick={() => setActiveTab("saved")}
-                className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 relative ${
-                  activeTab === "saved"
-                    ? "bg-[#202433] text-white shadow-md shadow-black/50 border border-white/10 scale-105"
-                    : "text-slate-400 hover:text-white hover:bg-white/[0.08]"
-                }`}
-              >
-                <Bookmark
-                  className={`w-5 h-5 transition-transform group-hover:scale-110 ${
-                    activeTab === "saved"
-                      ? "text-white fill-white"
-                      : "text-slate-400 group-hover:text-white"
-                  }`}
-                />
-                {savedPromptIds.length > 0 && (
-                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#E85002]" />
-                )}
-              </button>
-
-              {/* Tooltip */}
-              <div className="absolute left-full ml-3.5 px-4 py-2 rounded-full bg-[#1c1f2b] text-white text-xs font-bold shadow-2xl border border-white/10 whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2 transition-all duration-200 z-50 flex items-center gap-2">
-                <span>Saved Formulas</span>
-                {savedPromptIds.length > 0 && (
-                  <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-white text-[9px] font-bold">
-                    {savedPromptIds.length}
-                  </span>
-                )}
-              </div>
-            </div>
           </nav>
-        </div>
-
-        {/* Bottom Actions: Admin Settings */}
-        <div className="flex flex-col items-center gap-3 w-full px-2 pt-4 border-t border-white/5">
-          <div className="relative group flex items-center justify-center w-full">
-            <Link
-              href="/admin"
-              className="w-12 h-12 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/[0.08] transition-all"
-            >
-              <Settings className="w-5 h-5 text-slate-400 group-hover:rotate-45 transition-transform" />
-            </Link>
-
-            <div className="absolute left-full ml-3.5 px-4 py-2 rounded-full bg-[#1c1f2b] text-white text-xs font-bold shadow-2xl border border-white/10 whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2 transition-all duration-200 z-50">
-              Admin Studio
-            </div>
-          </div>
         </div>
       </aside>
 

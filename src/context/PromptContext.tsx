@@ -302,7 +302,7 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         showToast("Removed from Saved", "info");
       } else {
         setSavedPromptIds((prev) => [...prev, promptId]);
-        showToast("Saved to Favorites", "success", "You can find it in the Saved tab.");
+        showToast("Saved to Favorites", "success");
       }
     },
     [savedPromptIds, showToast]
@@ -530,10 +530,6 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
     return prompts
       .filter((prompt) => {
         if (prompt.status !== "published") return false;
-
-        if (activeTab === "saved" && !savedPromptIds.includes(prompt.id)) {
-          return false;
-        }
 
         if (selectedCategory !== "all" && prompt.categoryId !== selectedCategory) {
           return false;

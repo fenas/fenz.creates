@@ -118,7 +118,7 @@ export default function AdminPage() {
     <div className="min-h-screen bg-[#06070a] text-white pb-24">
       {/* Admin Top Navbar */}
       <header className="sticky top-0 z-30 floating-panel bg-[#090b10]/95 border-b border-white/10 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
               href="/"
@@ -162,7 +162,7 @@ export default function AdminPage() {
       </header>
 
       {/* Main Studio Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Metric Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="p-5 rounded-2xl floating-panel bg-[#0d0f17] border border-white/5 space-y-1">

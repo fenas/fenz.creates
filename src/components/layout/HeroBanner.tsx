@@ -5,9 +5,9 @@ import { Sparkles, Dices, Flame, Shield, Zap, ArrowDown } from "lucide-react";
 import { usePromptStore } from "@/context/PromptContext";
 
 export function HeroBanner() {
-  const { triggerRandomPrompt, setActiveTab, activeTab, selectedCategory } = usePromptStore();
+  const { triggerRandomPrompt, setActiveTab, selectedCategory } = usePromptStore();
 
-  if (activeTab === "saved" || selectedCategory !== "all") {
+  if (selectedCategory !== "all") {
     return null;
   }
 

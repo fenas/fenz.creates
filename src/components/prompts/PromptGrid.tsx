@@ -3,7 +3,7 @@
 import React from "react";
 import { Prompt } from "@/types";
 import { PromptCard } from "./PromptCard";
-import { Sparkles, SearchX, BookmarkX, RotateCcw } from "lucide-react";
+import { SearchX, RotateCcw } from "lucide-react";
 import { usePromptStore } from "@/context/PromptContext";
 
 interface PromptGridProps {
@@ -12,7 +12,6 @@ interface PromptGridProps {
 
 export function PromptGrid({ prompts }: PromptGridProps) {
   const {
-    activeTab,
     searchQuery,
     setSearchQuery,
     setSelectedCategory,
@@ -33,23 +32,15 @@ export function PromptGrid({ prompts }: PromptGridProps) {
     return (
       <div className="w-full py-20 px-4 flex flex-col items-center justify-center text-center">
         <div className="w-16 h-16 rounded-3xl bg-violet-600/10 border border-violet-500/20 flex items-center justify-center mb-4 shadow-lg shadow-violet-950/30">
-          {activeTab === "saved" ? (
-            <BookmarkX className="w-8 h-8 text-violet-400" />
-          ) : (
-            <SearchX className="w-8 h-8 text-violet-400" />
-          )}
+          <SearchX className="w-8 h-8 text-violet-400" />
         </div>
 
         <h3 className="text-lg font-bold text-white mb-1">
-          {activeTab === "saved"
-            ? "No saved prompts yet"
-            : "No prompts found"}
+          No prompts found
         </h3>
 
         <p className="text-sm text-slate-400 max-w-sm mb-6">
-          {activeTab === "saved"
-            ? "Tap the bookmark icon on any prompt card to save your favorite AI art formulas here for quick access."
-            : searchQuery
+          {searchQuery
             ? `We couldn't find any prompts matching "${searchQuery}". Try different keywords or reset filters.`
             : "Try adjusting your category, model, or media type filters to discover more prompts."}
         </p>
@@ -59,7 +50,7 @@ export function PromptGrid({ prompts }: PromptGridProps) {
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-xs transition-all shadow-lg shadow-violet-950/50 hover:scale-105 active:scale-95"
         >
           <RotateCcw className="w-3.5 h-3.5" />
-          <span>{activeTab === "saved" ? "Explore Prompts" : "Reset All Filters"}</span>
+          <span>Reset All Filters</span>
         </button>
       </div>
     );
