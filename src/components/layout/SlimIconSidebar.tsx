@@ -35,16 +35,16 @@ export function SlimIconSidebar() {
       badge: null,
     },
     {
+      id: "tutorials" as ViewTab,
+      label: "Workflows",
+      icon: BookOpen,
+      badge: null,
+    },
+    {
       id: "coming-soon" as ViewTab,
       label: "Coming soon",
       icon: Clock,
       badge: "3",
-    },
-    {
-      id: "tutorials" as ViewTab,
-      label: "Tutorials",
-      icon: BookOpen,
-      badge: null,
     },
   ];
 

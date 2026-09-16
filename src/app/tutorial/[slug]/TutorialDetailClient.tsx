@@ -20,6 +20,7 @@ import {
 import { Tutorial } from "@/types";
 import { usePromptStore } from "@/context/PromptContext";
 import { useToast } from "@/components/ui/Toast";
+import { RichTutorialContent } from "./RichTutorialContent";
 
 export function TutorialDetailClient({
   initialTutorial,
@@ -162,6 +163,10 @@ export function TutorialDetailClient({
           </div>
         </div>
 
+        {tutorial.body?.trim() ? (
+          <RichTutorialContent body={tutorial.body} />
+        ) : (
+          <>
         {/* Section 1: Step-by-Step Breakdown */}
         <section className="space-y-4 pt-4">
           <div className="flex items-center gap-2">
@@ -211,6 +216,9 @@ export function TutorialDetailClient({
               ))}
             </div>
           </section>
+        )}
+
+          </>
         )}
 
         {/* Section 3: Master Formula Blueprint Box */}

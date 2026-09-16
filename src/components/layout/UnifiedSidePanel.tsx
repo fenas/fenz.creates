@@ -48,18 +48,18 @@ export function UnifiedSidePanel({
       badge: null,
     },
     {
+      id: "tutorials" as ViewTab,
+      label: "Workflows",
+      icon: BookOpen,
+      badge: "NEW",
+      badgeColor: "bg-white/10 text-white border border-white/10",
+    },
+    {
       id: "coming-soon" as ViewTab,
       label: "Coming soon",
       icon: Clock,
       badge: "3",
       badgeColor: "bg-[#E85002] text-white",
-    },
-    {
-      id: "tutorials" as ViewTab,
-      label: "Tutorials",
-      icon: BookOpen,
-      badge: "NEW",
-      badgeColor: "bg-white/10 text-white border border-white/10",
     },
   ];
 

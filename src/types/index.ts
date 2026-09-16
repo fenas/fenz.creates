@@ -55,6 +55,7 @@ export interface Tutorial {
   content: string[];
   tips: string[];
   samplePrompt: string;
+  body?: string;
   createdAt?: string;
 }
 
