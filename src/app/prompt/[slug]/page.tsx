@@ -19,8 +19,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const prompt = initialPrompts.find((p) => p.slug === slug);
 
   if (!prompt) {
+    const formattedTitle = slug
+      .split("-")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
+
     return {
-      title: "Prompt Not Found - fenz.creates",
+      title: `${formattedTitle} — AI Prompt Showcase | fenz.creates`,
+      description: "AI Prompt formula showcase and parameter breakdown.",
     };
   }
 
@@ -53,11 +59,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PromptPage({ params }: Props) {
   const { slug } = await params;
-  const initialPrompt = initialPrompts.find((p) => p.slug === slug);
+  const initialPrompt = initialPrompts.find((p) => p.slug === slug) || null;
 
-  if (!initialPrompt) {
-    notFound();
-  }
-
-  return <PromptDetailClient initialPrompt={initialPrompt} />;
+  return <PromptDetailClient initialPrompt={initialPrompt} slug={slug} />;
 }
+

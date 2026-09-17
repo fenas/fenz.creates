@@ -30,12 +30,12 @@ export default function Home() {
     selectedCategory === "all";
 
   return (
-    <div className="min-h-screen room-backdrop bg-[#03081e] text-white flex flex-col md:flex-row relative overflow-x-hidden">
+    <div className="min-h-screen room-backdrop text-[var(--text-primary)] flex flex-col md:flex-row relative overflow-x-hidden transition-colors duration-200">
       {/* Permanent Slim Icon-Only Left Sidebar */}
       <SlimIconSidebar />
 
       {/* Main Content Area — Margin Left Offset to Guarantee Zero Overlap */}
-      <main className="flex-1 w-full md:ml-20 md:w-[calc(100%-5rem)] flex flex-col p-4 sm:p-6 lg:p-8 pb-24 md:pb-12 min-w-0">
+      <main className="flex-1 w-full md:ml-24 md:w-[calc(100%-6rem)] flex flex-col p-4 sm:p-6 lg:p-8 pb-24 md:pb-12 min-w-0">
         <div className="max-w-7xl w-full mx-auto space-y-6">
           {/* Top Header */}
           <UnifiedHeader />

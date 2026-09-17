@@ -3,12 +3,8 @@
 import React, { useState } from "react";
 import {
   X,
-  Plus,
   Sparkles,
-  Image as ImageIcon,
-  Check,
   Send,
-  Layers,
 } from "lucide-react";
 import { usePromptStore } from "@/context/PromptContext";
 import { AspectRatio } from "@/types";
@@ -22,7 +18,8 @@ export function SubmitPromptModal() {
   const [title, setTitle] = useState("");
   const [promptText, setPromptText] = useState("");
   const [negativePrompt, setNegativePrompt] = useState("");
-  const [mediaUrl, setMediaUrl] = useState("");
+  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
+  const [urlInput, setUrlInput] = useState("");
   const [model, setModel] = useState("Midjourney v6");
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("1:1");
   const [categoryId, setCategoryId] = useState(categories[0]?.id || "cat-photoreal");
@@ -43,6 +40,39 @@ export function SubmitPromptModal() {
     setTags(tags.filter((t) => t !== tag));
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const fileList = Array.from(files);
+    const validFiles = fileList.filter((f) => f.type.startsWith("image/"));
+    if (validFiles.length === 0) return;
+
+    const readers = validFiles.map((file) => {
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (reader.result) resolve(reader.result.toString());
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    Promise.all(readers).then((newImages) => {
+      setMediaUrls((prev) => [...prev, ...newImages]);
+      showToast(`Added ${newImages.length} image(s)`, "success");
+    });
+    e.target.value = "";
+  };
+
+  const handleAddUrl = () => {
+    if (urlInput.trim()) {
+      setMediaUrls((prev) => [...prev, urlInput.trim()]);
+      setUrlInput("");
+      showToast("Image URL added", "success");
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !promptText.trim()) {
@@ -52,15 +82,17 @@ export function SubmitPromptModal() {
 
     setIsSubmitting(true);
 
-    const fallbackImage =
-      mediaUrl.trim() ||
-      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop";
+    const finalUrls =
+      mediaUrls.length > 0
+        ? mediaUrls
+        : ["https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop"];
 
     addPrompt({
       title: title.trim(),
       promptText: promptText.trim(),
       negativePrompt: negativePrompt.trim() || undefined,
-      mediaUrl: fallbackImage,
+      mediaUrl: finalUrls[0],
+      mediaUrls: finalUrls,
       type: "image",
       model,
       aspectRatio,
@@ -80,42 +112,43 @@ export function SubmitPromptModal() {
     setTitle("");
     setPromptText("");
     setNegativePrompt("");
-    setMediaUrl("");
+    setMediaUrls([]);
+    setUrlInput("");
     setTags(["Community", "Creative"]);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto bg-black/60 animate-in fade-in duration-150">
       <div
         className="fixed inset-0"
         onClick={() => setIsSubmitModalOpen(false)}
       />
 
-      <div className="relative w-full max-w-xl rounded-3xl glass-panel bg-[#0d0f17] border border-white/10 shadow-2xl z-10 overflow-hidden my-auto">
+      <div className="relative w-full max-w-xl rounded-[22px] bg-[var(--surface-elevated)] border border-[var(--border)] shadow-[0_12px_32px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)] z-10 overflow-hidden my-auto">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between bg-[#0a0c12]/90">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-violet-400" />
+        <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between bg-[var(--surface-elevated)]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-[var(--icon-secondary)] stroke-[1.75]" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">Submit AI Prompt</h2>
-              <p className="text-[11px] text-slate-400">Share your best prompt formulas with creators</p>
+              <h2 className="text-sm font-medium text-[var(--text-primary)]">Submit Prompt Blueprint</h2>
+              <p className="text-[11px] text-[var(--text-secondary)]">Share your formulas with the community</p>
             </div>
           </div>
 
           <button
             onClick={() => setIsSubmitModalOpen(false)}
-            className="p-1.5 rounded-xl bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white transition-colors"
+            className="p-1.5 rounded-[8px] bg-[var(--surface-muted)] hover:bg-[var(--surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border)] transition-colors"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4 stroke-[1.75]" />
           </button>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+            <label className="block text-xs font-medium text-[var(--text-primary)] mb-1.5">
               Artwork Title *
             </label>
             <input
@@ -124,87 +157,87 @@ export function SubmitPromptModal() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Cyberpunk Samurai in Neon Rain"
-              className="w-full px-3.5 py-2.5 rounded-xl glass-input text-xs sm:text-sm"
+              className="w-full px-3.5 py-2.5 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-secondary)] shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.06)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-              Full AI Prompt Text *
+            <label className="block text-xs font-medium text-[var(--text-primary)] mb-1.5">
+              Prompt Blueprint Text *
             </label>
             <textarea
               required
               rows={3}
               value={promptText}
               onChange={(e) => setPromptText(e.target.value)}
-              placeholder="Paste the exact prompt text including modifiers (e.g. cinematic lighting, 8k, --ar 16:9)..."
-              className="w-full px-3.5 py-2.5 rounded-xl glass-input text-xs font-mono leading-relaxed resize-none"
+              placeholder="Paste the exact prompt text including parameters (e.g. cinematic lighting, 8k, --ar 16:9)..."
+              className="w-full px-3.5 py-2.5 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs font-mono text-[var(--text-primary)] placeholder-[var(--text-muted)] leading-relaxed resize-none focus:outline-none focus:border-[var(--text-secondary)] shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.06)]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-              Negative Prompt (Optional)
+            <label className="block text-xs font-medium text-[var(--text-primary)] mb-1.5">
+              Negative Parameters (Optional)
             </label>
             <input
               type="text"
               value={negativePrompt}
               onChange={(e) => setNegativePrompt(e.target.value)}
-              placeholder="e.g. blur, low quality, deformed hands, cartoon"
-              className="w-full px-3.5 py-2 rounded-xl glass-input text-xs font-mono text-slate-300"
+              placeholder="e.g. blur, low quality, deformed hands"
+              className="w-full px-3.5 py-2 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs font-mono text-[var(--text-secondary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-secondary)] shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.06)]"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                AI Model / Tool
+              <label className="block text-xs font-medium text-[var(--text-primary)] mb-1.5">
+                AI Engine
               </label>
               <select
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl glass-input text-xs appearance-none cursor-pointer"
+                className="w-full px-3 py-2 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] cursor-pointer focus:outline-none focus:border-[var(--text-secondary)]"
               >
-                <option value="Midjourney v6" className="bg-[#0f1117]">Midjourney v6</option>
-                <option value="Flux.1 Pro" className="bg-[#0f1117]">Flux.1 Pro</option>
-                <option value="SDXL" className="bg-[#0f1117]">Stable Diffusion XL</option>
-                <option value="DALL-E 3" className="bg-[#0f1117]">DALL-E 3</option>
-                <option value="Ideogram 2.0" className="bg-[#0f1117]">Ideogram 2.0</option>
-                <option value="Runway Gen-3" className="bg-[#0f1117]">Runway Gen-3 (Video)</option>
+                <option value="Midjourney v6" className="bg-[var(--surface-elevated)] text-[var(--text-primary)]">Midjourney v6</option>
+                <option value="Flux.1 Pro" className="bg-[var(--surface-elevated)] text-[var(--text-primary)]">Flux.1 Pro</option>
+                <option value="SDXL" className="bg-[var(--surface-elevated)] text-[var(--text-primary)]">Stable Diffusion XL</option>
+                <option value="DALL-E 3" className="bg-[var(--surface-elevated)] text-[var(--text-primary)]">DALL-E 3</option>
+                <option value="Ideogram 2.0" className="bg-[var(--surface-elevated)] text-[var(--text-primary)]">Ideogram 2.0</option>
+                <option value="Runway Gen-3" className="bg-[var(--surface-elevated)] text-[var(--text-primary)]">Runway Gen-3 (Video)</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-medium text-[var(--text-primary)] mb-1.5">
                 Aspect Ratio
               </label>
               <select
                 value={aspectRatio}
                 onChange={(e) => setAspectRatio(e.target.value as AspectRatio)}
-                className="w-full px-3 py-2 rounded-xl glass-input text-xs appearance-none cursor-pointer font-mono"
+                className="w-full px-3 py-2 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] font-mono cursor-pointer focus:outline-none focus:border-[var(--text-secondary)]"
               >
-                <option value="1:1" className="bg-[#0f1117]">1:1 (Square)</option>
-                <option value="16:9" className="bg-[#0f1117]">16:9 (Landscape / Cinema)</option>
-                <option value="9:16" className="bg-[#0f1117]">9:16 (Story / Reels)</option>
-                <option value="4:5" className="bg-[#0f1117]">4:5 (Instagram Portrait)</option>
-                <option value="3:2" className="bg-[#0f1117]">3:2 (Classic 35mm)</option>
-                <option value="21:9" className="bg-[#0f1117]">21:9 (Ultrawide)</option>
+                <option value="1:1" className="bg-[var(--surface-elevated)] text-[var(--text-primary)]">1:1 (Square)</option>
+                <option value="16:9" className="bg-[var(--surface-elevated)] text-[var(--text-primary)]">16:9 (Landscape / Cinema)</option>
+                <option value="9:16" className="bg-[var(--surface-elevated)] text-[var(--text-primary)]">9:16 (Story / Reels)</option>
+                <option value="4:5" className="bg-[var(--surface-elevated)] text-[var(--text-primary)]">4:5 (Instagram Portrait)</option>
+                <option value="3:2" className="bg-[var(--surface-elevated)] text-[var(--text-primary)]">3:2 (Classic 35mm)</option>
+                <option value="21:9" className="bg-[var(--surface-elevated)] text-[var(--text-primary)]">21:9 (Ultrawide)</option>
               </select>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-medium text-[var(--text-primary)] mb-1.5">
                 Category
               </label>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl glass-input text-xs appearance-none cursor-pointer"
+                className="w-full px-3 py-2 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] cursor-pointer focus:outline-none focus:border-[var(--text-secondary)]"
               >
                 {categories.map((c) => (
-                  <option key={c.id} value={c.id} className="bg-[#0f1117]">
+                  <option key={c.id} value={c.id} className="bg-[var(--surface-elevated)] text-[var(--text-primary)]">
                     {c.name}
                   </option>
                 ))}
@@ -212,23 +245,50 @@ export function SubmitPromptModal() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                Image Preview URL (Optional)
-              </label>
-              <input
-                type="url"
-                value={mediaUrl}
-                onChange={(e) => setMediaUrl(e.target.value)}
-                placeholder="https://... (or leave blank for placeholder)"
-                className="w-full px-3 py-2 rounded-xl glass-input text-xs"
-              />
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-medium text-[var(--text-primary)]">
+                  Artwork Files ({mediaUrls.length})
+                </label>
+                <label className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer text-[11px] font-mono">
+                  + Upload Image
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+              <div className="flex gap-1.5">
+                <input
+                  type="url"
+                  value={urlInput}
+                  onChange={(e) => setUrlInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddUrl();
+                    }
+                  }}
+                  placeholder="Paste image URL..."
+                  className="w-full px-3 py-2 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-secondary)] shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.06)]"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddUrl}
+                  className="px-3 py-1 rounded-[10px] bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-xs font-medium text-[var(--text-primary)]"
+                >
+                  Add
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Tags */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-              Tags
+            <label className="block text-xs font-medium text-[var(--text-primary)] mb-1.5">
+              Style Tags
             </label>
             <div className="flex gap-2">
               <input
@@ -242,12 +302,12 @@ export function SubmitPromptModal() {
                   }
                 }}
                 placeholder="Add tags (press Enter)..."
-                className="flex-1 px-3 py-2 rounded-xl glass-input text-xs"
+                className="flex-1 px-3 py-2 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-secondary)] shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.06)]"
               />
               <button
                 type="button"
                 onClick={handleAddTag}
-                className="px-3 py-2 rounded-xl glass-pill text-xs font-semibold text-slate-200 hover:text-white"
+                className="px-3 py-2 rounded-[10px] bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-xs font-medium text-[var(--text-primary)]"
               >
                 Add
               </button>
@@ -257,15 +317,15 @@ export function SubmitPromptModal() {
               {tags.map((t) => (
                 <span
                   key={t}
-                  className="px-2.5 py-1 rounded-lg bg-violet-600/20 text-violet-300 border border-violet-500/30 text-[11px] flex items-center gap-1.5"
+                  className="px-2.5 py-1 rounded-[8px] bg-[var(--surface-muted)] text-[var(--text-secondary)] border border-[var(--border)] text-[11px] font-mono flex items-center gap-1.5"
                 >
                   #{t}
                   <button
                     type="button"
                     onClick={() => handleRemoveTag(t)}
-                    className="hover:text-red-400"
+                    className="hover:text-rose-500"
                   >
-                    <X className="w-3 h-3" />
+                    <X className="w-3 h-3 stroke-[1.75]" />
                   </button>
                 </span>
               ))}
@@ -273,21 +333,21 @@ export function SubmitPromptModal() {
           </div>
 
           {/* Submit Action */}
-          <div className="pt-4 border-t border-white/10 flex items-center justify-end gap-2.5">
+          <div className="pt-4 border-t border-[var(--border)] flex items-center justify-end gap-2.5">
             <button
               type="button"
               onClick={() => setIsSubmitModalOpen(false)}
-              className="px-4 py-2.5 rounded-xl glass-pill text-xs font-semibold text-slate-300 hover:text-white"
+              className="btn-secondary px-4 py-2 text-xs"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-semibold text-xs transition-all shadow-lg shadow-violet-950/60 hover:scale-105 active:scale-95 disabled:opacity-50"
+              className="btn-primary flex items-center gap-2 px-4 py-2 text-xs disabled:opacity-50"
             >
-              <Send className="w-3.5 h-3.5" />
-              <span>Submit Prompt</span>
+              <Send className="w-3.5 h-3.5 stroke-[1.75]" />
+              <span>Submit Blueprint</span>
             </button>
           </div>
         </form>

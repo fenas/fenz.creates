@@ -14,6 +14,36 @@ import { initialTutorials, initialComingSoon } from "@/data/tutorialsData";
 import { useToast } from "@/components/ui/Toast";
 import confetti from "canvas-confetti";
 import { slugify } from "@/lib/utils";
+import {
+  isSupabaseConfigured,
+  getSupabaseClient,
+  signInAdmin,
+  signOutAdmin,
+  getCurrentAdminSession,
+  isAuthorizedAdminUser,
+  AUTHORIZED_ADMIN_USER_ID,
+  AdminProfile,
+  AdminRole,
+  fetchPromptsFromDb,
+  insertPromptToDb,
+  updatePromptInDb,
+  deletePromptFromDb,
+  incrementPromptCopyCountInDb,
+  fetchTutorialsFromDb,
+  insertTutorialToDb,
+  updateTutorialInDb,
+  deleteTutorialFromDb,
+  fetchCategoriesFromDb,
+  insertCategoryToDb,
+  updateCategoryInDb,
+  deleteCategoryFromDb,
+  fetchComingSoonFromDb,
+  insertComingSoonToDb,
+  updateComingSoonInDb,
+  deleteComingSoonFromDb,
+  fetchBannerPromptIdFromDb,
+  saveBannerPromptIdToDb,
+} from "@/lib/supabase";
 
 interface PromptContextType {
   prompts: Prompt[];
@@ -37,45 +67,56 @@ interface PromptContextType {
   setActiveModalPrompt: (prompt: Prompt | null) => void;
   isSubmitModalOpen: boolean;
   setIsSubmitModalOpen: (open: boolean) => void;
+  
+  // Auth & Roles (Restricted to Authorized Admin ID)
   isAdminAuth: boolean;
   adminEmail: string;
-  loginAdmin: (email: string, pass: string) => boolean;
-  logoutAdmin: () => void;
+  adminRole: AdminRole;
+  adminProfile: AdminProfile | null;
+  isDatabaseConnected: boolean;
+  loginAdmin: (email: string, pass: string) => Promise<boolean>;
+  logoutAdmin: () => Promise<void>;
+  
   copyPrompt: (prompt: Prompt) => Promise<void>;
   toggleSave: (promptId: string) => void;
   isSaved: (promptId: string) => boolean;
   triggerRandomPrompt: () => Prompt | null;
   bannerPromptId: string;
   setBannerPromptId: (id: string) => void;
+  
   // Prompts CRUD
   addPrompt: (newPrompt: Omit<Prompt, "id" | "slug" | "createdAt" | "updatedAt" | "copyCount" | "viewCount">) => Prompt;
   updatePrompt: (id: string, updates: Partial<Prompt>) => void;
   deletePrompt: (id: string) => void;
+  
   // Categories CRUD
   addCategory: (cat: Omit<Category, "id" | "slug">) => Category;
   updateCategory: (id: string, updates: Partial<Category>) => void;
   deleteCategory: (id: string) => void;
+  
   // Tutorials CRUD
   addTutorial: (tut: Omit<Tutorial, "id" | "slug"> & { slug?: string }) => Tutorial;
   updateTutorial: (id: string, updates: Partial<Tutorial>) => void;
   deleteTutorial: (id: string) => void;
+  
   // Coming Soon CRUD
   addComingSoon: (feat: Omit<ComingSoonFeature, "id" | "slug"> & { slug?: string }) => ComingSoonFeature;
   updateComingSoon: (id: string, updates: Partial<ComingSoonFeature>) => void;
   deleteComingSoon: (id: string) => void;
+  
   resetToDefaults: () => void;
   filteredPrompts: Prompt[];
 }
 
 const PromptContext = createContext<PromptContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_PROMPTS = "fenz_prompts_v2";
-const LOCAL_STORAGE_CATEGORIES = "fenz_categories_v2";
-const LOCAL_STORAGE_TUTORIALS = "fenz_tutorials_v2";
-const LOCAL_STORAGE_COMING_SOON = "fenz_coming_soon_v2";
-const LOCAL_STORAGE_SAVED = "fenz_saved_v2";
-const LOCAL_STORAGE_ADMIN = "fenz_admin_session_v2";
-const LOCAL_STORAGE_BANNER = "fenz_banner_prompt_id_v2";
+const LOCAL_STORAGE_PROMPTS = "fenz_prompts_v5";
+const LOCAL_STORAGE_CATEGORIES = "fenz_categories_v4";
+const LOCAL_STORAGE_TUTORIALS = "fenz_tutorials_v4";
+const LOCAL_STORAGE_COMING_SOON = "fenz_coming_soon_v4";
+const LOCAL_STORAGE_SAVED = "fenz_saved_v4";
+const LOCAL_STORAGE_ADMIN = "fenz_admin_session_v4";
+const LOCAL_STORAGE_BANNER = "fenz_banner_prompt_id_v4";
 
 export function PromptProvider({ children }: { children: React.ReactNode }) {
   const { showToast } = useToast();
@@ -85,8 +126,14 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
   const [tutorials, setTutorials] = useState<Tutorial[]>([]);
   const [comingSoon, setComingSoon] = useState<ComingSoonFeature[]>([]);
   const [savedPromptIds, setSavedPromptIds] = useState<string[]>([]);
+  
+  // Admin and Auth State
   const [isAdminAuth, setIsAdminAuth] = useState<boolean>(false);
   const [adminEmail, setAdminEmail] = useState<string>("fenas.fnz@gmail.com");
+  const [adminRole, setAdminRole] = useState<AdminRole>("super_admin");
+  const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
+  const [isDatabaseConnected, setIsDatabaseConnected] = useState<boolean>(false);
+  
   const [bannerPromptId, setBannerPromptIdState] = useState<string>("prompt-1");
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -102,153 +149,211 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
   const [activeModalPrompt, setActiveModalPrompt] = useState<Prompt | null>(null);
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
 
-  // Hydrate from LocalStorage
+  // 1. Initial Data Hydration from Supabase (with fallback to LocalStorage/Seed)
   useEffect(() => {
-    try {
-      const storedPrompts = localStorage.getItem(LOCAL_STORAGE_PROMPTS);
-      const storedCategories = localStorage.getItem(LOCAL_STORAGE_CATEGORIES);
-      const storedTutorials = localStorage.getItem(LOCAL_STORAGE_TUTORIALS);
-      const storedComingSoon = localStorage.getItem(LOCAL_STORAGE_COMING_SOON);
-      const storedSaved = localStorage.getItem(LOCAL_STORAGE_SAVED);
-      const storedAdmin = localStorage.getItem(LOCAL_STORAGE_ADMIN);
-      const storedBanner = localStorage.getItem(LOCAL_STORAGE_BANNER);
+    async function hydrateData() {
+      const isConfigured = isSupabaseConfigured();
+      setIsDatabaseConnected(isConfigured);
 
-      if (storedBanner) {
-        setBannerPromptIdState(storedBanner);
-      } else {
-        setBannerPromptIdState("prompt-1");
+      // Restore LocalStorage defaults first for instantaneous initial paint
+      try {
+        const storedPrompts = localStorage.getItem(LOCAL_STORAGE_PROMPTS);
+        const storedCategories = localStorage.getItem(LOCAL_STORAGE_CATEGORIES);
+        const storedTutorials = localStorage.getItem(LOCAL_STORAGE_TUTORIALS);
+        const storedComingSoon = localStorage.getItem(LOCAL_STORAGE_COMING_SOON);
+        const storedSaved = localStorage.getItem(LOCAL_STORAGE_SAVED);
+        const storedAdmin = localStorage.getItem(LOCAL_STORAGE_ADMIN);
+        const storedBanner = localStorage.getItem(LOCAL_STORAGE_BANNER);
+
+        if (storedBanner) setBannerPromptIdState(storedBanner);
+        if (storedPrompts) setPrompts(JSON.parse(storedPrompts));
+        else setPrompts(initialPrompts);
+
+        if (storedCategories) setCategories(JSON.parse(storedCategories));
+        else setCategories(initialCategories);
+
+        if (storedTutorials) setTutorials(JSON.parse(storedTutorials));
+        else setTutorials(initialTutorials);
+
+        if (storedComingSoon) setComingSoon(JSON.parse(storedComingSoon));
+        else setComingSoon(initialComingSoon);
+
+        if (storedSaved) setSavedPromptIds(JSON.parse(storedSaved));
+      } catch (e) {
+        console.error("Local storage load error:", e);
+      } finally {
+        setIsLoaded(true);
       }
 
-      if (storedPrompts) {
-        setPrompts(JSON.parse(storedPrompts));
-      } else {
-        setPrompts(initialPrompts);
-        localStorage.setItem(LOCAL_STORAGE_PROMPTS, JSON.stringify(initialPrompts));
-      }
+      // If Supabase is configured, fetch live production data
+      if (isConfigured) {
+        try {
+          // Check Auth Session for strict authorized admin ID
+          const { user, profile } = await getCurrentAdminSession();
+          if (user && isAuthorizedAdminUser(user.id)) {
+            setIsAdminAuth(true);
+            setAdminEmail(user.email || "fenas.fnz@gmail.com");
+            if (profile) {
+              setAdminRole(profile.role);
+              setAdminProfile(profile);
+            }
+          } else {
+            setIsAdminAuth(false);
+            setAdminProfile(null);
+          }
 
-      if (storedCategories) {
-        setCategories(JSON.parse(storedCategories));
-      } else {
-        setCategories(initialCategories);
-        localStorage.setItem(LOCAL_STORAGE_CATEGORIES, JSON.stringify(initialCategories));
-      }
+          // Fetch all database tables in parallel
+          const [dbPrompts, dbCategories, dbTutorials, dbComingSoon, dbBannerId] =
+            await Promise.all([
+              fetchPromptsFromDb(),
+              fetchCategoriesFromDb(),
+              fetchTutorialsFromDb(),
+              fetchComingSoonFromDb(),
+              fetchBannerPromptIdFromDb(),
+            ]);
 
-      if (storedTutorials) {
-        const parsedTuts: Tutorial[] = JSON.parse(storedTutorials);
-        setTutorials(
-          parsedTuts.map((t) => ({
-            ...t,
-            slug: t.slug || slugify(t.title),
-          }))
-        );
-      } else {
-        setTutorials(initialTutorials);
-        localStorage.setItem(LOCAL_STORAGE_TUTORIALS, JSON.stringify(initialTutorials));
+          if (dbCategories && dbCategories.length > 0) {
+            setCategories(dbCategories);
+          }
+          if (dbPrompts && dbPrompts.length > 0) {
+            setPrompts(dbPrompts);
+          }
+          if (dbTutorials && dbTutorials.length > 0) {
+            setTutorials(dbTutorials);
+          }
+          if (dbComingSoon && dbComingSoon.length > 0) {
+            setComingSoon(dbComingSoon);
+          }
+          if (dbBannerId) {
+            setBannerPromptIdState(dbBannerId);
+          }
+        } catch (err) {
+          console.warn("[Supabase] Data sync error:", err);
+        }
       }
+    }
 
-      if (storedComingSoon) {
-        const parsedFeats: ComingSoonFeature[] = JSON.parse(storedComingSoon);
-        setComingSoon(
-          parsedFeats.map((f) => ({
-            ...f,
-            slug: f.slug || slugify(f.title),
-          }))
-        );
-      } else {
-        setComingSoon(initialComingSoon);
-        localStorage.setItem(LOCAL_STORAGE_COMING_SOON, JSON.stringify(initialComingSoon));
-      }
+    hydrateData();
 
-      if (storedSaved) {
-        setSavedPromptIds(JSON.parse(storedSaved));
-      }
+    // Listen to Supabase Auth state changes
+    const supabase = getSupabaseClient();
+    if (supabase) {
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        if (session?.user && isAuthorizedAdminUser(session.user.id)) {
+          setIsAdminAuth(true);
+          setAdminEmail(session.user.email || "fenas.fnz@gmail.com");
+          const { profile } = await getCurrentAdminSession();
+          if (profile) {
+            setAdminRole(profile.role);
+            setAdminProfile(profile);
+          }
+        } else {
+          setIsAdminAuth(false);
+          setAdminProfile(null);
+        }
+      });
 
-      if (storedAdmin === "true") {
-        setIsAdminAuth(true);
-      }
-    } catch (e) {
-      console.error("Failed to load local state", e);
-      setPrompts(initialPrompts);
-      setCategories(initialCategories);
-      setTutorials(initialTutorials);
-      setComingSoon(initialComingSoon);
-    } finally {
-      setIsLoaded(true);
+      return () => {
+        subscription.unsubscribe();
+      };
     }
   }, []);
 
-  // Save changes to LocalStorage
+  // Save cache changes to LocalStorage for offline resilience
   useEffect(() => {
     if (!isLoaded) return;
     try {
       localStorage.setItem(LOCAL_STORAGE_PROMPTS, JSON.stringify(prompts));
-    } catch (e) {
-      console.error("Failed to persist prompts", e);
-    }
+    } catch {}
   }, [prompts, isLoaded]);
 
   useEffect(() => {
     if (!isLoaded) return;
     try {
       localStorage.setItem(LOCAL_STORAGE_CATEGORIES, JSON.stringify(categories));
-    } catch (e) {
-      console.error("Failed to persist categories", e);
-    }
+    } catch {}
   }, [categories, isLoaded]);
 
   useEffect(() => {
     if (!isLoaded) return;
     try {
       localStorage.setItem(LOCAL_STORAGE_TUTORIALS, JSON.stringify(tutorials));
-    } catch (e) {
-      console.error("Failed to persist tutorials", e);
-    }
+    } catch {}
   }, [tutorials, isLoaded]);
 
   useEffect(() => {
     if (!isLoaded) return;
     try {
       localStorage.setItem(LOCAL_STORAGE_COMING_SOON, JSON.stringify(comingSoon));
-    } catch (e) {
-      console.error("Failed to persist comingSoon", e);
-    }
+    } catch {}
   }, [comingSoon, isLoaded]);
 
   useEffect(() => {
     if (!isLoaded) return;
     try {
       localStorage.setItem(LOCAL_STORAGE_SAVED, JSON.stringify(savedPromptIds));
-    } catch (e) {
-      console.error("Failed to persist saved prompts", e);
-    }
+    } catch {}
   }, [savedPromptIds, isLoaded]);
 
-  // Auth: Exact credentials fenas.fnz@gmail.com / fenz.creates.admin@1967
-  const loginAdmin = useCallback((email: string, pass: string): boolean => {
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanPass = pass.trim();
+  // Auth: Supabase Auth Login strictly allowing only AUTHORIZED_ADMIN_USER_ID
+  const loginAdmin = useCallback(
+    async (email: string, pass: string): Promise<boolean> => {
+      const cleanEmail = email.trim().toLowerCase();
+      const cleanPass = pass.trim();
 
-    if (
-      (cleanEmail === "fenas.fnz@gmail.com" && cleanPass === "fenz.creates.admin@1967") ||
-      cleanPass === "fenz2026"
-    ) {
-      setIsAdminAuth(true);
-      setAdminEmail(cleanEmail || "fenas.fnz@gmail.com");
-      localStorage.setItem(LOCAL_STORAGE_ADMIN, "true");
-      return true;
+      if (!isSupabaseConfigured()) {
+        showToast("Supabase is not configured", "error");
+        return false;
+      }
+
+      const { user, session, error } = await signInAdmin(cleanEmail, cleanPass);
+      if (error) {
+        showToast("Authentication Failed", "error", error);
+        return false;
+      }
+
+      if (user && session && isAuthorizedAdminUser(user.id)) {
+        setIsAdminAuth(true);
+        setAdminEmail(user.email || cleanEmail);
+        const { profile } = await getCurrentAdminSession();
+        if (profile) {
+          setAdminRole(profile.role);
+          setAdminProfile(profile);
+        }
+        showToast(
+          `Welcome back, ${profile?.displayName || "Admin"}!`,
+          "success",
+          "Administrator session active"
+        );
+        return true;
+      }
+
+      showToast(
+        "Access Denied",
+        "error",
+        "Only the authorized administrator account can access this panel."
+      );
+      return false;
+    },
+    [showToast]
+  );
+
+  const logoutAdmin = useCallback(async () => {
+    if (isSupabaseConfigured()) {
+      await signOutAdmin();
     }
-    return false;
-  }, []);
-
-  const logoutAdmin = useCallback(() => {
     setIsAdminAuth(false);
-    localStorage.removeItem(LOCAL_STORAGE_ADMIN);
-  }, []);
+    setAdminProfile(null);
+    showToast("Signed Out", "info", "Admin session ended");
+  }, [showToast]);
 
   const setBannerPromptId = useCallback(
     (id: string) => {
       setBannerPromptIdState(id);
       localStorage.setItem(LOCAL_STORAGE_BANNER, id);
+      saveBannerPromptIdToDb(id);
       showToast("Updated Home Hero Banner!", "success");
     },
     [showToast]
@@ -266,12 +371,13 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
               particleCount: 35,
               spread: 60,
               origin: { y: 0.85 },
-              colors: ["#8B5CF6", "#C084FC", "#F59E0B", "#38BDF8"],
+              colors: ["#E85002", "#F16001", "#ffffff", "#38BDF8"],
               disableForReducedMotion: true,
             });
           } catch {}
         }
 
+        // Optimistic local update
         setPrompts((prev) =>
           prev.map((p) =>
             p.id === prompt.id ? { ...p, copyCount: (p.copyCount || 0) + 1 } : p
@@ -283,6 +389,9 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
             prev ? { ...prev, copyCount: (prev.copyCount || 0) + 1 } : null
           );
         }
+
+        // Async Database increment
+        incrementPromptCopyCountInDb(prompt.id);
 
         showToast("Prompt Copied to Clipboard!", "success", prompt.title);
       } catch (err) {
@@ -324,7 +433,7 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
     return chosen;
   }, [prompts, showToast]);
 
-  // Prompts CRUD
+  // Prompts CRUD (Optimistic + Supabase Sync)
   const addPrompt = useCallback(
     (
       newPromptData: Omit<
@@ -345,6 +454,7 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
       };
 
       setPrompts((prev) => [newPrompt, ...prev]);
+      insertPromptToDb(newPrompt);
       showToast("Prompt Published!", "success", newPrompt.title);
       return newPrompt;
     },
@@ -365,6 +475,7 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
             : p
         )
       );
+      updatePromptInDb(id, updates);
       showToast("Prompt Updated", "success");
     },
     [showToast]
@@ -377,12 +488,13 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
       if (activeModalPrompt?.id === id) {
         setActiveModalPrompt(null);
       }
+      deletePromptFromDb(id);
       showToast("Prompt Removed", "info");
     },
     [activeModalPrompt, showToast]
   );
 
-  // Categories CRUD
+  // Categories CRUD (Optimistic + Supabase Sync)
   const addCategory = useCallback(
     (catData: Omit<Category, "id" | "slug">): Category => {
       const id = `cat-${Date.now()}`;
@@ -393,6 +505,7 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         slug,
       };
       setCategories((prev) => [...prev, newCat]);
+      insertCategoryToDb(newCat);
       showToast("Category Created", "success", newCat.name);
       return newCat;
     },
@@ -412,6 +525,7 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
             : c
         )
       );
+      updateCategoryInDb(id, updates);
       showToast("Category Updated", "success");
     },
     [showToast]
@@ -420,23 +534,28 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
   const deleteCategory = useCallback(
     (id: string) => {
       setCategories((prev) => prev.filter((c) => c.id !== id));
+      deleteCategoryFromDb(id);
       showToast("Category Deleted", "info");
     },
     [showToast]
   );
 
-  // Tutorials CRUD
+  // Tutorials CRUD (Optimistic + Supabase Sync)
   const addTutorial = useCallback(
     (tutData: Omit<Tutorial, "id" | "slug"> & { slug?: string }): Tutorial => {
       const id = `tut-${Date.now()}`;
-      const slug = tutData.slug || slugify(tutData.title);
+      const slug = tutData.slug || slugify(tutData.title) || `tut-${Date.now()}`;
       const newTut: Tutorial = {
         ...tutData,
         id,
         slug,
+        status: tutData.status || "published",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
       setTutorials((prev) => [newTut, ...prev]);
-      showToast("Tutorial Published!", "success", newTut.title);
+      insertTutorialToDb(newTut);
+      showToast("Workflow Guide Published!", "success", newTut.title);
       return newTut;
     },
     [showToast]
@@ -451,11 +570,13 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
                 ...t,
                 ...updates,
                 slug: updates.slug || (updates.title ? slugify(updates.title) : t.slug),
+                updatedAt: new Date().toISOString(),
               }
             : t
         )
       );
-      showToast("Tutorial Updated", "success");
+      updateTutorialInDb(id, updates);
+      showToast("Workflow Guide Updated", "success");
     },
     [showToast]
   );
@@ -463,23 +584,28 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
   const deleteTutorial = useCallback(
     (id: string) => {
       setTutorials((prev) => prev.filter((t) => t.id !== id));
-      showToast("Tutorial Removed", "info");
+      deleteTutorialFromDb(id);
+      showToast("Workflow Removed", "info");
     },
     [showToast]
   );
 
-  // Coming Soon CRUD
+  // Coming Soon CRUD (Optimistic + Supabase Sync)
   const addComingSoon = useCallback(
-    (featData: Omit<ComingSoonFeature, "id" | "slug"> & { slug?: string }): ComingSoonFeature => {
+    (
+      featData: Omit<ComingSoonFeature, "id" | "slug"> & { slug?: string }
+    ): ComingSoonFeature => {
       const id = `feat-${Date.now()}`;
-      const slug = featData.slug || slugify(featData.title);
+      const slug = featData.slug || slugify(featData.title) || `feat-${Date.now()}`;
       const newFeat: ComingSoonFeature = {
         ...featData,
         id,
         slug,
+        createdAt: new Date().toISOString(),
       };
       setComingSoon((prev) => [newFeat, ...prev]);
-      showToast("Roadmap Feature Added!", "success", newFeat.title);
+      insertComingSoonToDb(newFeat);
+      showToast("Roadmap Feature Created!", "success", newFeat.title);
       return newFeat;
     },
     [showToast]
@@ -498,6 +624,7 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
             : f
         )
       );
+      updateComingSoonInDb(id, updates);
       showToast("Roadmap Item Updated", "success");
     },
     [showToast]
@@ -506,7 +633,8 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
   const deleteComingSoon = useCallback(
     (id: string) => {
       setComingSoon((prev) => prev.filter((f) => f.id !== id));
-      showToast("Roadmap Item Removed", "info");
+      deleteComingSoonFromDb(id);
+      showToast("Roadmap Item Deleted", "info");
     },
     [showToast]
   );
@@ -517,123 +645,154 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
     setTutorials(initialTutorials);
     setComingSoon(initialComingSoon);
     setSavedPromptIds([]);
-    localStorage.setItem(LOCAL_STORAGE_PROMPTS, JSON.stringify(initialPrompts));
-    localStorage.setItem(LOCAL_STORAGE_CATEGORIES, JSON.stringify(initialCategories));
-    localStorage.setItem(LOCAL_STORAGE_TUTORIALS, JSON.stringify(initialTutorials));
-    localStorage.setItem(LOCAL_STORAGE_COMING_SOON, JSON.stringify(initialComingSoon));
-    localStorage.removeItem(LOCAL_STORAGE_SAVED);
-    showToast("Reset to Default Catalog", "info");
+    setBannerPromptIdState("prompt-1");
+    showToast("Reset to Default Seed Data", "info");
   }, [showToast]);
 
-  // Filtered prompts
+  // Filtered prompts computed
   const filteredPrompts = useMemo(() => {
-    return prompts
-      .filter((prompt) => {
-        if (prompt.status !== "published") return false;
+    return prompts.filter((prompt) => {
+      // For visitors, only show published prompts
+      if (!isAdminAuth && prompt.status === "draft") {
+        return false;
+      }
 
-        if (selectedCategory !== "all" && prompt.categoryId !== selectedCategory) {
+      // Category filter
+      if (selectedCategory !== "all" && prompt.categoryId !== selectedCategory) {
+        return false;
+      }
+
+      // Media type filter
+      if (selectedMediaType !== "all" && prompt.type !== selectedMediaType) {
+        return false;
+      }
+
+      // Model filter
+      if (selectedModel !== "all" && prompt.model !== selectedModel) {
+        return false;
+      }
+
+      // Search query filter
+      if (searchQuery.trim() !== "") {
+        const query = searchQuery.toLowerCase();
+        const matchesTitle = prompt.title.toLowerCase().includes(query);
+        const matchesPrompt = prompt.promptText.toLowerCase().includes(query);
+        const matchesModel = prompt.model.toLowerCase().includes(query);
+        const matchesTags = prompt.tags.some((tag) =>
+          tag.toLowerCase().includes(query)
+        );
+        if (!matchesTitle && !matchesPrompt && !matchesModel && !matchesTags) {
           return false;
         }
+      }
 
-        if (selectedMediaType !== "all" && prompt.type !== selectedMediaType) {
-          return false;
-        }
-
-        if (selectedModel !== "all" && prompt.model !== selectedModel) {
-          return false;
-        }
-
-        if (searchQuery.trim() !== "") {
-          const q = searchQuery.toLowerCase().trim();
-          const matchTitle = prompt.title.toLowerCase().includes(q);
-          const matchPrompt = prompt.promptText.toLowerCase().includes(q);
-          const matchModel = prompt.model.toLowerCase().includes(q);
-          const matchTags = prompt.tags.some((t) => t.toLowerCase().includes(q));
-          if (!matchTitle && !matchPrompt && !matchModel && !matchTags) {
-            return false;
-          }
-        }
-
-        return true;
-      })
-      .sort((a, b) => {
-        if (sortBy === "trending" || sortBy === "most-copied") {
-          return (b.copyCount || 0) - (a.copyCount || 0);
-        }
-        if (sortBy === "newest") {
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        }
-        if (sortBy === "alphabetical") {
-          return a.title.localeCompare(b.title);
-        }
-        if (a.featured && !b.featured) return -1;
-        if (!a.featured && b.featured) return 1;
-        return (b.copyCount || 0) - (a.copyCount || 0);
-      });
+      return true;
+    });
   }, [
     prompts,
-    activeTab,
-    savedPromptIds,
+    isAdminAuth,
     selectedCategory,
     selectedMediaType,
     selectedModel,
     searchQuery,
-    sortBy,
   ]);
 
-  return (
-    <PromptContext.Provider
-      value={{
-        prompts,
-        categories,
-        tutorials,
-        comingSoon,
-        savedPromptIds,
-        activeTab,
-        setActiveTab,
-        selectedCategory,
-        setSelectedCategory,
-        searchQuery,
-        setSearchQuery,
-        selectedModel,
-        setSelectedModel,
-        selectedMediaType,
-        setSelectedMediaType,
-        sortBy,
-        setSortBy,
-        activeModalPrompt,
-        setActiveModalPrompt,
-        isSubmitModalOpen,
-        setIsSubmitModalOpen,
-        isAdminAuth,
-        adminEmail,
-        loginAdmin,
-        logoutAdmin,
-        copyPrompt,
-        toggleSave,
-        isSaved,
-        triggerRandomPrompt,
-        bannerPromptId,
-        setBannerPromptId,
-        addPrompt,
-        updatePrompt,
-        deletePrompt,
-        addCategory,
-        updateCategory,
-        deleteCategory,
-        addTutorial,
-        updateTutorial,
-        deleteTutorial,
-        addComingSoon,
-        updateComingSoon,
-        deleteComingSoon,
-        resetToDefaults,
-        filteredPrompts,
-      }}
-    >
-      {children}
-    </PromptContext.Provider>
+  const value = useMemo(
+    () => ({
+      prompts,
+      categories,
+      tutorials,
+      comingSoon,
+      savedPromptIds,
+      activeTab,
+      setActiveTab,
+      selectedCategory,
+      setSelectedCategory,
+      searchQuery,
+      setSearchQuery,
+      selectedModel,
+      setSelectedModel,
+      selectedMediaType,
+      setSelectedMediaType,
+      sortBy,
+      setSortBy,
+      activeModalPrompt,
+      setActiveModalPrompt,
+      isSubmitModalOpen,
+      setIsSubmitModalOpen,
+      isAdminAuth,
+      adminEmail,
+      adminRole,
+      adminProfile,
+      isDatabaseConnected,
+      loginAdmin,
+      logoutAdmin,
+      copyPrompt,
+      toggleSave,
+      isSaved,
+      triggerRandomPrompt,
+      bannerPromptId,
+      setBannerPromptId,
+      addPrompt,
+      updatePrompt,
+      deletePrompt,
+      addCategory,
+      updateCategory,
+      deleteCategory,
+      addTutorial,
+      updateTutorial,
+      deleteTutorial,
+      addComingSoon,
+      updateComingSoon,
+      deleteComingSoon,
+      resetToDefaults,
+      filteredPrompts,
+    }),
+    [
+      prompts,
+      categories,
+      tutorials,
+      comingSoon,
+      savedPromptIds,
+      activeTab,
+      selectedCategory,
+      searchQuery,
+      selectedModel,
+      selectedMediaType,
+      sortBy,
+      activeModalPrompt,
+      isSubmitModalOpen,
+      isAdminAuth,
+      adminEmail,
+      adminRole,
+      adminProfile,
+      isDatabaseConnected,
+      loginAdmin,
+      logoutAdmin,
+      copyPrompt,
+      toggleSave,
+      isSaved,
+      triggerRandomPrompt,
+      bannerPromptId,
+      setBannerPromptId,
+      addPrompt,
+      updatePrompt,
+      deletePrompt,
+      addCategory,
+      updateCategory,
+      deleteCategory,
+      addTutorial,
+      updateTutorial,
+      deleteTutorial,
+      addComingSoon,
+      updateComingSoon,
+      deleteComingSoon,
+      resetToDefaults,
+      filteredPrompts,
+    ]
   );
+
+  return <PromptContext.Provider value={value}>{children}</PromptContext.Provider>;
 }
 
 export function usePromptStore() {

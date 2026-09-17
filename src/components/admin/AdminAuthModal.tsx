@@ -1,146 +1,131 @@
 "use client";
 
 import React, { useState } from "react";
-import { Lock, Mail, KeyRound, ShieldAlert, ArrowRight, Eye, EyeOff, Sparkles } from "lucide-react";
+import {
+  Lock,
+  Mail,
+  KeyRound,
+  ShieldAlert,
+  ArrowRight,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { usePromptStore } from "@/context/PromptContext";
-import { useToast } from "@/components/ui/Toast";
 
 export function AdminAuthModal() {
   const { loginAdmin } = usePromptStore();
-  const { showToast } = useToast();
 
-  const [email, setEmail] = useState("fenas.fnz@gmail.com");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = loginAdmin(email, password);
-    if (success) {
-      showToast("Welcome back, Fenas!", "success", "Admin studio unlocked");
-    } else {
-      setError(true);
-      showToast("Invalid email or password", "error", "Please check your admin credentials.");
-    }
-  };
+    setLoading(true);
+    setErrorMsg(null);
 
-  const handleAutofill = () => {
-    setEmail("fenas.fnz@gmail.com");
-    setPassword("fenz.creates.admin@1967");
-    setError(false);
-    const success = loginAdmin("fenas.fnz@gmail.com", "fenz.creates.admin@1967");
-    if (success) {
-      showToast("Logged in with Verified Credentials", "success");
+    try {
+      const success = await loginAdmin(email, password);
+      if (!success) {
+        setErrorMsg("Access Denied: Invalid credentials or unauthorized account.");
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || "An unexpected error occurred");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center p-4">
-      <div className="w-full max-w-md rounded-3xl floating-panel bg-[#0d0f17]/95 border border-white/10 p-8 shadow-2xl space-y-6">
+      <div className="w-full max-w-md rounded-[22px] bg-[var(--surface)] border border-[var(--border)] p-8 shadow-[0_12px_32px_rgba(0,0,0,0.06),0_2px_8px_rgba(0,0,0,0.04)] space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="w-14 h-14 rounded-2xl bg-[#E85002]/20 border border-[#E85002]/30 flex items-center justify-center mx-auto shadow-lg shadow-[#E85002]/30">
-            <Lock className="w-6 h-6 text-[#E85002]" />
+          <div className="w-12 h-12 rounded-[12px] bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center mx-auto shadow-sm">
+            <Lock className="w-5 h-5 text-[var(--icon-primary)] stroke-[1.75]" />
           </div>
-          <h1 className="text-xl font-bold text-white tracking-tight">
-            Admin Studio Portal
+          <h1 className="text-lg font-medium text-[var(--text-primary)] tracking-tight">
+            Arenae Admin Studio
           </h1>
-          <p className="text-xs text-[#A7A7A7]">
-            Sign in to upload and manage prompts, tutorials, and roadmap content.
+          <p className="text-xs text-[var(--text-secondary)]">
+            Sign in with your administrator credentials to access the studio.
           </p>
         </div>
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email field */}
-          <div className="space-y-1">
-            <label className="block text-xs font-semibold text-slate-300">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-medium text-[var(--text-primary)]">
               Admin Email
             </label>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--icon-secondary)] stroke-[1.75]" />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
-                  setError(false);
+                  setErrorMsg(null);
                 }}
-                placeholder="fenas.fnz@gmail.com"
-                className={`w-full pl-10 pr-4 py-2.5 rounded-xl glass-input text-xs ${
-                  error ? "border-red-500/60" : ""
-                }`}
+                placeholder="admin@arenae.online"
+                className="w-full pl-10 pr-4 py-2.5 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-secondary)] shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.06)]"
               />
             </div>
           </div>
 
           {/* Password field */}
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-semibold text-slate-300">
+              <label className="block text-xs font-medium text-[var(--text-primary)]">
                 Password
               </label>
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-[11px] text-[#A7A7A7] hover:text-white flex items-center gap-1"
+                className="text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 font-mono"
               >
-                {showPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                {showPassword ? <EyeOff className="w-3 h-3 stroke-[1.75]" /> : <Eye className="w-3 h-3 stroke-[1.75]" />}
                 <span>{showPassword ? "Hide" : "Show"}</span>
               </button>
             </div>
             <div className="relative">
-              <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--icon-secondary)] stroke-[1.75]" />
               <input
                 type={showPassword ? "text" : "password"}
                 required
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
-                  setError(false);
+                  setErrorMsg(null);
                 }}
                 placeholder="••••••••••••••••••••"
-                className={`w-full pl-10 pr-4 py-2.5 rounded-xl glass-input text-xs ${
-                  error ? "border-red-500/60" : ""
-                }`}
+                className="w-full pl-10 pr-4 py-2.5 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-secondary)] shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.06)]"
               />
             </div>
           </div>
 
-          {error && (
-            <div className="p-3 rounded-xl bg-red-950/40 border border-red-500/30 text-xs text-red-200 flex items-start gap-2">
-              <ShieldAlert className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+          {errorMsg && (
+            <div className="p-3 rounded-[10px] bg-rose-500/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400 flex items-start gap-2 animate-in fade-in">
+              <ShieldAlert className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5 stroke-[1.75]" />
               <div>
-                <span>Invalid login credentials.</span>
-                <div className="text-[11px] text-red-300/80 mt-0.5 font-mono">
-                  Email: fenas.fnz@gmail.com
-                </div>
+                <span>{errorMsg}</span>
               </div>
             </div>
           )}
 
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-[#C10801] via-[#E85002] to-[#F16001] hover:from-[#E85002] hover:to-[#F16001] text-white font-bold text-xs shadow-lg shadow-[#E85002]/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            disabled={loading}
+            className="w-full btn-primary flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-medium shadow-sm disabled:opacity-60"
           >
-            <span>Sign In to Admin Studio</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>{loading ? "Signing in..." : "Sign In to Studio"}</span>
+            <ArrowRight className="w-3.5 h-3.5 stroke-[1.75]" />
           </button>
         </form>
-
-        {/* Quick Autofill Demo Credentials */}
-        <div className="pt-4 border-t border-white/5 text-center space-y-2">
-          <button
-            onClick={handleAutofill}
-            type="button"
-            className="text-xs text-[#E85002] hover:text-[#F16001] font-semibold flex items-center justify-center gap-1.5 mx-auto transition-colors"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Click to Auto-fill & Login as fenas.fnz@gmail.com</span>
-          </button>
-        </div>
       </div>
     </div>
   );

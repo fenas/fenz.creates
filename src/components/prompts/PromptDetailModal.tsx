@@ -10,13 +10,12 @@ import {
   Bookmark,
   Share2,
   ExternalLink,
-  Sparkles,
   Sliders,
-  Maximize2,
   Tag,
   Layers,
   Video,
-  Eye,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Prompt } from "@/types";
 import { usePromptStore } from "@/context/PromptContext";
@@ -35,25 +34,41 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
 
   const [copied, setCopied] = useState(false);
   const [copiedNegative, setCopiedNegative] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  // Close modal on Escape key
+  const images =
+    prompt?.mediaUrls && prompt.mediaUrls.length > 0
+      ? prompt.mediaUrls
+      : prompt?.mediaUrl
+      ? [prompt.mediaUrl]
+      : [];
+
+  // Reset image index when prompt changes
+  useEffect(() => {
+    setActiveImageIndex(0);
+  }, [prompt?.id]);
+
+  // Keyboard navigation for Escape, ArrowLeft, ArrowRight
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onClose();
+      } else if (e.key === "ArrowLeft" && images.length > 1) {
+        setActiveImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+      } else if (e.key === "ArrowRight" && images.length > 1) {
+        setActiveImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  }, [onClose, images.length]);
 
   if (!prompt) return null;
 
+  const currentImageUrl = images[activeImageIndex] || prompt.mediaUrl;
   const saved = isSaved(prompt.id);
   const category = categories.find((c) => c.id === prompt.categoryId);
 
-  // Related prompts (same category or shared tags, excluding current)
   const relatedPrompts = prompts
     .filter(
       (p) =>
@@ -83,13 +98,11 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `${prompt.title} - fenz.creates`,
+          title: `${prompt.title} - Arenae`,
           text: `Check out this AI prompt for ${prompt.model}: "${prompt.title}"`,
           url,
         });
-      } catch {
-        // User dismissed share dialog
-      }
+      } catch {}
     } else {
       await navigator.clipboard.writeText(url);
       showToast("Link Copied to Clipboard!", "success", url);
@@ -102,60 +115,59 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto bg-black/60 animate-in fade-in duration-150">
       {/* Click outside backdrop */}
       <div className="fixed inset-0" onClick={onClose} />
 
       {/* Modal Card */}
-      <div className="relative w-full max-w-5xl rounded-3xl glass-panel bg-[#0d0f17] border border-white/10 shadow-2xl z-10 overflow-hidden my-auto max-h-[92vh] flex flex-col">
+      <div className="relative w-full max-w-5xl rounded-[22px] bg-[var(--surface-elevated)] border border-[var(--border)] z-10 overflow-hidden my-auto max-h-[92vh] flex flex-col shadow-[0_12px_32px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)]">
         {/* Top Sticky Header */}
-        <div className="px-4 sm:px-6 py-3.5 border-b border-white/5 flex items-center justify-between bg-[#0a0c12]/90 backdrop-blur-xl z-20">
+        <div className="px-4 sm:px-6 py-3.5 border-b border-[var(--border)] flex items-center justify-between bg-[var(--surface-elevated)] z-20">
           <div className="flex items-center gap-2 min-w-0 pr-4">
-            <span className="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-[#E85002]/15 text-[#F16001] border border-[#E85002]/30 flex items-center gap-1.5 flex-shrink-0">
-              <Sparkles className="w-3.5 h-3.5 text-[#E85002]" />
+            <span className="px-2.5 py-1 rounded-[8px] text-[11px] font-mono bg-[var(--surface-muted)] text-[var(--text-primary)] border border-[var(--border)] flex items-center gap-1.5 flex-shrink-0">
               {prompt.model}
             </span>
-            <span className="text-xs text-slate-400 truncate hidden sm:inline">
+            <span className="text-xs text-[var(--text-secondary)] truncate hidden sm:inline">
               / {category?.name || "AI Art"}
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <button
               onClick={() => toggleSave(prompt.id)}
-              className={`p-2 rounded-xl transition-all ${
+              className={`p-2 rounded-[10px] transition-all border ${
                 saved
-                  ? "bg-[#E85002] text-white shadow-lg shadow-[#E85002]/50"
-                  : "glass-pill text-slate-300 hover:text-white hover:bg-white/10"
+                  ? "bg-[var(--accent)] text-white border-[var(--accent)]"
+                  : "bg-[var(--surface-muted)] hover:bg-[var(--surface)] border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
               title={saved ? "Saved in Favorites" : "Save Prompt"}
             >
-              <Bookmark className={`w-4 h-4 ${saved ? "fill-current" : ""}`} />
+              <Bookmark className={`w-4 h-4 stroke-[1.75] ${saved ? "fill-current" : ""}`} />
             </button>
 
             <button
               onClick={handleShare}
-              className="p-2 rounded-xl glass-pill text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+              className="p-2 rounded-[10px] bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
               title="Share Prompt"
             >
-              <Share2 className="w-4 h-4" />
+              <Share2 className="w-4 h-4 stroke-[1.75]" />
             </button>
 
             <Link
               href={`/prompt/${prompt.slug}`}
               target="_blank"
-              className="p-2 rounded-xl glass-pill text-slate-300 hover:text-white hover:bg-white/10 transition-colors hidden sm:flex"
+              className="p-2 rounded-[10px] bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors hidden sm:flex"
               title="Open in Full Page"
             >
-              <ExternalLink className="w-4 h-4" />
+              <ExternalLink className="w-4 h-4 stroke-[1.75]" />
             </Link>
 
             <button
               onClick={onClose}
-              className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-slate-300 hover:text-white transition-colors ml-1"
+              className="p-2 rounded-[10px] bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors ml-1"
               title="Close modal"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4 stroke-[1.75]" />
             </button>
           </div>
         </div>
@@ -165,49 +177,116 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
             {/* Left Column: Artwork Showcase */}
             <div className="lg:col-span-6 space-y-3">
-              <div className="relative rounded-2xl overflow-hidden bg-slate-950 border border-white/10 shadow-2xl group">
+              <div className="relative rounded-[14px] overflow-hidden bg-[#1E1E1E] border border-[var(--border)] shadow-sm group">
                 <div className="relative w-full aspect-square sm:aspect-[4/3] lg:aspect-square">
                   <Image
-                    src={prompt.mediaUrl}
-                    alt={prompt.title}
+                    src={currentImageUrl}
+                    alt={`${prompt.title} - Image ${activeImageIndex + 1}`}
                     fill
                     sizes="(max-width: 1024px) 100vw, 50vw"
-                    className="object-cover object-center"
+                    className="object-cover object-center transition-all duration-300"
+                    unoptimized={currentImageUrl.startsWith("data:")}
                     priority
                   />
                 </div>
 
                 {/* Media Type pill */}
                 {prompt.type === "video" && (
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-xl bg-[#E85002] backdrop-blur-md text-white font-bold text-xs flex items-center gap-1.5 shadow-lg">
+                  <div className="absolute top-3 left-3 px-2.5 py-1 rounded-[6px] bg-black/70 text-white text-[10px] font-mono flex items-center gap-1.5 border border-white/10 z-20">
                     <Video className="w-3.5 h-3.5" />
                     Video Prompt
                   </div>
                 )}
 
+                {/* Image Counter Badge */}
+                {images.length > 1 && (
+                  <div className="absolute top-3 right-3 px-2 py-0.5 rounded-[6px] bg-black/75 border border-white/15 text-white font-mono text-xs z-20 flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5 text-white/80" />
+                    <span>{activeImageIndex + 1} / {images.length}</span>
+                  </div>
+                )}
+
+                {/* Navigation Arrows for Multiple Images */}
+                {images.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+                      }}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-[8px] bg-black/70 hover:bg-black text-white flex items-center justify-center border border-white/15 transition-all z-20"
+                      title="Previous Image"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+                      }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-[8px] bg-black/70 hover:bg-black text-white flex items-center justify-center border border-white/15 transition-all z-20"
+                      title="Next Image"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
+
                 {/* Aspect ratio overlay badge */}
-                <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-md text-slate-300 font-mono text-xs border border-white/10">
+                <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-[6px] bg-black/70 text-white font-mono text-[10px] border border-white/10 z-20">
                   {prompt.aspectRatio}
                 </div>
               </div>
 
+              {/* Multiple Images Thumbnail Strip */}
+              {images.length > 1 && (
+                <div className="flex items-center gap-2 overflow-x-auto py-1 no-scrollbar">
+                  {images.map((img, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setActiveImageIndex(idx)}
+                      className={`relative w-14 h-14 rounded-[10px] overflow-hidden flex-shrink-0 border transition-all ${
+                        activeImageIndex === idx
+                          ? "border-[var(--text-primary)] ring-1 ring-[var(--text-primary)]"
+                          : "border-[var(--border)] opacity-70 hover:opacity-100"
+                      }`}
+                    >
+                      <Image
+                        src={img}
+                        alt={`Thumb ${idx + 1}`}
+                        fill
+                        className="object-cover"
+                        unoptimized={img.startsWith("data:")}
+                      />
+                      <div className="absolute bottom-0 inset-x-0 bg-black/70 text-[8.5px] text-white font-mono text-center py-0.5">
+                        {idx + 1}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {/* Stats Bar */}
-              <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-white/[0.03] border border-white/5 text-xs text-slate-400">
+              <div className="flex items-center justify-between px-3 py-2 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-secondary)]">
                 <span className="flex items-center gap-1.5 font-medium">
-                  <Copy className="w-3.5 h-3.5 text-[#E85002]" />
+                  <Copy className="w-3.5 h-3.5 stroke-[1.75]" />
                   {formatNumber(prompt.copyCount || 0)} times copied
                 </span>
-                <span>Created {formatDate(prompt.createdAt)}</span>
+                <span className="font-mono text-[11px]">Created {formatDate(prompt.createdAt)}</span>
               </div>
             </div>
 
             {/* Right Column: Prompt Details & Copy Action */}
             <div className="lg:col-span-6 space-y-6">
               <div>
-                <div className="text-xs font-bold text-[#E85002] uppercase tracking-wider mb-1">
+                <div className="text-[11px] font-mono text-[var(--text-muted)] uppercase tracking-wider mb-1">
                   {category?.name}
                 </div>
-                <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                <h1 className="text-xl sm:text-2xl font-medium text-[var(--text-primary)] tracking-tight">
                   {prompt.title}
                 </h1>
               </div>
@@ -215,35 +294,34 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
               {/* Main Prompt Text Box with 1-Click Copy */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-[#E85002]" />
-                    AI Prompt Text
+                  <span className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider font-mono">
+                    Prompt Formula
                   </span>
-                  <span className="text-[11px] text-[#A7A7A7] font-mono">
+                  <span className="text-[11px] text-[var(--text-muted)] font-mono">
                     {prompt.promptText.length} chars
                   </span>
                 </div>
 
-                <div className="relative group rounded-2xl bg-black/60 border border-[#E85002]/20 p-4 font-mono text-xs sm:text-sm text-slate-200 leading-relaxed shadow-inner">
+                <div className="relative group rounded-[12px] bg-[var(--surface-muted)] border border-[var(--border)] p-4 font-mono text-xs sm:text-sm text-[var(--text-primary)] leading-relaxed shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.06)]">
                   <p className="select-all break-words">{prompt.promptText}</p>
 
-                  <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between gap-3">
+                  <div className="mt-4 pt-3 border-t border-[var(--border)]/60 flex items-center justify-between gap-3">
                     <button
                       onClick={handleCopyMain}
-                      className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-lg ${
+                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-[10px] text-xs sm:text-sm font-medium transition-all ${
                         copied
-                          ? "bg-emerald-600 text-white shadow-emerald-950"
-                          : "bg-gradient-to-r from-[#E85002] to-[#F16001] hover:opacity-95 text-white shadow-[#E85002]/40 hover:scale-[1.02] active:scale-[0.98]"
+                          ? "bg-[var(--accent)] text-white shadow-sm"
+                          : "btn-primary"
                       }`}
                     >
                       {copied ? (
                         <>
-                          <Check className="w-4 h-4 text-emerald-200" />
+                          <Check className="w-4 h-4 stroke-[2]" />
                           <span>Copied to Clipboard!</span>
                         </>
                       ) : (
                         <>
-                          <Copy className="w-4 h-4 text-white" />
+                          <Copy className="w-4 h-4 stroke-[1.75]" />
                           <span>Copy Prompt</span>
                         </>
                       )}
@@ -256,22 +334,22 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
               {prompt.negativePrompt && (
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-[#F16001] uppercase tracking-wider">
-                      Negative Prompt (Avoid)
+                    <span className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider font-mono">
+                      Negative Parameters (Avoid)
                     </span>
                     <button
                       onClick={handleCopyNegative}
-                      className="text-xs text-[#E85002] hover:text-[#F16001] flex items-center gap-1"
+                      className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 font-mono"
                     >
                       {copiedNegative ? (
-                        <Check className="w-3 h-3" />
+                        <Check className="w-3 h-3 text-[var(--accent)] stroke-[2]" />
                       ) : (
-                        <Copy className="w-3 h-3" />
+                        <Copy className="w-3 h-3 stroke-[1.75]" />
                       )}
                       <span>{copiedNegative ? "Copied" : "Copy"}</span>
                     </button>
                   </div>
-                  <div className="rounded-xl bg-[#E85002]/10 border border-[#E85002]/20 p-3 font-mono text-xs text-[#F9F9F9] select-all">
+                  <div className="rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] p-3 font-mono text-xs text-[var(--text-secondary)] select-all">
                     {prompt.negativePrompt}
                   </div>
                 </div>
@@ -279,57 +357,57 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
 
               {/* Technical Parameters Grid */}
               <div className="space-y-2">
-                <span className="text-xs font-semibold text-[#F9F9F9] uppercase tracking-wider flex items-center gap-1.5">
-                  <Sliders className="w-3.5 h-3.5 text-[#E85002]" />
-                  Parameters & Settings
+                <span className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider font-mono flex items-center gap-1.5">
+                  <Sliders className="w-3.5 h-3.5 stroke-[1.75]" />
+                  Technical Blueprint
                 </span>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-                  <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
-                    <div className="text-[10px] text-slate-400">Model</div>
-                    <div className="font-semibold text-white truncate mt-0.5">
+                  <div className="p-2.5 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)]">
+                    <div className="text-[10px] text-[var(--text-muted)]">Model</div>
+                    <div className="font-mono text-[var(--text-primary)] truncate mt-0.5">
                       {prompt.model}
                     </div>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
-                    <div className="text-[10px] text-slate-400">Aspect Ratio</div>
-                    <div className="font-semibold font-mono text-white mt-0.5">
+                  <div className="p-2.5 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)]">
+                    <div className="text-[10px] text-[var(--text-muted)]">Aspect Ratio</div>
+                    <div className="font-mono text-[var(--text-primary)] mt-0.5">
                       {prompt.aspectRatio}
                     </div>
                   </div>
 
                   {prompt.parameters?.stylize !== undefined && (
-                    <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
-                      <div className="text-[10px] text-slate-400">Stylize (--s)</div>
-                      <div className="font-semibold font-mono text-white mt-0.5">
+                    <div className="p-2.5 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)]">
+                      <div className="text-[10px] text-[var(--text-muted)]">Stylize (--s)</div>
+                      <div className="font-mono text-[var(--text-primary)] mt-0.5">
                         {prompt.parameters.stylize}
                       </div>
                     </div>
                   )}
 
                   {prompt.parameters?.cfgScale !== undefined && (
-                    <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
-                      <div className="text-[10px] text-slate-400">CFG Scale</div>
-                      <div className="font-semibold font-mono text-white mt-0.5">
+                    <div className="p-2.5 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)]">
+                      <div className="text-[10px] text-[var(--text-muted)]">CFG Scale</div>
+                      <div className="font-mono text-[var(--text-primary)] mt-0.5">
                         {prompt.parameters.cfgScale}
                       </div>
                     </div>
                   )}
 
                   {prompt.parameters?.seed && (
-                    <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
-                      <div className="text-[10px] text-slate-400">Seed</div>
-                      <div className="font-semibold font-mono text-white truncate mt-0.5">
+                    <div className="p-2.5 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)]">
+                      <div className="text-[10px] text-[var(--text-muted)]">Seed</div>
+                      <div className="font-mono text-[var(--text-primary)] truncate mt-0.5">
                         {prompt.parameters.seed}
                       </div>
                     </div>
                   )}
 
                   {prompt.parameters?.sampler && (
-                    <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
-                      <div className="text-[10px] text-slate-400">Sampler</div>
-                      <div className="font-semibold text-white truncate mt-0.5">
+                    <div className="p-2.5 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)]">
+                      <div className="text-[10px] text-[var(--text-muted)]">Sampler</div>
+                      <div className="font-mono text-[var(--text-primary)] truncate mt-0.5">
                         {prompt.parameters.sampler}
                       </div>
                     </div>
@@ -339,16 +417,16 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
 
               {/* Tags */}
               <div className="space-y-2">
-                <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <Tag className="w-3.5 h-3.5 text-[#E85002]" />
-                  Tags
+                <span className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider font-mono flex items-center gap-1.5">
+                  <Tag className="w-3.5 h-3.5 stroke-[1.75]" />
+                  Style Tags
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {prompt.tags.map((tag) => (
                     <button
                       key={tag}
                       onClick={() => handleTagClick(tag)}
-                      className="px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-[#E85002]/20 hover:text-[#F16001] hover:border-[#E85002]/30 border border-white/5 text-xs text-slate-300 transition-all cursor-pointer"
+                      className="px-2.5 py-1 rounded-[8px] bg-[var(--surface-muted)] hover:bg-[var(--surface)] hover:text-[var(--text-primary)] border border-[var(--border)] text-xs text-[var(--text-secondary)] transition-all cursor-pointer font-mono"
                     >
                       #{tag}
                     </button>
@@ -360,10 +438,10 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
 
           {/* Related Prompts Row */}
           {relatedPrompts.length > 0 && (
-            <div className="pt-8 border-t border-white/5 space-y-4">
+            <div className="pt-8 border-t border-[var(--border)] space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-[#E85002]" />
+                <h3 className="text-sm font-medium text-[var(--text-primary)] flex items-center gap-2">
+                  <Layers className="w-4 h-4 stroke-[1.75]" />
                   More Like This
                 </h3>
               </div>
@@ -373,20 +451,20 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                   <div
                     key={related.id}
                     onClick={() => setActiveModalPrompt(related)}
-                    className="group relative rounded-xl overflow-hidden glass-card cursor-pointer border border-white/5 hover:border-[#E85002]/30 transition-all aspect-[4/3]"
+                    className="group relative rounded-[12px] overflow-hidden bg-[var(--surface-muted)] cursor-pointer border border-[var(--border)] hover:border-[var(--border-strong)] transition-all aspect-[4/3]"
                   >
                     <Image
                       src={related.mediaUrl}
                       alt={related.title}
                       fill
                       sizes="25vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent p-2.5 flex flex-col justify-end">
-                      <span className="text-[11px] font-semibold text-white truncate drop-shadow">
+                      <span className="text-[11px] font-medium text-white truncate">
                         {related.title}
                       </span>
-                      <span className="text-[10px] text-[#E85002] font-medium">
+                      <span className="text-[9.5px] font-mono text-white/80">
                         {related.model}
                       </span>
                     </div>

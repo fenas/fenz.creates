@@ -103,27 +103,24 @@ export function Sidebar() {
                   key={item.id}
                   onClick={() => handleNavClick(item.id)}
                   title={item.label}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${
-                    isActive
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${isActive
                       ? "bg-violet-600/15 text-violet-300 border border-violet-500/30 shadow-sm shadow-violet-950"
                       : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] border border-transparent"
-                  }`}
+                    }`}
                 >
                   <Icon
-                    className={`w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 ${
-                      isActive ? "text-violet-400" : "text-slate-400 group-hover:text-slate-200"
-                    } ${item.highlight && !isActive ? "text-amber-400/80" : ""}`}
+                    className={`w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 ${isActive ? "text-violet-400" : "text-slate-400 group-hover:text-slate-200"
+                      } ${item.highlight && !isActive ? "text-amber-400/80" : ""}`}
                   />
                   <span className="hidden lg:inline truncate flex-1 text-left">
                     {item.label}
                   </span>
                   {item.count !== null && (
                     <span
-                      className={`hidden lg:inline-flex items-center justify-center text-xs font-semibold px-2 py-0.5 rounded-full ${
-                        isActive
+                      className={`hidden lg:inline-flex items-center justify-center text-xs font-semibold px-2 py-0.5 rounded-full ${isActive
                           ? "bg-violet-500 text-white"
                           : "bg-white/10 text-slate-300"
-                      }`}
+                        }`}
                     >
                       {item.count}
                     </span>
@@ -145,11 +142,10 @@ export function Sidebar() {
                   setSelectedCategory("all");
                   setActiveTab("discover");
                 }}
-                className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  selectedCategory === "all" && activeTab === "discover"
+                className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${selectedCategory === "all" && activeTab === "discover"
                     ? "text-violet-400 bg-violet-500/10 font-semibold"
                     : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.03]"
-                }`}
+                  }`}
               >
                 <span>All Categories</span>
                 {selectedCategory === "all" && (
@@ -165,11 +161,10 @@ export function Sidebar() {
                       setSelectedCategory(cat.id);
                       setActiveTab("discover");
                     }}
-                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      isSelected
+                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${isSelected
                         ? "text-violet-400 bg-violet-500/10 font-semibold"
                         : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.03]"
-                    }`}
+                      }`}
                   >
                     <span className="truncate">{cat.name}</span>
                     {isSelected && (
@@ -206,9 +201,8 @@ export function Sidebar() {
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
-                className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all relative ${
-                  isActive ? "text-violet-400 font-semibold" : "text-slate-400"
-                }`}
+                className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all relative ${isActive ? "text-violet-400 font-semibold" : "text-slate-400"
+                  }`}
               >
                 <div className="relative">
                   <Icon className="w-5 h-5" />

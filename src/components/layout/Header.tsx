@@ -86,32 +86,29 @@ export function Header() {
           <div className="hidden md:flex items-center p-1 rounded-xl bg-white/[0.04] border border-white/5 text-xs font-medium">
             <button
               onClick={() => setSelectedMediaType("all")}
-              className={`px-2.5 py-1.5 rounded-lg transition-all ${
-                selectedMediaType === "all"
+              className={`px-2.5 py-1.5 rounded-lg transition-all ${selectedMediaType === "all"
                   ? "bg-violet-600 text-white shadow-sm"
                   : "text-slate-400 hover:text-slate-200"
-              }`}
+                }`}
             >
               All
             </button>
             <button
               onClick={() => setSelectedMediaType("image")}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-all ${
-                selectedMediaType === "image"
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-all ${selectedMediaType === "image"
                   ? "bg-violet-600 text-white shadow-sm"
                   : "text-slate-400 hover:text-slate-200"
-              }`}
+                }`}
             >
               <ImageIcon className="w-3.5 h-3.5" />
               <span>Images</span>
             </button>
             <button
               onClick={() => setSelectedMediaType("video")}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-all ${
-                selectedMediaType === "video"
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-all ${selectedMediaType === "video"
                   ? "bg-violet-600 text-white shadow-sm"
                   : "text-slate-400 hover:text-slate-200"
-              }`}
+                }`}
             >
               <Video className="w-3.5 h-3.5" />
               <span>Videos</span>
@@ -200,25 +197,22 @@ export function Header() {
               <span className="text-slate-400">Media:</span>
               <button
                 onClick={() => setSelectedMediaType("all")}
-                className={`px-2 py-0.5 rounded ${
-                  selectedMediaType === "all" ? "bg-violet-600 text-white" : "text-slate-400"
-                }`}
+                className={`px-2 py-0.5 rounded ${selectedMediaType === "all" ? "bg-violet-600 text-white" : "text-slate-400"
+                  }`}
               >
                 All
               </button>
               <button
                 onClick={() => setSelectedMediaType("image")}
-                className={`px-2 py-0.5 rounded ${
-                  selectedMediaType === "image" ? "bg-violet-600 text-white" : "text-slate-400"
-                }`}
+                className={`px-2 py-0.5 rounded ${selectedMediaType === "image" ? "bg-violet-600 text-white" : "text-slate-400"
+                  }`}
               >
                 Images
               </button>
               <button
                 onClick={() => setSelectedMediaType("video")}
-                className={`px-2 py-0.5 rounded ${
-                  selectedMediaType === "video" ? "bg-violet-600 text-white" : "text-slate-400"
-                }`}
+                className={`px-2 py-0.5 rounded ${selectedMediaType === "video" ? "bg-violet-600 text-white" : "text-slate-400"
+                  }`}
               >
                 Videos
               </button>

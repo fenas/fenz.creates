@@ -19,8 +19,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const tutorial = initialTutorials.find((t) => t.slug === slug);
 
   if (!tutorial) {
+    const formattedTitle = slug
+      .split("-")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
+
     return {
-      title: "Tutorial Not Found - fenz.creates",
+      title: `${formattedTitle} — AI Prompting Guide | fenz.creates`,
+      description: "Step-by-step AI workflow and prompt engineering tutorial.",
     };
   }
 
@@ -53,11 +59,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function TutorialPage({ params }: Props) {
   const { slug } = await params;
-  const initialTutorial = initialTutorials.find((t) => t.slug === slug);
+  const initialTutorial = initialTutorials.find((t) => t.slug === slug) || null;
 
-  if (!initialTutorial) {
-    notFound();
-  }
-
-  return <TutorialDetailClient initialTutorial={initialTutorial} />;
+  return <TutorialDetailClient initialTutorial={initialTutorial} slug={slug} />;
 }
+

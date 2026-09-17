@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/ui/Toast";
 import { PromptProvider } from "@/context/PromptContext";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { ThemeScript } from "@/components/theme/ThemeScript";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,31 +17,32 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "fenz.creates — AI Prompt Showcase & Discovery",
+  title: "Arenae — AI Prompt Showcase & Workflow Studio",
   description:
-    "Curated library of world-class AI prompts for Midjourney v6, Flux.1 Pro, SDXL, and video models. Free to browse and 1-click copy.",
+    "Curated library of world-class AI prompts for Midjourney v6, Flux.1 Pro, SDXL, and video models. Free to browse, learn workflows, and 1-click copy.",
   keywords: [
+    "Arenae",
+    "Arenae Online",
     "AI Prompts",
     "Midjourney Prompts",
     "Flux Prompts",
     "Stable Diffusion",
     "AI Art Gallery",
     "Prompt Engineering",
-    "fenz.creates",
   ],
-  authors: [{ name: "fenz.creates" }],
+  authors: [{ name: "Arenae Online" }],
   openGraph: {
-    title: "fenz.creates — Curated AI Prompt Gallery",
+    title: "Arenae — Curated AI Prompt Gallery & Workflow Studio",
     description:
-      "Explore, copy, and remix world-class AI prompt formulas. Instant 1-click copy, high-res visual showcases.",
-    url: "https://fenz.creates",
-    siteName: "fenz.creates",
+      "Explore, copy, and remix world-class AI prompt formulas. Instant 1-click copy, high-res visual showcases, and workflow tutorials.",
+    url: "https://arenae.online",
+    siteName: "Arenae Online",
     images: [
       {
         url: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=1600&auto=format&fit=crop",
         width: 1200,
         height: 630,
-        alt: "fenz.creates AI Prompt Gallery",
+        alt: "Arenae AI Prompt Gallery",
       },
     ],
     locale: "en_US",
@@ -47,9 +50,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "fenz.creates — AI Prompt Showcase",
+    title: "Arenae — AI Prompt Showcase",
     description:
-      "Curated visual formulas for Midjourney, Flux, and SDXL creators.",
+      "Curated visual formulas and masterclass workflows for Midjourney, Flux, and AI video creators.",
     images: [
       "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=1600&auto=format&fit=crop",
     ],
@@ -72,7 +75,6 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   viewportFit: "cover",
-  themeColor: "#07080b",
 };
 
 export default function RootLayout({
@@ -83,12 +85,21 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} dark antialiased`}
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
     >
-      <body className="bg-[#07080b] text-white min-h-screen selection:bg-violet-600/40 selection:text-white">
-        <ToastProvider>
-          <PromptProvider>{children}</PromptProvider>
-        </ToastProvider>
+      <head>
+        <ThemeScript />
+      </head>
+      <body
+        suppressHydrationWarning
+        className="min-h-screen selection:bg-[#E85002]/30 selection:text-current"
+      >
+        <ThemeProvider>
+          <ToastProvider>
+            <PromptProvider>{children}</PromptProvider>
+          </ToastProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import {
   X,
@@ -12,10 +12,19 @@ import {
   Save,
   Sliders,
   Eye,
+  Plus,
+  Trash2,
+  Star,
+  ChevronLeft,
+  ChevronRight,
+  ArrowLeft,
+  ArrowRight,
+  Layers,
 } from "lucide-react";
 import { Prompt, AspectRatio, MediaType } from "@/types";
 import { usePromptStore } from "@/context/PromptContext";
 import { useToast } from "@/components/ui/Toast";
+import { uploadMediaToSupabase } from "@/lib/supabase";
 
 interface PromptEditorModalProps {
   promptToEdit: Prompt | null;
@@ -36,7 +45,10 @@ export function PromptEditorModal({
   const [title, setTitle] = useState("");
   const [promptText, setPromptText] = useState("");
   const [negativePrompt, setNegativePrompt] = useState("");
-  const [mediaUrl, setMediaUrl] = useState("");
+  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [urlInput, setUrlInput] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
   const [mediaType, setMediaType] = useState<MediaType>("image");
   const [model, setModel] = useState("Midjourney v6");
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("16:9");
@@ -46,6 +58,8 @@ export function PromptEditorModal({
   const [featured, setFeatured] = useState(false);
   const [isHeroBanner, setIsHeroBanner] = useState(false);
   const [status, setStatus] = useState<"published" | "draft">("published");
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Advanced parameters
   const [seed, setSeed] = useState("");
@@ -58,7 +72,14 @@ export function PromptEditorModal({
       setTitle(promptToEdit.title);
       setPromptText(promptToEdit.promptText);
       setNegativePrompt(promptToEdit.negativePrompt || "");
-      setMediaUrl(promptToEdit.mediaUrl);
+      const existingUrls =
+        promptToEdit.mediaUrls && promptToEdit.mediaUrls.length > 0
+          ? promptToEdit.mediaUrls
+          : promptToEdit.mediaUrl
+          ? [promptToEdit.mediaUrl]
+          : [];
+      setMediaUrls(existingUrls);
+      setActiveImageIndex(0);
       setMediaType(promptToEdit.type || "image");
       setModel(promptToEdit.model);
       setAspectRatio(promptToEdit.aspectRatio);
@@ -75,7 +96,10 @@ export function PromptEditorModal({
       setTitle("");
       setPromptText("");
       setNegativePrompt("");
-      setMediaUrl("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop");
+      setMediaUrls([
+        "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop",
+      ]);
+      setActiveImageIndex(0);
       setMediaType("image");
       setModel("Midjourney v6");
       setAspectRatio("16:9");
@@ -104,19 +128,109 @@ export function PromptEditorModal({
     setTags(tags.filter((t) => t !== tag));
   };
 
-  // Local file upload preview handler
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (reader.result) {
-          setMediaUrl(reader.result.toString());
-          showToast("Image loaded into preview", "success");
-        }
-      };
-      reader.readAsDataURL(file);
+  // Multiple local file uploads with Supabase Storage integration
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const fileList = Array.from(files);
+    const validFiles = fileList.filter((f) => f.type.startsWith("image/"));
+
+    if (validFiles.length === 0) {
+      showToast("Please choose valid image files", "error");
+      return;
     }
+
+    showToast(`Uploading ${validFiles.length} image(s) to Supabase Storage...`, "info");
+
+    try {
+      const uploadPromises = validFiles.map((file) =>
+        uploadMediaToSupabase(file, "prompts")
+      );
+      const results = await Promise.all(uploadPromises);
+      const validUrls = results
+        .map((r: { url: string; isRemote: boolean }) => r.url)
+        .filter(Boolean);
+
+      setMediaUrls((prev) => [...prev, ...validUrls]);
+      showToast(`Added ${validUrls.length} image(s)`, "success");
+    } catch {
+      showToast("Upload encountered an issue", "error");
+    }
+
+    e.target.value = "";
+  };
+
+  const handleDropFiles = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = e.dataTransfer.files;
+    if (!files || files.length === 0) return;
+
+    const fileList = Array.from(files);
+    const validFiles = fileList.filter((f) => f.type.startsWith("image/"));
+
+    if (validFiles.length === 0) return;
+
+    showToast(`Uploading ${validFiles.length} image(s) to Supabase Storage...`, "info");
+
+    try {
+      const uploadPromises = validFiles.map((file) =>
+        uploadMediaToSupabase(file, "prompts")
+      );
+      const results = await Promise.all(uploadPromises);
+      const validUrls = results
+        .map((r: { url: string; isRemote: boolean }) => r.url)
+        .filter(Boolean);
+
+      setMediaUrls((prev) => [...prev, ...validUrls]);
+      showToast(`Added ${validUrls.length} image(s)`, "success");
+    } catch {
+      showToast("Upload encountered an issue", "error");
+    }
+  };
+
+  const handleAddUrl = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!urlInput.trim()) return;
+    setMediaUrls((prev) => [...prev, urlInput.trim()]);
+    setUrlInput("");
+    showToast("Image URL added", "success");
+  };
+
+  const handleRemoveImage = (index: number) => {
+    if (mediaUrls.length <= 1) {
+      showToast("Prompt must have at least one image", "error");
+      return;
+    }
+    setMediaUrls((prev) => prev.filter((_, i) => i !== index));
+    if (activeImageIndex >= mediaUrls.length - 1) {
+      setActiveImageIndex(Math.max(0, mediaUrls.length - 2));
+    }
+    showToast("Image removed", "info");
+  };
+
+  const handleSetPrimary = (index: number) => {
+    if (index === 0) return;
+    setMediaUrls((prev) => {
+      const next = [...prev];
+      const [item] = next.splice(index, 1);
+      next.unshift(item);
+      return next;
+    });
+    setActiveImageIndex(0);
+    showToast("Set as primary cover image", "success");
+  };
+
+  const handleMoveImage = (from: number, to: number) => {
+    if (to < 0 || to >= mediaUrls.length) return;
+    setMediaUrls((prev) => {
+      const next = [...prev];
+      const [item] = next.splice(from, 1);
+      next.splice(to, 0, item);
+      return next;
+    });
+    setActiveImageIndex(to);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -127,15 +241,18 @@ export function PromptEditorModal({
       return;
     }
 
-    const finalMedia =
-      mediaUrl.trim() ||
-      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop";
+    const finalUrls =
+      mediaUrls.length > 0
+        ? mediaUrls
+        : ["https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop"];
+    const finalMedia = finalUrls[0];
 
     const promptData = {
       title: title.trim(),
       promptText: promptText.trim(),
       negativePrompt: negativePrompt.trim() || undefined,
       mediaUrl: finalMedia,
+      mediaUrls: finalUrls,
       type: mediaType,
       model,
       aspectRatio,
@@ -166,6 +283,8 @@ export function PromptEditorModal({
     onClose();
   };
 
+  const currentPreviewUrl = mediaUrls[activeImageIndex] || mediaUrls[0] || "";
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div className="fixed inset-0" onClick={onClose} />
@@ -182,7 +301,7 @@ export function PromptEditorModal({
                 {isEditing ? "Edit Prompt Showcase" : "Create New Prompt Showcase"}
               </h2>
               <p className="text-[11px] text-slate-400">
-                Configure artwork, model specifications, and search tags
+                Upload multiple showcase images, model specifications, and search tags
               </p>
             </div>
           </div>
@@ -198,21 +317,44 @@ export function PromptEditorModal({
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Left side: Media preview & upload */}
+            {/* Left side: Media preview & multiple upload */}
             <div className="lg:col-span-5 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2">
-                  Media Artwork Preview
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                    <span>Showcase Images</span>
+                    <span className="px-2 py-0.5 rounded-full bg-[#E85002]/20 text-[#F16001] text-[10px] font-bold">
+                      {mediaUrls.length} image{mediaUrls.length !== 1 ? "s" : ""}
+                    </span>
+                  </label>
+                  {mediaUrls.length > 1 && (
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      Image {activeImageIndex + 1} of {mediaUrls.length}
+                    </span>
+                  )}
+                </div>
 
-                <div className="relative rounded-2xl overflow-hidden bg-slate-950 border border-white/10 aspect-square flex items-center justify-center group">
-                  {mediaUrl ? (
+                {/* Main Preview Box */}
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragging(true);
+                  }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={handleDropFiles}
+                  className={`relative rounded-2xl overflow-hidden bg-slate-950 border transition-all aspect-square flex items-center justify-center group ${
+                    isDragging
+                      ? "border-[#E85002] ring-2 ring-[#E85002]/40"
+                      : "border-white/10"
+                  }`}
+                >
+                  {currentPreviewUrl ? (
                     <Image
-                      src={mediaUrl}
+                      src={currentPreviewUrl}
                       alt="Preview"
                       fill
                       className="object-cover"
-                      unoptimized={mediaUrl.startsWith("data:")}
+                      unoptimized={currentPreviewUrl.startsWith("data:")}
                     />
                   ) : (
                     <div className="text-center p-4 text-slate-400 text-xs">
@@ -221,41 +363,203 @@ export function PromptEditorModal({
                     </div>
                   )}
 
-                  {/* Media Type Overlay */}
-                  <div className="absolute top-3 left-3 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-xs font-semibold text-slate-200">
-                    {mediaType === "video" ? "🎬 Video" : "🖼️ Image"}
+                  {/* Top Left: Active badge */}
+                  <div className="absolute top-3 left-3 flex items-center gap-1 z-10">
+                    <div className="px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-[11px] font-semibold text-slate-200">
+                      {mediaType === "video" ? "🎬 Video" : "🖼️ Image"}
+                    </div>
+                    {activeImageIndex === 0 && (
+                      <span className="px-2 py-0.5 rounded-lg bg-[#E85002] text-white text-[10px] font-bold shadow-md">
+                        Primary Cover
+                      </span>
+                    )}
                   </div>
 
-                  <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-xs font-mono text-slate-300">
+                  <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-xs font-mono text-slate-300 z-10">
                     {aspectRatio}
                   </div>
+
+                  {/* Navigation Arrows on Preview Box */}
+                  {mediaUrls.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveImageIndex((prev) =>
+                            prev === 0 ? mediaUrls.length - 1 : prev - 1
+                          );
+                        }}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/70 hover:bg-[#E85002] text-white backdrop-blur-md transition-all z-10 shadow-lg"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveImageIndex((prev) =>
+                            prev === mediaUrls.length - 1 ? 0 : prev + 1
+                          );
+                        }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/70 hover:bg-[#E85002] text-white backdrop-blur-md transition-all z-10 shadow-lg"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
 
-              {/* Upload or URL input */}
+              {/* Upload Multiple Files & Add URL Bar */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Upload local file or URL:</span>
-                  <label className="text-[#F16001] hover:text-[#E85002] cursor-pointer flex items-center gap-1 font-semibold">
-                    <Upload className="w-3 h-3" /> Browse File
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
-                  </label>
+                  <span className="text-slate-400 font-medium">Add more images:</span>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="px-2.5 py-1 rounded-lg bg-[#E85002]/15 hover:bg-[#E85002] text-[#F16001] hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 font-bold text-[11px]"
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Upload Multiple Files</span>
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
                 </div>
 
-                <input
-                  type="url"
-                  required
-                  value={mediaUrl}
-                  onChange={(e) => setMediaUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-3 py-2 rounded-xl glass-input text-xs"
-                />
+                {/* Paste URL Input */}
+                <div className="flex gap-1.5">
+                  <input
+                    type="url"
+                    value={urlInput}
+                    onChange={(e) => setUrlInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        if (urlInput.trim()) {
+                          setMediaUrls((prev) => [...prev, urlInput.trim()]);
+                          setUrlInput("");
+                          showToast("Image URL added", "success");
+                        }
+                      }
+                    }}
+                    placeholder="Paste image URL (https://...)"
+                    className="flex-1 px-3 py-1.5 rounded-xl glass-input text-xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddUrl}
+                    className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-1"
+                  >
+                    <Plus className="w-3.5 h-3.5 text-[#E85002]" />
+                    <span>Add</span>
+                  </button>
+                </div>
               </div>
+
+              {/* Uploaded Images Gallery Strip / Manager */}
+              {mediaUrls.length > 0 && (
+                <div className="space-y-2 pt-1 border-t border-white/5">
+                  <div className="text-[11px] font-semibold text-slate-400 flex items-center justify-between">
+                    <span>Manage Uploaded Gallery ({mediaUrls.length})</span>
+                    <span className="text-[10px] text-slate-400">Click to preview • Star to set cover</span>
+                  </div>
+
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1">
+                    {mediaUrls.map((url, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => setActiveImageIndex(idx)}
+                        className={`group/thumb relative rounded-xl overflow-hidden aspect-square border cursor-pointer transition-all ${
+                          activeImageIndex === idx
+                            ? "border-[#E85002] ring-2 ring-[#E85002]/50 scale-[1.02]"
+                            : "border-white/10 hover:border-white/30 bg-slate-950"
+                        }`}
+                      >
+                        <Image
+                          src={url}
+                          alt={`Thumbnail ${idx + 1}`}
+                          fill
+                          className="object-cover"
+                          unoptimized={url.startsWith("data:")}
+                        />
+
+                        {/* Order badge */}
+                        <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-[9px] font-mono text-white font-bold">
+                          {idx === 0 ? "★ Cover" : `#${idx + 1}`}
+                        </div>
+
+                        {/* Hover Overlay Controls */}
+                        <div className="absolute inset-0 bg-black/70 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex flex-col items-center justify-between p-1">
+                          <div className="flex items-center justify-end w-full">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveImage(idx);
+                              }}
+                              className="p-1 rounded-md bg-red-500/80 hover:bg-red-600 text-white"
+                              title="Delete image"
+                            >
+                              <Trash2 className="w-2.5 h-2.5" />
+                            </button>
+                          </div>
+
+                          <div className="flex items-center gap-1">
+                            {idx > 0 && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSetPrimary(idx);
+                                }}
+                                className="px-1.5 py-0.5 rounded bg-[#E85002] hover:bg-[#F16001] text-[9px] font-bold text-white flex items-center gap-0.5"
+                                title="Make Primary Cover"
+                              >
+                                <Star className="w-2.5 h-2.5 fill-white" />
+                                <span>Cover</span>
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="flex items-center justify-between w-full">
+                            <button
+                              type="button"
+                              disabled={idx === 0}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleMoveImage(idx, idx - 1);
+                              }}
+                              className="p-1 rounded-md bg-white/20 hover:bg-white/40 text-white disabled:opacity-30"
+                              title="Move left"
+                            >
+                              <ArrowLeft className="w-2.5 h-2.5" />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={idx === mediaUrls.length - 1}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleMoveImage(idx, idx + 1);
+                              }}
+                              className="p-1 rounded-md bg-white/20 hover:bg-white/40 text-white disabled:opacity-30"
+                              title="Move right"
+                            >
+                              <ArrowRight className="w-2.5 h-2.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Media Type Switcher (Image vs Video) */}
               <div>

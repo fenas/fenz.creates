@@ -20,6 +20,7 @@ export interface Prompt {
   promptText: string;
   negativePrompt?: string;
   mediaUrl: string;
+  mediaUrls?: string[];
   thumbnailUrl?: string;
   model: string;
   aspectRatio: AspectRatio;
@@ -43,21 +44,32 @@ export interface Category {
   description?: string;
 }
 
+import { ArticleBlock } from "./blocks";
+
+export * from "./blocks";
+
 export interface Tutorial {
   id: string;
   slug: string;
   title: string;
+  subtitle?: string;
   description: string;
   readTime: string;
   level: "Beginner" | "Intermediate" | "Advanced";
   model: string;
   mediaUrl: string;
+  coverAlt?: string;
+  status?: "published" | "draft";
+  tags?: string[];
+  blocks?: ArticleBlock[];
   content: string[];
   tips: string[];
   samplePrompt: string;
   body?: string;
   createdAt?: string;
+  updatedAt?: string;
 }
+
 
 export interface ComingSoonFeature {
   id: string;

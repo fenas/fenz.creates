@@ -8,8 +8,6 @@ import {
   Copy,
   Check,
   Flame,
-  Bookmark,
-  Sparkles,
   X,
   History,
 } from "lucide-react";
@@ -24,7 +22,6 @@ export function RightCompanionPanel() {
     setSearchQuery,
     copyPrompt,
     setActiveModalPrompt,
-    savedPromptIds,
     sortBy,
     setSortBy,
   } = usePromptStore();
@@ -52,23 +49,23 @@ export function RightCompanionPanel() {
   return (
     <aside className="w-full lg:w-80 xl:w-88 flex-shrink-0 flex flex-col gap-4">
       {/* Floating Card Container */}
-      <div className="p-4 sm:p-5 rounded-[28px] floating-panel bg-[#0e1017]/95 border border-white/10 shadow-2xl space-y-6">
+      <div className="p-4 sm:p-5 rounded-[22px] bg-[var(--surface)] border border-[var(--border)] shadow-[0_4px_16px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.03)] space-y-5">
         {/* Top Search Input */}
         <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--icon-secondary)] stroke-[1.75]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search prompts..."
-            className="w-full pl-10 pr-9 py-2.5 rounded-2xl glass-input text-xs font-medium placeholder-slate-400"
+            placeholder="Search blueprints..."
+            className="w-full pl-10 pr-9 py-2 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs font-normal text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-secondary)] shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.06)]"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-3.5 h-3.5 stroke-[1.75]" />
             </button>
           )}
         </div>
@@ -76,71 +73,70 @@ export function RightCompanionPanel() {
         {/* Section 1: Trending Now */}
         <div className="space-y-3">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-bold text-white tracking-tight flex items-center gap-1.5">
-              <Flame className="w-3.5 h-3.5 text-[#E85002]" />
-              Trending Now
+            <span className="font-medium text-[var(--text-primary)] tracking-tight flex items-center gap-1.5 font-mono text-[11px] uppercase">
+              <Flame className="w-3.5 h-3.5 text-[var(--icon-secondary)] stroke-[1.75]" />
+              Trending Blueprint
             </span>
-            <div className="flex items-center gap-1 text-[11px] text-[#A7A7A7] font-medium">
-              <span>Sort by:</span>
+            <div className="flex items-center gap-1 text-[10.5px] text-[var(--text-secondary)] font-mono">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="bg-transparent text-[#F9F9F9] font-semibold cursor-pointer focus:outline-none"
+                className="bg-transparent text-[var(--text-primary)] cursor-pointer focus:outline-none font-mono"
               >
-                <option value="trending" className="bg-[#0f1117]">Today</option>
-                <option value="newest" className="bg-[#0f1117]">Newest</option>
-                <option value="most-copied" className="bg-[#0f1117]">All Time</option>
+                <option value="trending" className="bg-[var(--surface-elevated)]">Today</option>
+                <option value="newest" className="bg-[var(--surface-elevated)]">Newest</option>
+                <option value="most-copied" className="bg-[var(--surface-elevated)]">All Time</option>
               </select>
-              <ArrowUpDown className="w-3 h-3 text-slate-400" />
+              <ArrowUpDown className="w-3 h-3 text-[var(--icon-secondary)]" />
             </div>
           </div>
 
           {/* Stacks */}
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {trendingPrompts.map((p) => {
               const isCopied = copiedId === p.id;
               return (
                 <div
                   key={p.id}
                   onClick={() => setActiveModalPrompt(p)}
-                  className="group relative rounded-2xl overflow-hidden bg-[#141418] border border-white/10 p-3 flex items-center justify-between gap-3 cursor-pointer hover:border-[#E85002]/40 hover:bg-[#1a1a20] transition-all"
+                  className="group relative rounded-[12px] overflow-hidden bg-[var(--surface-muted)] border border-[var(--border)] p-3 flex items-center justify-between gap-3 cursor-pointer hover:border-[var(--border-strong)] transition-all"
                 >
-                  <div className="min-w-0 flex-1 space-y-1">
-                    <span className="text-[9px] font-bold text-[#E85002] uppercase tracking-wider">
+                  <div className="min-w-0 flex-1 space-y-0.5">
+                    <span className="text-[9px] font-mono text-[var(--text-muted)] uppercase">
                       {p.model}
                     </span>
-                    <h4 className="text-xs font-bold text-white truncate group-hover:text-[#F16001] transition-colors">
+                    <h4 className="text-xs font-medium text-[var(--text-primary)] truncate">
                       {p.title}
                     </h4>
-                    <p className="text-[10px] text-slate-400 truncate font-mono">
+                    <p className="text-[10px] text-[var(--text-secondary)] truncate font-mono">
                       {p.promptText}
                     </p>
                   </div>
 
-                  <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-slate-900 flex-shrink-0 border border-white/10">
+                  <div className="relative w-14 h-14 rounded-[8px] overflow-hidden bg-[#1E1E1E] flex-shrink-0 border border-[var(--border)]">
                     <Image
                       src={p.mediaUrl}
                       alt={p.title}
                       fill
-                      sizes="64px"
-                      className="object-cover group-hover:scale-105 transition-transform"
+                      sizes="56px"
+                      className="object-cover group-hover:scale-[1.03] transition-transform"
                     />
-                    <div className="absolute inset-0 bg-black/30" />
+                    <div className="absolute inset-0 bg-black/20" />
 
-                    {/* Circular Play / Copy Button */}
+                    {/* Circular Copy Button */}
                     <button
                       onClick={(e) => handleCopy(e, p)}
-                      className={`absolute inset-0 m-auto w-7 h-7 rounded-full flex items-center justify-center shadow-lg transition-all ${
+                      className={`absolute inset-0 m-auto w-6 h-6 rounded-[6px] flex items-center justify-center shadow-sm transition-all ${
                         isCopied
-                          ? "bg-emerald-500 text-white"
-                          : "bg-white/90 text-black hover:bg-white hover:scale-110"
+                          ? "bg-[var(--accent)] text-white"
+                          : "bg-white/90 text-black hover:bg-white"
                       }`}
                       title="Copy Prompt"
                     >
                       {isCopied ? (
-                        <Check className="w-3.5 h-3.5" />
+                        <Check className="w-3 h-3 stroke-[2]" />
                       ) : (
-                        <Copy className="w-3.5 h-3.5 text-black" />
+                        <Copy className="w-3 h-3 stroke-[1.75]" />
                       )}
                     </button>
                   </div>
@@ -150,39 +146,39 @@ export function RightCompanionPanel() {
           </div>
         </div>
 
-        {/* Section 2: Continue Browsing / Quick Prompts */}
-        <div className="space-y-3 pt-2 border-t border-white/5">
+        {/* Section 2: Quick Formulas */}
+        <div className="space-y-3 pt-2 border-t border-[var(--border)]/60">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-bold text-white tracking-tight flex items-center gap-1.5">
-              <History className="w-3.5 h-3.5 text-violet-400" />
+            <span className="font-medium text-[var(--text-primary)] tracking-tight flex items-center gap-1.5 font-mono text-[11px] uppercase">
+              <History className="w-3.5 h-3.5 text-[var(--icon-secondary)] stroke-[1.75]" />
               Quick Formulas
             </span>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {recentPrompts.map((p) => {
               const isCopied = copiedId === p.id;
               return (
                 <div
                   key={p.id}
                   onClick={() => setActiveModalPrompt(p)}
-                  className="group flex items-center justify-between gap-3 p-2 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-transparent hover:border-white/5 transition-all cursor-pointer"
+                  className="group flex items-center justify-between gap-3 p-2 rounded-[10px] hover:bg-[var(--surface-muted)] border border-transparent hover:border-[var(--border)] transition-all cursor-pointer"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-slate-900 flex-shrink-0">
+                    <div className="relative w-9 h-9 rounded-[6px] overflow-hidden bg-[#1E1E1E] flex-shrink-0 border border-[var(--border)]">
                       <Image
                         src={p.mediaUrl}
                         alt={p.title}
                         fill
-                        sizes="40px"
+                        sizes="36px"
                         className="object-cover"
                       />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-xs font-semibold text-white truncate group-hover:text-violet-300 transition-colors">
+                      <div className="text-xs font-normal text-[var(--text-primary)] truncate">
                         {p.title}
                       </div>
-                      <div className="text-[10px] text-slate-400 font-mono truncate">
+                      <div className="text-[9.5px] text-[var(--text-muted)] font-mono truncate">
                         {p.model} • {formatNumber(p.copyCount || 0)} copies
                       </div>
                     </div>
@@ -190,16 +186,16 @@ export function RightCompanionPanel() {
 
                   <button
                     onClick={(e) => handleCopy(e, p)}
-                    className={`w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center transition-all ${
+                    className={`w-6 h-6 rounded-[6px] flex-shrink-0 flex items-center justify-center transition-all ${
                       isCopied
-                        ? "bg-emerald-500 text-white"
-                        : "bg-white/80 hover:bg-white text-black hover:scale-110"
+                        ? "bg-[var(--accent)] text-white"
+                        : "bg-[var(--surface-muted)] hover:bg-[var(--surface-elevated)] text-[var(--text-primary)] border border-[var(--border)]"
                     }`}
                   >
                     {isCopied ? (
-                      <Check className="w-3 h-3" />
+                      <Check className="w-3 h-3 stroke-[2]" />
                     ) : (
-                      <Copy className="w-2.5 h-2.5 text-black" />
+                      <Copy className="w-2.5 h-2.5 stroke-[1.75]" />
                     )}
                   </button>
                 </div>

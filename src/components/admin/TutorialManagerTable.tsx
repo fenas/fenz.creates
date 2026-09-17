@@ -97,6 +97,7 @@ export function TutorialManagerTable({
                             fill
                             sizes="48px"
                             className="object-cover"
+                            unoptimized={t.mediaUrl?.startsWith("data:")}
                           />
                         </Link>
                         <div className="min-w-0 flex-1 max-w-sm sm:max-w-md lg:max-w-xl">

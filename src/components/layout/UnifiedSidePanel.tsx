@@ -80,13 +80,12 @@ export function UnifiedSidePanel({
     <>
       {/* Desktop & Tablet Collapsible Sidebar */}
       <aside
-        className={`hidden md:flex flex-col justify-between fixed top-0 left-0 bottom-0 z-30 transition-all duration-300 floating-panel bg-[#0b0d14]/95 border-r border-white/10 ${
-          isCollapsed ? "w-20" : "w-64"
-        }`}
+        className={`hidden md:flex flex-col justify-between fixed top-0 left-0 bottom-0 z-30 transition-all duration-300 floating-panel bg-[#0b0d14]/95 border-r border-white/10 grey:border-none ${isCollapsed ? "w-20" : "w-64"
+          }`}
       >
         {/* Top Header & Logo */}
         <div>
-          <div className="h-18 px-4 flex items-center justify-between border-b border-white/5">
+          <div className="h-18 px-4 flex items-center justify-between border-b border-white/5 grey:border-none">
             <Link
               href="/"
               onClick={() => {
@@ -136,16 +135,14 @@ export function UnifiedSidePanel({
                   key={item.id}
                   onClick={() => handleNavClick(item.id)}
                   title={item.label}
-                  className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-xs font-semibold transition-all group relative ${
-                    active
-                      ? "bg-[#202433] text-white shadow-md shadow-black/40 border border-white/10"
+                  className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-xs font-semibold transition-all group relative ${active
+                      ? "bg-[#202433] text-white grey:bg-white grey:text-black shadow-md shadow-black/40 border border-white/10 grey:border-none"
                       : "text-slate-400 hover:text-white hover:bg-white/[0.05]"
-                  } ${isCollapsed ? "justify-center px-0" : ""}`}
+                    } ${isCollapsed ? "justify-center px-0" : ""}`}
                 >
                   <Icon
-                    className={`w-4 h-4 flex-shrink-0 transition-transform group-hover:scale-110 ${
-                      active ? "text-white" : "text-slate-400 group-hover:text-white"
-                    }`}
+                    className={`w-4 h-4 flex-shrink-0 transition-transform group-hover:scale-110 ${active ? "text-white" : "text-slate-400 group-hover:text-white"
+                      }`}
                   />
 
                   {!isCollapsed && (
@@ -192,9 +189,8 @@ export function UnifiedSidePanel({
           <button
             onClick={() => setIsSubmitModalOpen(true)}
             title="Submit Prompt"
-            className={`w-full flex items-center gap-2.5 py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#E85002] to-[#F16001] hover:from-[#F16001] hover:to-[#E85002] text-white text-xs font-bold shadow-lg shadow-[#E85002]/40 transition-all hover:scale-[1.02] active:scale-[0.98] ${
-              isCollapsed ? "justify-center px-0" : ""
-            }`}
+            className={`w-full flex items-center gap-2.5 py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#E85002] to-[#F16001] hover:from-[#F16001] hover:to-[#E85002] text-white text-xs font-bold shadow-lg shadow-[#E85002]/40 transition-all hover:scale-[1.02] active:scale-[0.98] ${isCollapsed ? "justify-center px-0" : ""
+              }`}
           >
             <PlusCircle className="w-4 h-4 flex-shrink-0" />
             {!isCollapsed && <span className="truncate">Submit Prompt</span>}
@@ -213,9 +209,8 @@ export function UnifiedSidePanel({
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
-                className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all relative ${
-                  active ? "text-white font-bold" : "text-slate-400"
-                }`}
+                className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all relative ${active ? "text-white font-bold" : "text-slate-400"
+                  }`}
               >
                 <div className="relative">
                   <Icon className="w-5 h-5" />

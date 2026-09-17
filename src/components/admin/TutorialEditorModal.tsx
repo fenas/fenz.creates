@@ -1,26 +1,40 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import Link from "next/link";
 import {
-  Bold,
-  Code2,
-  Heading2,
-  Heading3,
-  Image as ImageIcon,
-  Italic,
-  Link as LinkIcon,
-  List,
-  ListOrdered,
-  Quote,
+  ArrowLeft,
   Save,
-  Underline,
-  Upload,
-  Video,
+  Eye,
+  Sliders,
+  Sparkles,
+  Plus,
+  Check,
+  RotateCcw,
+  BookOpen,
   X,
+  Layers,
+  Clock,
+  Send,
 } from "lucide-react";
 import { Tutorial } from "@/types";
+import { ArticleBlock, BlockType } from "@/types/blocks";
 import { usePromptStore } from "@/context/PromptContext";
 import { useToast } from "@/components/ui/Toast";
+import {
+  createBlock,
+  convertTutorialToBlocks,
+  calculateBlocksReadTime,
+  extractSummaryFromBlocks,
+  convertBlocksToHtml,
+} from "@/lib/blockConverter";
+import { slugify } from "@/lib/utils";
+import { ArticleHeaderEditor } from "./block-editor/ArticleHeaderEditor";
+import { BlockItem } from "./block-editor/BlockItem";
+import { AddBlockMenu, AddBlockOption } from "./block-editor/AddBlockMenu";
+import { FloatingFormatToolbar } from "./block-editor/FloatingFormatToolbar";
+import { BlockEditorSettingsDrawer } from "./block-editor/BlockEditorSettingsDrawer";
+import { StructuredArticleRenderer } from "@/components/tutorials/StructuredArticleRenderer";
 
 interface TutorialEditorModalProps {
   tutorialToEdit: Tutorial | null;
@@ -28,217 +42,432 @@ interface TutorialEditorModalProps {
   onClose: () => void;
 }
 
-const defaultCover =
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop";
-
-function escapeHtml(value: string) {
-  return value.replace(/[&<>"]/g, (character) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-  })[character] || character);
-}
-
-function getYouTubeEmbedUrl(value: string) {
-  try {
-    const url = new URL(value.trim());
-    const host = url.hostname.replace(/^www\./, "");
-    let id = "";
-
-    if (host === "youtu.be") id = url.pathname.slice(1);
-    if (host === "youtube.com" || host === "m.youtube.com") {
-      id = url.searchParams.get("v") || "";
-      if (!id && (url.pathname.startsWith("/embed/") || url.pathname.startsWith("/shorts/"))) {
-        id = url.pathname.split("/")[2] || "";
-      }
-    }
-
-    return /^[A-Za-z0-9_-]{6,}$/.test(id)
-      ? `https://www.youtube-nocookie.com/embed/${id}`
-      : null;
-  } catch {
-    return null;
-  }
-}
+const defaultCover = "";
 
 export function TutorialEditorModal({
   tutorialToEdit,
   isOpen,
   onClose,
 }: TutorialEditorModalProps) {
-  const { addTutorial, updateTutorial } = usePromptStore();
+  const { addTutorial, updateTutorial, deleteTutorial } = usePromptStore();
   const { showToast } = useToast();
-  const editorRef = useRef<HTMLDivElement>(null);
-  const imageInputRef = useRef<HTMLInputElement>(null);
+
   const isEditing = Boolean(tutorialToEdit);
 
+  // Core Article State
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [readTime, setReadTime] = useState("4 min read");
-  const [level, setLevel] = useState<Tutorial["level"]>("Intermediate");
-  const [model, setModel] = useState("Midjourney v6");
-  const [mediaUrl, setMediaUrl] = useState(defaultCover);
-  const [contentString, setContentString] = useState("");
-  const [tipsString, setTipsString] = useState("");
-  const [samplePrompt, setSamplePrompt] = useState("");
-  const [body, setBody] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const [videoUrl, setVideoUrl] = useState("");
+  const [subtitle, setSubtitle] = useState("");
+  const [coverImage, setCoverImage] = useState("");
+  const [coverAlt, setCoverAlt] = useState("");
+  const [blocks, setBlocks] = useState<ArticleBlock[]>([]);
 
+  // Metadata Settings State
+  const [model, setModel] = useState("Midjourney v6");
+  const [level, setLevel] = useState<Tutorial["level"]>("Intermediate");
+  const [readTime, setReadTime] = useState("1 min read");
+  const [slug, setSlug] = useState("");
+  const [tags, setTags] = useState<string[]>(["Prompting", "Workflow"]);
+  const [status, setStatus] = useState<"published" | "draft">("published");
+
+  // UI state
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isBottomAddMenuOpen, setIsBottomAddMenuOpen] = useState(false);
+  const [lastSavedTime, setLastSavedTime] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Initialize or Reset State
   useEffect(() => {
-    const tutorial = tutorialToEdit;
-    setTitle(tutorial?.title || "");
-    setDescription(tutorial?.description || "");
-    setReadTime(tutorial?.readTime || "4 min read");
-    setLevel(tutorial?.level || "Intermediate");
-    setModel(tutorial?.model || "Midjourney v6");
-    setMediaUrl(tutorial?.mediaUrl || defaultCover);
-    setContentString(tutorial?.content.join("\n") || "");
-    setTipsString(tutorial?.tips.join("\n") || "");
-    setSamplePrompt(tutorial?.samplePrompt || "");
-    setBody(tutorial?.body || "");
-    setImageUrl("");
-    setVideoUrl("");
+    if (!isOpen) return;
+
+    if (tutorialToEdit) {
+      setTitle(tutorialToEdit.title || "");
+      setSubtitle(tutorialToEdit.subtitle || tutorialToEdit.description || "");
+      setCoverImage(tutorialToEdit.mediaUrl || "");
+      setCoverAlt(tutorialToEdit.coverAlt || "");
+      setModel(tutorialToEdit.model || "Midjourney v6");
+      setLevel(tutorialToEdit.level || "Intermediate");
+      setReadTime(tutorialToEdit.readTime || "1 min read");
+      setSlug(tutorialToEdit.slug || "");
+      setTags(tutorialToEdit.tags || ["Prompting", "Workflow"]);
+      setStatus(tutorialToEdit.status || "published");
+      setBlocks(convertTutorialToBlocks(tutorialToEdit));
+    } else {
+      setTitle("");
+      setSubtitle("");
+      setCoverImage("");
+      setCoverAlt("");
+      setModel("Midjourney v6");
+      setLevel("Intermediate");
+      setReadTime("1 min read");
+      setSlug("");
+      setTags(["Prompting", "Workflow"]);
+      setStatus("published");
+      setBlocks([
+        createBlock("paragraph", {
+          content: "",
+        }),
+      ]);
+    }
+
+    setIsPreviewMode(false);
+    setIsSettingsOpen(false);
+    setLastSavedTime(null);
   }, [tutorialToEdit, isOpen]);
 
+  // Auto-calculate read time when blocks change
   useEffect(() => {
-    if (editorRef.current && editorRef.current.innerHTML !== body) {
-      editorRef.current.innerHTML = body;
+    if (blocks.length > 0) {
+      const calculated = calculateBlocksReadTime(blocks);
+      setReadTime(calculated);
     }
-  }, [body, isOpen]);
+  }, [blocks]);
+
+  // Auto-generate slug if blank
+  useEffect(() => {
+    if (!slug && title.trim()) {
+      setSlug(slugify(title));
+    }
+  }, [title, slug]);
 
   if (!isOpen) return null;
 
-  const syncBody = () => setBody(editorRef.current?.innerHTML || "");
-
-  const format = (command: string, value?: string) => {
-    editorRef.current?.focus();
-    document.execCommand(command, false, value);
-    syncBody();
+  // Block Operations
+  const handleUpdateBlock = (updated: ArticleBlock) => {
+    setBlocks((prev) => prev.map((b) => (b.id === updated.id ? updated : b)));
   };
 
-  const insertImage = (url: string) => {
-    const source = url.trim();
-    if (!source) return;
-    format(
-      "insertHTML",
-      `<figure><img src="${escapeHtml(source)}" alt="Tutorial illustration" /><figcaption>Image caption</figcaption></figure><p><br></p>`
-    );
-    setImageUrl("");
-  };
-
-  const insertYouTube = () => {
-    const embedUrl = getYouTubeEmbedUrl(videoUrl);
-    if (!embedUrl) {
-      showToast("Use a valid YouTube video link", "error");
+  const handleDeleteBlock = (id: string) => {
+    if (blocks.length <= 1) {
+      setBlocks([createBlock("paragraph", { content: "" })]);
+      showToast("Block cleared", "info");
       return;
     }
-    format(
-      "insertHTML",
-      `<figure><iframe src="${embedUrl}" title="YouTube video" allowfullscreen></iframe></figure><p><br></p>`
-    );
-    setVideoUrl("");
+    setBlocks((prev) => prev.filter((b) => b.id !== id));
+    showToast("Block removed", "info");
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      showToast("Please choose an image file", "error");
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") insertImage(reader.result);
+  const handleDuplicateBlock = (block: ArticleBlock, index: number) => {
+    const duplicate = {
+      ...block,
+      id: `blk-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
     };
-    reader.readAsDataURL(file);
-    event.target.value = "";
+    const next = [...blocks];
+    next.splice(index + 1, 0, duplicate);
+    setBlocks(next);
+    showToast("Block duplicated", "success");
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!title.trim() || !description.trim() || !samplePrompt.trim()) {
-      showToast("Please fill in the title, summary, and sample formula", "error");
+  const handleMoveBlock = (fromIndex: number, toIndex: number) => {
+    if (toIndex < 0 || toIndex >= blocks.length) return;
+    const next = [...blocks];
+    const [moved] = next.splice(fromIndex, 1);
+    next.splice(toIndex, 0, moved);
+    setBlocks(next);
+  };
+
+  const handleInsertBlock = (option: AddBlockOption, targetIndex: number) => {
+    const newBlock = createBlock(option.type, option.initialData);
+    const next = [...blocks];
+    next.splice(targetIndex + 1, 0, newBlock);
+    setBlocks(next);
+    showToast(`Added ${option.label}`, "success");
+  };
+
+  // Submission handler
+  const handleSave = (targetStatus: "published" | "draft" = status) => {
+    if (!title.trim()) {
+      showToast("Please provide an article title", "error");
       return;
     }
 
-    const content = contentString.split("\n").map((item) => item.trim()).filter(Boolean);
-    const tips = tipsString.split("\n").map((item) => item.trim()).filter(Boolean);
-    const data = {
+    setIsSaving(true);
+
+    const finalSlug = slug.trim() || slugify(title) || `tutorial-${Date.now()}`;
+    const description =
+      subtitle.trim() || extractSummaryFromBlocks(blocks, "Arenae AI Prompt Masterclass & Workflow Guide");
+    const htmlBody = convertBlocksToHtml(blocks);
+
+    // Extract prompt formula if present
+    const promptBlock = blocks.find((b) => b.type === "prompt");
+    const samplePrompt =
+      promptBlock?.promptText ||
+      "Candid 35mm film photograph, cinematic lighting, 85mm f/1.4 lens --ar 16:9 --v 6.0";
+
+    const data: Partial<Tutorial> = {
       title: title.trim(),
-      description: description.trim(),
+      subtitle: subtitle.trim(),
+      description,
       readTime,
       level,
       model,
-      mediaUrl: mediaUrl.trim() || defaultCover,
-      content: content.length ? content : ["Follow the workflow below."],
-      tips,
-      samplePrompt: samplePrompt.trim(),
-      body: body.trim(),
+      mediaUrl: coverImage.trim() || defaultCover,
+      coverAlt: coverAlt.trim() || title.trim(),
+      status: targetStatus,
+      tags,
+      slug: finalSlug,
+      blocks,
+      body: htmlBody,
+      samplePrompt,
+      content: blocks
+        .filter((b) => b.type === "paragraph" || b.type === "heading")
+        .map((b) => b.content || "")
+        .filter(Boolean),
+      tips: blocks
+        .filter((b) => b.type === "callout")
+        .map((b) => b.content || "")
+        .filter(Boolean),
     };
 
-    if (tutorialToEdit) updateTutorial(tutorialToEdit.id, data);
-    else addTutorial(data);
-    onClose();
+    try {
+      if (tutorialToEdit) {
+        updateTutorial(tutorialToEdit.id, data);
+        showToast(
+          targetStatus === "published" ? "Workflow Published!" : "Draft Saved!",
+          "success",
+          `/tutorial/${finalSlug}`
+        );
+      } else {
+        addTutorial(data as any);
+        showToast(
+          targetStatus === "published" ? "Workflow Published!" : "Draft Created!",
+          "success",
+          `/tutorial/${finalSlug}`
+        );
+      }
+
+      setLastSavedTime(new Date().toLocaleTimeString());
+      onClose();
+    } catch (e) {
+      console.error(e);
+      showToast("Failed to save workflow", "error");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const toolbar = [
-    { label: "Bold", icon: Bold, command: "bold" },
-    { label: "Italic", icon: Italic, command: "italic" },
-    { label: "Underline", icon: Underline, command: "underline" },
-    { label: "Heading 2", icon: Heading2, command: "formatBlock", value: "h2" },
-    { label: "Heading 3", icon: Heading3, command: "formatBlock", value: "h3" },
-    { label: "Bulleted list", icon: List, command: "insertUnorderedList" },
-    { label: "Numbered list", icon: ListOrdered, command: "insertOrderedList" },
-    { label: "Quote", icon: Quote, command: "formatBlock", value: "blockquote" },
-    { label: "Code", icon: Code2, command: "formatBlock", value: "pre" },
-  ];
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md">
-      <div className="fixed inset-0" onClick={onClose} />
-      <div className="relative z-10 flex max-h-[94vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#0d0f17] shadow-2xl">
-        <div className="flex items-center justify-between border-b border-white/5 bg-[#0a0c12]/90 px-6 py-4">
-          <div>
-            <h2 className="text-base font-bold text-white">{isEditing ? "Edit workflow" : "Create workflow"}</h2>
-            <p className="text-[11px] text-slate-400">Build a publish-ready tutorial with text, images, and YouTube videos.</p>
-          </div>
-          <button onClick={onClose} className="rounded-xl bg-white/5 p-1.5 text-slate-400 hover:bg-white/15 hover:text-white">
-            <X className="h-4 w-4" />
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#07080b] text-[#F9F9F9] overflow-hidden select-text">
+      {/* 1. Sticky Top Navigation Bar */}
+      <header className="sticky top-0 z-40 h-16 border-b border-white/10 bg-[#090b10]/95 backdrop-blur-2xl px-4 sm:px-6 flex items-center justify-between flex-shrink-0">
+        {/* Left: Back & Title */}
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Back to Studio</span>
           </button>
+
+          <div className="h-4 w-[1px] bg-white/10 hidden sm:block" />
+
+          <div className="flex items-center gap-2">
+            <span
+              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                status === "published"
+                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                  : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+              }`}
+            >
+              ● {status === "published" ? "Published" : "Draft"}
+            </span>
+
+            {lastSavedTime && (
+              <span className="text-[11px] text-slate-500 hidden md:inline">
+                Saved at {lastSavedTime}
+              </span>
+            )}
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex-1 space-y-5 overflow-y-auto p-6">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <label className="text-xs font-semibold text-slate-300">Title *<input required value={title} onChange={(event) => setTitle(event.target.value)} className="mt-1 w-full rounded-xl px-3 py-2 text-xs glass-input" /></label>
-            <label className="text-xs font-semibold text-slate-300">AI model focus<input value={model} onChange={(event) => setModel(event.target.value)} className="mt-1 w-full rounded-xl px-3 py-2 text-xs glass-input" /></label>
-          </div>
-          <label className="block text-xs font-semibold text-slate-300">Summary *<textarea required rows={2} value={description} onChange={(event) => setDescription(event.target.value)} className="mt-1 w-full resize-none rounded-xl px-3 py-2 text-xs glass-input" /></label>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <label className="text-xs font-semibold text-slate-300">Level<select value={level} onChange={(event) => setLevel(event.target.value as Tutorial["level"])} className="mt-1 w-full rounded-xl px-3 py-2 text-xs glass-input"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></label>
-            <label className="text-xs font-semibold text-slate-300">Reading time<input value={readTime} onChange={(event) => setReadTime(event.target.value)} className="mt-1 w-full rounded-xl px-3 py-2 text-xs glass-input" /></label>
-            <label className="text-xs font-semibold text-slate-300">Cover image URL<input type="url" value={mediaUrl} onChange={(event) => setMediaUrl(event.target.value)} className="mt-1 w-full rounded-xl px-3 py-2 text-xs glass-input" /></label>
-          </div>
+        {/* Right Actions */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Live Preview Toggle */}
+          <button
+            type="button"
+            onClick={() => setIsPreviewMode(!isPreviewMode)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              isPreviewMode
+                ? "bg-[#E85002] text-white shadow-lg shadow-[#E85002]/30"
+                : "bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white"
+            }`}
+          >
+            <Eye className="w-3.5 h-3.5" />
+            <span>{isPreviewMode ? "Edit Mode" : "Preview"}</span>
+          </button>
 
-          <section className="space-y-3 rounded-2xl border border-white/10 bg-[#090b10] p-4">
-            <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="text-sm font-bold text-white">Workflow editor</h3><p className="text-[11px] text-slate-400">Use the toolbar or paste formatted text directly into the canvas.</p></div><span className="rounded-full bg-[#E85002]/15 px-2 py-1 text-[10px] font-bold text-[#F16001]">Rich content</span></div>
-            <div className="flex flex-wrap gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1.5">
-              {toolbar.map(({ label, icon: Icon, command, value }) => <button key={label} type="button" title={label} onClick={() => format(command, value)} className="rounded-lg p-2 text-slate-300 hover:bg-white/10 hover:text-white"><Icon className="h-3.5 w-3.5" /></button>)}
-              <button type="button" title="Add link" onClick={() => { const url = window.prompt("Paste a link"); if (url) format("createLink", url); }} className="rounded-lg p-2 text-slate-300 hover:bg-white/10 hover:text-white"><LinkIcon className="h-3.5 w-3.5" /></button>
-            </div>
-            <div ref={editorRef} contentEditable suppressContentEditableWarning onInput={syncBody} className="min-h-80 rounded-xl border border-white/10 bg-[#0d0f17] px-5 py-4 text-sm leading-7 text-slate-200 outline-none empty:before:text-slate-500 empty:before:content-[attr(data-placeholder)] [&_a]:text-[#F16001] [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-[#E85002] [&_blockquote]:pl-4 [&_figure]:my-6 [&_figcaption]:mt-2 [&_figcaption]:text-center [&_figcaption]:text-xs [&_figcaption]:text-slate-500 [&_h2]:mt-7 [&_h2]:text-2xl [&_h2]:font-bold [&_h3]:mt-5 [&_h3]:text-xl [&_h3]:font-bold [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:rounded-2xl [&_img]:max-h-130 [&_img]:w-full [&_img]:rounded-2xl [&_img]:object-cover [&_pre]:overflow-x-auto [&_pre]:rounded-xl [&_pre]:bg-black/50 [&_pre]:p-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6" data-placeholder="Write your tutorial or workflow…" />
-            <div className="grid gap-2 sm:grid-cols-2">
-              <div className="flex gap-2"><input value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} placeholder="Image URL" className="min-w-0 flex-1 rounded-xl px-3 py-2 text-xs glass-input" /><button type="button" onClick={() => insertImage(imageUrl)} className="rounded-xl bg-white/10 px-3 text-slate-200 hover:bg-white/15"><ImageIcon className="h-4 w-4" /></button><button type="button" onClick={() => imageInputRef.current?.click()} className="rounded-xl bg-white/10 px-3 text-slate-200 hover:bg-white/15"><Upload className="h-4 w-4" /></button><input ref={imageInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" /></div>
-              <div className="flex gap-2"><input value={videoUrl} onChange={(event) => setVideoUrl(event.target.value)} placeholder="Paste a YouTube link" className="min-w-0 flex-1 rounded-xl px-3 py-2 text-xs glass-input" /><button type="button" onClick={insertYouTube} className="flex items-center gap-1 rounded-xl bg-red-500/15 px-3 text-xs font-semibold text-red-300 hover:bg-red-500/25"><Video className="h-4 w-4" />Embed</button></div>
-            </div>
-          </section>
+          {/* Settings Drawer Button */}
+          <button
+            type="button"
+            onClick={() => setIsSettingsOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs font-semibold transition-colors"
+          >
+            <Sliders className="w-3.5 h-3.5 text-[#E85002]" />
+            <span className="hidden sm:inline">Settings</span>
+          </button>
 
-          <details className="rounded-2xl border border-white/10 bg-white/[0.02] p-4"><summary className="cursor-pointer text-xs font-bold text-slate-200">Optional legacy cards</summary><div className="mt-4 space-y-4"><label className="block text-xs font-semibold text-slate-300">Key takeaways (one per line)<textarea rows={3} value={contentString} onChange={(event) => setContentString(event.target.value)} className="mt-1 w-full resize-none rounded-xl px-3 py-2 text-xs glass-input" /></label><label className="block text-xs font-semibold text-slate-300">Pro tips (one per line)<textarea rows={2} value={tipsString} onChange={(event) => setTipsString(event.target.value)} className="mt-1 w-full resize-none rounded-xl px-3 py-2 text-xs glass-input" /></label></div></details>
-          <label className="block text-xs font-semibold text-slate-300">Sample copyable formula *<textarea required rows={2} value={samplePrompt} onChange={(event) => setSamplePrompt(event.target.value)} className="mt-1 w-full resize-none rounded-xl px-3 py-2 font-mono text-xs glass-input" /></label>
-          <div className="flex justify-end gap-3 border-t border-white/10 pt-4"><button type="button" onClick={onClose} className="rounded-xl px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white">Cancel</button><button type="submit" className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#E85002] to-[#F16001] px-5 py-2 text-xs font-bold text-white shadow-lg shadow-[#E85002]/30"><Save className="h-4 w-4" />{isEditing ? "Save workflow" : "Publish workflow"}</button></div>
-        </form>
+          {/* Save Draft Button */}
+          <button
+            type="button"
+            onClick={() => handleSave("draft")}
+            disabled={isSaving}
+            className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold transition-colors"
+          >
+            <Save className="w-3.5 h-3.5" />
+            <span>Save Draft</span>
+          </button>
+
+          {/* Publish Action Button */}
+          <button
+            type="button"
+            onClick={() => handleSave("published")}
+            disabled={isSaving}
+            className="flex items-center gap-2 px-5 py-1.5 rounded-xl bg-gradient-to-r from-[#E85002] to-[#F16001] hover:from-[#F16001] hover:to-[#E85002] text-white text-xs font-extrabold shadow-lg shadow-[#E85002]/40 transition-all hover:scale-105 active:scale-95"
+          >
+            <Send className="w-3.5 h-3.5" />
+            <span>{isEditing ? "Update Article" : "Publish Article"}</span>
+          </button>
+        </div>
+      </header>
+
+      {/* 2. Main Writing & Block Canvas */}
+      <div
+        ref={containerRef}
+        className="flex-1 overflow-y-auto px-4 sm:px-8 py-8 sm:py-12 custom-scrollbar relative"
+      >
+        {/* Floating Text Formatting Toolbar */}
+        <FloatingFormatToolbar containerRef={containerRef} />
+
+        {/* 750px Centered Article Container */}
+        <div className="max-w-[760px] w-full mx-auto space-y-8 pb-32">
+          {isPreviewMode ? (
+            /* LIVE PREVIEW MODE */
+            <div className="space-y-8 animate-in fade-in duration-200">
+              <div className="p-4 rounded-2xl bg-[#E85002]/10 border border-[#E85002]/30 text-[#F16001] flex items-center justify-between text-xs font-bold">
+                <div className="flex items-center gap-2">
+                  <Eye className="w-4 h-4" />
+                  <span>Reader Preview Mode</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsPreviewMode(false)}
+                  className="px-3 py-1 rounded-xl bg-[#E85002] text-white hover:bg-[#F16001]"
+                >
+                  Return to Editor
+                </button>
+              </div>
+
+              {/* Cover */}
+              {coverImage && (
+                <div className="relative aspect-[21/9] w-full rounded-3xl overflow-hidden bg-slate-950 border border-white/10 shadow-2xl">
+                  <img
+                    src={coverImage}
+                    alt={coverAlt || title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+
+              {/* Title & Subtitle */}
+              <div className="space-y-3">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                  {title || "Untitled Article"}
+                </h1>
+                {subtitle && (
+                  <p className="text-lg text-slate-400 leading-relaxed">
+                    {subtitle}
+                  </p>
+                )}
+              </div>
+
+              {/* Body */}
+              <StructuredArticleRenderer blocks={blocks} />
+            </div>
+          ) : (
+            /* BLOCK EDITING MODE */
+            <>
+              {/* Top Article Header (Cover, Title, Subtitle) */}
+              <ArticleHeaderEditor
+                title={title}
+                onChangeTitle={setTitle}
+                subtitle={subtitle}
+                onChangeSubtitle={setSubtitle}
+                coverImage={coverImage}
+                onChangeCoverImage={setCoverImage}
+                coverAlt={coverAlt}
+                onChangeCoverAlt={setCoverAlt}
+              />
+
+              {/* Block List Section */}
+              <div className="space-y-1">
+                {blocks.map((block, i) => (
+                  <BlockItem
+                    key={block.id}
+                    block={block}
+                    index={i}
+                    totalBlocks={blocks.length}
+                    onChange={handleUpdateBlock}
+                    onDelete={() => handleDeleteBlock(block.id)}
+                    onDuplicate={() => handleDuplicateBlock(block, i)}
+                    onMoveUp={() => handleMoveBlock(i, i - 1)}
+                    onMoveDown={() => handleMoveBlock(i, i + 1)}
+                    onInsertAfter={(opt) => handleInsertBlock(opt, i)}
+                  />
+                ))}
+              </div>
+
+              {/* Bottom Big Add Block Trigger */}
+              <div className="relative pt-6 flex flex-col items-center justify-center">
+                <button
+                  type="button"
+                  onClick={() => setIsBottomAddMenuOpen(!isBottomAddMenuOpen)}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-bold transition-all hover:scale-105 shadow-xl"
+                >
+                  <Plus className="w-4 h-4 text-[#E85002]" />
+                  <span>Add Content Block</span>
+                </button>
+
+                {isBottomAddMenuOpen && (
+                  <div className="absolute bottom-full mb-3 z-50">
+                    <AddBlockMenu
+                      onSelect={(opt) => {
+                        handleInsertBlock(opt, blocks.length - 1);
+                        setIsBottomAddMenuOpen(false);
+                      }}
+                      onClose={() => setIsBottomAddMenuOpen(false)}
+                    />
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
       </div>
+
+      {/* 3. Settings Right Side Drawer */}
+      <BlockEditorSettingsDrawer
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        model={model}
+        onChangeModel={setModel}
+        level={level}
+        onChangeLevel={setLevel}
+        readTime={readTime}
+        onChangeReadTime={setReadTime}
+        slug={slug}
+        onChangeSlug={setSlug}
+        tags={tags}
+        onChangeTags={setTags}
+        status={status}
+        onChangeStatus={setStatus}
+        onDeleteArticle={
+          tutorialToEdit ? () => deleteTutorial(tutorialToEdit.id) : undefined
+        }
+      />
     </div>
   );
 }

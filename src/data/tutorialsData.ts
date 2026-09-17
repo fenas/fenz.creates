@@ -5,11 +5,71 @@ export const initialTutorials: Tutorial[] = [
     id: "tut-1",
     slug: "mastering-midjourney-v6-photorealism",
     title: "Mastering Midjourney v6 Photorealism",
+    subtitle: "Learn how camera sensors, 35mm lens specs, natural lighting, and --style raw eliminate artificial CGI plastic sheen.",
     description: "Learn how camera sensors, 35mm lens specs, natural lighting, and --style raw eliminate artificial CGI plastic sheen.",
     readTime: "4 min read",
     level: "Intermediate",
     model: "Midjourney v6",
-    mediaUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
+    mediaUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop",
+    coverAlt: "Cinematic portrait photography in Tokyo golden hour",
+    status: "published",
+    tags: ["Midjourney", "Photorealism", "Portrait", "Cinematic"],
+    blocks: [
+      {
+        id: "blk-intro-1",
+        type: "paragraph",
+        content: "Midjourney v6 is a generational leap in natural skin textures and lighting physics. However, many creators still run into the dreaded 'AI plastic sheen' by using outdated buzzwords like 'hyperrealistic' or '8k octane render'.",
+      },
+      {
+        id: "blk-head-1",
+        type: "heading",
+        content: "1. Specify Real World Optics Over Buzzwords",
+      },
+      {
+        id: "blk-p-2",
+        type: "paragraph",
+        content: "Modern AI diffusion models are trained on rich photographic metadata. By referencing specific camera sensors and vintage film stocks, you instantly anchor the renderer to physical lens physics rather than CGI renders.",
+      },
+      {
+        id: "blk-list-1",
+        type: "bulleted-list",
+        items: [
+          "Medium Format Sensors: Hasselblad H6D-100c, Leica M11, Phase One IQ4.",
+          "Cinematic Prime Lenses: 85mm f/1.4 for creamy bokeh, 35mm f/2 for candid environmental depth.",
+          "Film Stocks: Kodak Portra 400, Cinestill 800T for natural organic grain and warm skin tones.",
+        ],
+      },
+      {
+        id: "blk-prompt-1",
+        type: "prompt",
+        promptTitle: "Master Photorealism Formula",
+        promptModel: "Midjourney v6",
+        promptAspectRatio: "16:9",
+        promptText: "Candid medium close-up 35mm film photograph of a woman in Shibuya Tokyo at dusk, soft morning window light, subtle freckles, Kodak Portra 400, Leica M11 50mm f/1.4 lens --ar 16:9 --style raw --v 6.0",
+      },
+      {
+        id: "blk-tip-1",
+        type: "callout",
+        calloutVariant: "tip",
+        calloutTitle: "💡 PRO TIP: LOWER STYLIZE WITH --STYLE RAW",
+        content: "Always pair --style raw with lower stylize values (--s 50 to 180). This prevents Midjourney from over-beautifying faces and preserves natural pores, freckles, and authentic skin geometry.",
+      },
+      {
+        id: "blk-head-2",
+        type: "heading",
+        content: "2. Master Directional and Volumetric Lighting",
+      },
+      {
+        id: "blk-p-3",
+        type: "paragraph",
+        content: "Flat front lighting makes images look synthetic. Instead, specify chiaroscuro side lighting, soft golden hour rim light, or volumetric window god rays.",
+      },
+      {
+        id: "blk-quote-1",
+        type: "quote",
+        content: "Lighting is the single most decisive factor between an amateur AI generation and a masterpiece that looks shot on 70mm film.",
+      },
+    ],
     content: [
       "1. Specify precise camera bodies (e.g. Hasselblad H6D-100c, Leica M11) rather than generic 'photorealistic' buzzwords.",
       "2. Define the focal length and aperture (e.g. 85mm f/1.4 for portrait bokeh, 24mm f/8 for architectural sharpness).",
@@ -22,70 +82,9 @@ export const initialTutorials: Tutorial[] = [
     samplePrompt: "Candid 35mm film photograph of a woman in Tokyo, soft morning window light, natural skin texture, Kodak Portra 400 --ar 16:9 --style raw --v 6.0",
     createdAt: "2026-03-01T10:00:00.000Z",
   },
-  {
-    id: "tut-2",
-    slug: "flux-1-pro-prompt-structuring-guide",
-    title: "Flux.1 Pro Prompt Structuring Guide",
-    description: "How to craft natural language prompts for Black Forest Labs' Flux.1 Pro model with zero weight decay.",
-    readTime: "5 min read",
-    level: "Advanced",
-    model: "Flux.1 Pro",
-    mediaUrl: "https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=800&auto=format&fit=crop",
-    content: [
-      "1. Flux responds best to descriptive full-sentence paragraphs over comma-separated token spam.",
-      "2. Describe materials, refractions, and caustics explicitly: 'crafted from translucent frosted glass'.",
-      "3. Flux excels at legible in-image typography — specify exact text in double quotes.",
-    ],
-    tips: [
-      "Use 30-50 sampling steps with Euler or FlowMatch schedulers.",
-      "Keep guidance scale between 3.5 and 6.0 for optimal realism.",
-    ],
-    samplePrompt: "A high-end modern perfume bottle with clear typography reading 'FENZ' embossed in gold foil on frosted smoked glass, studio softbox lighting --ar 4:5",
-    createdAt: "2026-03-03T14:30:00.000Z",
-  },
-  {
-    id: "tut-3",
-    slug: "cinematic-lighting-color-grading-formulas",
-    title: "Cinematic Lighting & Color Grading Formulas",
-    description: "Chiaroscuro, rim lighting, volumetric fog, and anamorphic lens flares to make your scenes look like blockbuster films.",
-    readTime: "3 min read",
-    level: "Beginner",
-    model: "Universal",
-    mediaUrl: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=800&auto=format&fit=crop",
-    content: [
-      "1. Chiaroscuro creates high emotional drama using strong contrasts between dark shadows and pinpoint light.",
-      "2. Volumetric lighting adds atmosphere by simulating dust particles and god rays piercing through windows.",
-      "3. Anamorphic lens flare gives that distinctive horizontal blue or amber cinema streak across the frame.",
-    ],
-    tips: [
-      "Specify color palettes: 'teal and orange grade', 'cyberpunk cyan and magenta rim'.",
-      "Mention film stocks: 'shot on 70mm IMAX film, Arri Alexa Mini LF'.",
-    ],
-    samplePrompt: "Cinematic film still, cyberpunk ronin in rain, volumetric neon god rays, anamorphic blue lens flare, Arri Alexa 65 --ar 21:9",
-    createdAt: "2026-03-05T09:15:00.000Z",
-  },
-  {
-    id: "tut-4",
-    slug: "architectural-interior-design-ai-formulas",
-    title: "Architectural & Interior Design AI Formulas",
-    description: "Prompting biophilic villas, brutalist pavilions, and Scandinavian sunlight interiors with perfect perspective.",
-    readTime: "4 min read",
-    level: "Intermediate",
-    model: "Midjourney v6",
-    mediaUrl: "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=800&auto=format&fit=crop",
-    content: [
-      "1. Establish the architectural style immediately: Brutalist, Mid-Century Modern, Biophilic, Scandinavian.",
-      "2. Describe material interplay: fluted raw concrete, warm Japanese cedar wood slats, travertine floors.",
-      "3. Specify lighting direction: golden hour sun casting long geometric shadows through floor-to-ceiling glass.",
-    ],
-    tips: [
-      "Include publication names: 'Architectural Digest editorial photography'.",
-      "Use wide aspect ratios like --ar 16:9 or --ar 21:9 to capture sweeping exterior lines.",
-    ],
-    samplePrompt: "Architectural Digest photography of a cantilevered concrete and glass villa over a serene reflecting pool at dusk, warm interior lights --ar 16:9",
-    createdAt: "2026-03-08T16:45:00.000Z",
-  },
 ];
+
+
 
 export const initialComingSoon: ComingSoonFeature[] = [
   {

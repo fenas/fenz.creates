@@ -8,7 +8,6 @@ import {
   Share2,
   Check,
   Clock,
-  Sparkles,
   Rocket,
   Bell,
   CheckCircle2,
@@ -19,22 +18,49 @@ import {
 import { ComingSoonFeature } from "@/types";
 import { usePromptStore } from "@/context/PromptContext";
 import { useToast } from "@/components/ui/Toast";
+import { ThemeSelector } from "@/components/theme/ThemeSelector";
 
 export function ComingSoonDetailClient({
   initialFeature,
+  slug,
 }: {
-  initialFeature: ComingSoonFeature;
+  initialFeature?: ComingSoonFeature | null;
+  slug: string;
 }) {
   const { comingSoon } = usePromptStore();
   const { showToast } = useToast();
 
   const feature =
-    comingSoon.find((f) => f.slug === initialFeature.slug || f.id === initialFeature.id) ||
-    initialFeature;
+    comingSoon.find(
+      (f) =>
+        f.slug === slug ||
+        f.id === slug ||
+        (initialFeature && (f.slug === initialFeature.slug || f.id === initialFeature.id))
+    ) || initialFeature;
 
   const [copiedLink, setCopiedLink] = useState(false);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+
+  if (!feature) {
+    return (
+      <div className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] flex flex-col items-center justify-center p-6 text-center transition-colors duration-200">
+        <div className="w-16 h-16 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-glass)] flex items-center justify-center mb-4 text-[#E85002]">
+          <Clock className="w-8 h-8" />
+        </div>
+        <h1 className="text-2xl font-bold mb-2 text-[var(--text-primary)]">Roadmap Feature Not Found</h1>
+        <p className="text-sm text-[var(--text-secondary)] max-w-md mb-6">
+          This feature may have been removed or the link is incorrect.
+        </p>
+        <Link
+          href="/"
+          className="px-5 py-2.5 rounded-full bg-gradient-to-r from-[#E85002] to-[#F16001] text-white font-bold text-xs shadow-lg shadow-[#E85002]/30 hover:scale-105 transition-transform"
+        >
+          Return to Discovery
+        </Link>
+      </div>
+    );
+  }
 
   const relatedFeatures = comingSoon
     .filter((f) => f.id !== feature.id)
@@ -73,16 +99,16 @@ export function ComingSoonDetailClient({
   };
 
   return (
-    <div className="min-h-screen bg-[#07080b] text-[#F9F9F9] selection:bg-[#E85002] selection:text-white pb-24">
+    <div className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] selection:bg-[#E85002] selection:text-white pb-24 transition-colors duration-200">
       {/* Top Floating Navigation Bar */}
-      <header className="sticky top-0 z-30 bg-[#090b10]/90 border-b border-white/5 backdrop-blur-xl">
+      <header className="sticky top-0 z-30 bg-[var(--bg-surface)]/90 border-b border-[var(--border-glass)] backdrop-blur-xl">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link
             href="/"
-            className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-[#A7A7A7] hover:text-white transition-colors group"
+            className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors group"
           >
-            <div className="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-[#E85002]/40 group-hover:bg-[#E85002]/10 transition-all">
-              <ArrowLeft className="w-4 h-4 text-slate-300 group-hover:text-[#E85002] group-hover:-translate-x-0.5 transition-transform" />
+            <div className="w-8 h-8 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-glass)] flex items-center justify-center group-hover:border-[#E85002]/40 group-hover:bg-[#E85002]/10 transition-all">
+              <ArrowLeft className="w-4 h-4 text-[#E85002] group-hover:-translate-x-0.5 transition-transform" />
             </div>
             <span>Back to Discovery</span>
           </Link>
@@ -90,7 +116,7 @@ export function ComingSoonDetailClient({
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={handleShare}
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#E85002]/15 border border-[#E85002]/30 text-[#F16001] hover:bg-[#E85002] hover:text-white transition-all text-xs font-bold shadow-lg"
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#E85002]/15 border border-[#E85002]/30 text-[#E85002] hover:bg-[#E85002] hover:text-white transition-all text-xs font-bold shadow-lg"
               title="Share this upcoming feature"
             >
               {copiedLink ? (
@@ -105,6 +131,9 @@ export function ComingSoonDetailClient({
                 </>
               )}
             </button>
+
+            {/* Theme Selector */}
+            <ThemeSelector />
           </div>
         </div>
       </header>
@@ -118,28 +147,28 @@ export function ComingSoonDetailClient({
               {feature.badge}
             </span>
 
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-slate-300">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--bg-surface)] border border-[var(--border-glass)] text-xs font-semibold text-[var(--text-secondary)]">
               <Clock className="w-3.5 h-3.5 text-[#E85002]" />
               Target Release: {feature.eta}
             </span>
 
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E85002]/10 border border-[#E85002]/20 text-xs font-semibold text-[#F16001]">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E85002]/10 border border-[#E85002]/20 text-xs font-semibold text-[#E85002]">
               <Rocket className="w-3.5 h-3.5" />
               Roadmap Item
             </span>
           </div>
 
           <div className="space-y-3">
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-[var(--text-primary)] tracking-tight leading-tight">
               {feature.title}
             </h1>
-            <p className="text-sm sm:text-base text-[#A7A7A7] leading-relaxed">
+            <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">
               {feature.description}
             </p>
           </div>
 
           {/* Visual Showcase Card */}
-          <div className="relative w-full aspect-[16/9] sm:aspect-[21/9] rounded-3xl overflow-hidden bg-[#11131a] border border-white/10 shadow-2xl">
+          <div className="relative w-full aspect-[16/9] sm:aspect-[21/9] rounded-3xl overflow-hidden bg-slate-900 dark:bg-slate-950 border border-[var(--border-glass)] shadow-2xl">
             <Image
               src={feature.mediaUrl}
               alt={feature.title}
@@ -150,7 +179,7 @@ export function ComingSoonDetailClient({
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-slate-300">
+            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-white">
               <span className="px-3 py-1 rounded-xl bg-black/70 backdrop-blur-md border border-white/10 text-xs font-semibold text-[#F9F9F9]">
                 Interactive Preview Concept
               </span>
@@ -167,7 +196,7 @@ export function ComingSoonDetailClient({
             <div className="w-7 h-7 rounded-lg bg-[#E85002]/20 border border-[#E85002]/30 flex items-center justify-center">
               <Zap className="w-3.5 h-3.5 text-[#E85002]" />
             </div>
-            <h2 className="text-lg font-bold text-white tracking-tight">
+            <h2 className="text-lg font-bold text-[var(--text-primary)] tracking-tight">
               Key Capabilities & Innovations
             </h2>
           </div>
@@ -176,12 +205,12 @@ export function ComingSoonDetailClient({
             {feature.highlights.map((item, idx) => (
               <div
                 key={idx}
-                className="p-4 rounded-2xl bg-[#0e1017] border border-white/10 hover:border-[#E85002]/40 transition-all flex items-start gap-3 shadow-lg"
+                className="p-4 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-glass)] hover:border-[#E85002]/40 transition-all flex items-start gap-3 shadow-md"
               >
                 <div className="w-6 h-6 rounded-lg bg-[#E85002]/15 border border-[#E85002]/30 text-[#E85002] flex items-center justify-center flex-shrink-0 mt-0.5">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                 </div>
-                <span className="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
+                <span className="text-xs sm:text-sm text-[var(--text-primary)] leading-relaxed font-medium">
                   {item}
                 </span>
               </div>
@@ -190,24 +219,24 @@ export function ComingSoonDetailClient({
         </section>
 
         {/* VIP Early Access & Notification Card */}
-        <section className="rounded-3xl bg-gradient-to-br from-[#120d0a] via-[#0e1017] to-[#0a0c12] border border-[#E85002]/30 p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden">
+        <section className="rounded-3xl bg-[var(--bg-surface)] border border-[#E85002]/30 p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-80 h-80 bg-[#E85002]/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="max-w-xl space-y-2 relative z-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E85002]/20 border border-[#E85002]/30 text-[#F16001] text-xs font-bold">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E85002]/20 border border-[#E85002]/30 text-[#E85002] text-xs font-bold">
               <Bell className="w-3 h-3" />
               <span>Early Beta Access</span>
             </div>
-            <h3 className="text-xl sm:text-2xl font-extrabold text-white">
+            <h3 className="text-xl sm:text-2xl font-extrabold text-[var(--text-primary)]">
               Be First in Line When This Launches
             </h3>
-            <p className="text-xs sm:text-sm text-[#A7A7A7] leading-relaxed">
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed">
               Get an instant email invite with developer preview credits the moment {feature.title} goes live.
             </p>
           </div>
 
           {subscribed ? (
-            <div className="p-4 rounded-2xl bg-[#E85002]/15 border border-[#E85002]/30 flex items-center gap-3 text-xs sm:text-sm text-[#F9F9F9] font-medium relative z-10">
+            <div className="p-4 rounded-2xl bg-[#E85002]/15 border border-[#E85002]/30 flex items-center gap-3 text-xs sm:text-sm text-[var(--text-primary)] font-medium relative z-10">
               <ShieldCheck className="w-5 h-5 text-[#E85002] flex-shrink-0" />
               <span>🎉 You are on the priority waitlist! We will notify you at {email}.</span>
             </div>
@@ -218,7 +247,7 @@ export function ComingSoonDetailClient({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email address..."
-                className="flex-1 px-4 py-3 rounded-2xl bg-black/60 border border-white/15 focus:border-[#E85002] focus:ring-1 focus:ring-[#E85002] text-xs sm:text-sm text-white placeholder:text-slate-500 outline-none transition-all shadow-inner"
+                className="flex-1 px-4 py-3 rounded-2xl bg-[var(--bg-base)] border border-[var(--border-glass)] focus:border-[#E85002] focus:ring-1 focus:ring-[#E85002] text-xs sm:text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] outline-none transition-all shadow-inner"
                 required
               />
               <button
@@ -234,9 +263,9 @@ export function ComingSoonDetailClient({
 
         {/* Related Features */}
         {relatedFeatures.length > 0 && (
-          <section className="space-y-5 pt-8 border-t border-white/10">
+          <section className="space-y-5 pt-8 border-t border-[var(--border-glass)]">
             <div className="flex items-center justify-between">
-              <h3 className="text-base sm:text-lg font-bold text-white">
+              <h3 className="text-base sm:text-lg font-bold text-[var(--text-primary)]">
                 Other Upcoming Roadmap Features
               </h3>
               <Link
@@ -253,10 +282,10 @@ export function ComingSoonDetailClient({
                 <Link
                   key={f.id}
                   href={`/coming-soon/${f.slug}`}
-                  className="rounded-2xl bg-[#0e1017] border border-white/5 p-4 space-y-3 hover:border-[#E85002]/40 transition-all group flex flex-col justify-between"
+                  className="rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-glass)] p-4 space-y-3 hover:border-[#E85002]/40 transition-all group flex flex-col justify-between shadow-sm"
                 >
                   <div className="space-y-2">
-                    <div className="relative w-full h-28 rounded-xl overflow-hidden bg-slate-900 border border-white/10">
+                    <div className="relative w-full h-28 rounded-xl overflow-hidden bg-slate-900 border border-[var(--border-glass)]">
                       <Image
                         src={f.mediaUrl}
                         alt={f.title}
@@ -269,11 +298,11 @@ export function ComingSoonDetailClient({
                       <span className="text-[10px] font-bold text-[#E85002]">
                         {f.badge}
                       </span>
-                      <span className="text-[10px] font-mono text-[#A7A7A7]">
+                      <span className="text-[10px] font-mono text-[var(--text-secondary)]">
                         ETA: {f.eta}
                       </span>
                     </div>
-                    <h4 className="text-xs sm:text-sm font-bold text-white line-clamp-2 group-hover:text-[#F16001] transition-colors">
+                    <h4 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] line-clamp-2 group-hover:text-[#E85002] transition-colors">
                       {f.title}
                     </h4>
                   </div>
@@ -286,3 +315,4 @@ export function ComingSoonDetailClient({
     </div>
   );
 }
+

@@ -19,8 +19,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const feature = initialComingSoon.find((f) => f.slug === slug);
 
   if (!feature) {
+    const formattedTitle = slug
+      .split("-")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
+
     return {
-      title: "Roadmap Feature Not Found - fenz.creates",
+      title: `${formattedTitle} — Roadmap Feature | fenz.creates`,
+      description: "Upcoming feature on fenz.creates roadmap.",
     };
   }
 
@@ -53,11 +59,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ComingSoonPage({ params }: Props) {
   const { slug } = await params;
-  const initialFeature = initialComingSoon.find((f) => f.slug === slug);
+  const initialFeature = initialComingSoon.find((f) => f.slug === slug) || null;
 
-  if (!initialFeature) {
-    notFound();
-  }
-
-  return <ComingSoonDetailClient initialFeature={initialFeature} />;
+  return <ComingSoonDetailClient initialFeature={initialFeature} slug={slug} />;
 }
+
