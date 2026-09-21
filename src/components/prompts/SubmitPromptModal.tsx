@@ -118,28 +118,28 @@ export function SubmitPromptModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto bg-black/60 animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto bg-black/75 animate-in fade-in duration-150">
       <div
         className="fixed inset-0"
         onClick={() => setIsSubmitModalOpen(false)}
       />
 
-      <div className="relative w-full max-w-xl rounded-[22px] bg-[var(--surface-elevated)] border border-[var(--border)] shadow-[0_12px_32px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)] z-10 overflow-hidden my-auto">
+      <div className="relative w-full max-w-xl rounded-[22px] bg-[var(--surface-elevated)] border border-[var(--border)] shadow-[var(--shadow-modal)] z-10 overflow-hidden my-auto">
         {/* Header */}
         <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between bg-[var(--surface-elevated)]">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-[var(--icon-secondary)] stroke-[1.75]" />
+              <Sparkles className="w-4 h-4 text-[var(--accent)] stroke-[1.75]" />
             </div>
             <div>
-              <h2 className="text-sm font-medium text-[var(--text-primary)]">Submit Prompt Blueprint</h2>
+              <h2 className="text-sm font-semibold text-[var(--text-primary)]">Submit Prompt Blueprint</h2>
               <p className="text-[11px] text-[var(--text-secondary)]">Share your formulas with the community</p>
             </div>
           </div>
 
           <button
             onClick={() => setIsSubmitModalOpen(false)}
-            className="p-1.5 rounded-[8px] bg-[var(--surface-muted)] hover:bg-[var(--surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border)] transition-colors"
+            className="p-1.5 rounded-[8px] bg-[var(--surface-muted)] hover:bg-[var(--surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border)] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4 stroke-[1.75]" />
           </button>
@@ -157,7 +157,7 @@ export function SubmitPromptModal() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Cyberpunk Samurai in Neon Rain"
-              className="w-full px-3.5 py-2.5 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-secondary)] shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.06)]"
+              className="w-full px-3.5 py-2.5 rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--border-strong)] shadow-[inset_0_2px_4px_rgba(0,0,0,0.35)] transition-colors"
             />
           </div>
 
@@ -171,7 +171,7 @@ export function SubmitPromptModal() {
               value={promptText}
               onChange={(e) => setPromptText(e.target.value)}
               placeholder="Paste the exact prompt text including parameters (e.g. cinematic lighting, 8k, --ar 16:9)..."
-              className="w-full px-3.5 py-2.5 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs font-mono text-[var(--text-primary)] placeholder-[var(--text-muted)] leading-relaxed resize-none focus:outline-none focus:border-[var(--text-secondary)] shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.06)]"
+              className="w-full px-3.5 py-2.5 rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] text-xs font-mono text-[var(--text-primary)] placeholder-[var(--text-muted)] leading-relaxed resize-none focus:outline-none focus:border-[var(--border-strong)] shadow-[inset_0_2px_4px_rgba(0,0,0,0.35)] transition-colors"
             />
           </div>
 
@@ -184,7 +184,7 @@ export function SubmitPromptModal() {
               value={negativePrompt}
               onChange={(e) => setNegativePrompt(e.target.value)}
               placeholder="e.g. blur, low quality, deformed hands"
-              className="w-full px-3.5 py-2 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs font-mono text-[var(--text-secondary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-secondary)] shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.06)]"
+              className="w-full px-3.5 py-2 rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] text-xs font-mono text-[var(--text-secondary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--border-strong)] shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.3)] transition-colors"
             />
           </div>
 
@@ -196,7 +196,7 @@ export function SubmitPromptModal() {
               <select
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                className="w-full px-3 py-2 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] cursor-pointer focus:outline-none focus:border-[var(--text-secondary)]"
+                className="w-full px-3 py-2.5 rounded-[12px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] cursor-pointer focus:outline-none focus:border-[var(--border-strong)]"
               >
                 <option value="Midjourney v6" className="bg-[var(--surface-elevated)] text-[var(--text-primary)]">Midjourney v6</option>
                 <option value="Flux.1 Pro" className="bg-[var(--surface-elevated)] text-[var(--text-primary)]">Flux.1 Pro</option>
@@ -214,7 +214,7 @@ export function SubmitPromptModal() {
               <select
                 value={aspectRatio}
                 onChange={(e) => setAspectRatio(e.target.value as AspectRatio)}
-                className="w-full px-3 py-2 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] font-mono cursor-pointer focus:outline-none focus:border-[var(--text-secondary)]"
+                className="w-full px-3 py-2.5 rounded-[12px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] font-mono cursor-pointer focus:outline-none focus:border-[var(--border-strong)]"
               >
                 <option value="1:1" className="bg-[var(--surface-elevated)] text-[var(--text-primary)]">1:1 (Square)</option>
                 <option value="16:9" className="bg-[var(--surface-elevated)] text-[var(--text-primary)]">16:9 (Landscape / Cinema)</option>
@@ -234,7 +234,7 @@ export function SubmitPromptModal() {
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full px-3 py-2 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] cursor-pointer focus:outline-none focus:border-[var(--text-secondary)]"
+                className="w-full px-3 py-2.5 rounded-[12px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] cursor-pointer focus:outline-none focus:border-[var(--border-strong)]"
               >
                 {categories.map((c) => (
                   <option key={c.id} value={c.id} className="bg-[var(--surface-elevated)] text-[var(--text-primary)]">
@@ -272,12 +272,12 @@ export function SubmitPromptModal() {
                     }
                   }}
                   placeholder="Paste image URL..."
-                  className="w-full px-3 py-2 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-secondary)] shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.06)]"
+                  className="w-full px-3.5 py-2 rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--border-strong)] shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.3)] transition-colors"
                 />
                 <button
                   type="button"
                   onClick={handleAddUrl}
-                  className="px-3 py-1 rounded-[10px] bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-xs font-medium text-[var(--text-primary)]"
+                  className="px-3.5 py-1 rounded-[10px] bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-xs font-medium text-[var(--text-primary)] cursor-pointer"
                 >
                   Add
                 </button>
@@ -302,12 +302,12 @@ export function SubmitPromptModal() {
                   }
                 }}
                 placeholder="Add tags (press Enter)..."
-                className="flex-1 px-3 py-2 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-secondary)] shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.06)]"
+                className="flex-1 px-3.5 py-2 rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--border-strong)] shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.3)] transition-colors"
               />
               <button
                 type="button"
                 onClick={handleAddTag}
-                className="px-3 py-2 rounded-[10px] bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-xs font-medium text-[var(--text-primary)]"
+                className="px-3.5 py-2 rounded-[10px] bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-xs font-medium text-[var(--text-primary)] cursor-pointer"
               >
                 Add
               </button>
@@ -323,7 +323,7 @@ export function SubmitPromptModal() {
                   <button
                     type="button"
                     onClick={() => handleRemoveTag(t)}
-                    className="hover:text-rose-500"
+                    className="hover:text-rose-500 cursor-pointer"
                   >
                     <X className="w-3 h-3 stroke-[1.75]" />
                   </button>
@@ -337,14 +337,14 @@ export function SubmitPromptModal() {
             <button
               type="button"
               onClick={() => setIsSubmitModalOpen(false)}
-              className="btn-secondary px-4 py-2 text-xs"
+              className="btn-secondary px-4 py-2.5 text-xs cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="btn-primary flex items-center gap-2 px-4 py-2 text-xs disabled:opacity-50"
+              className="btn-primary flex items-center gap-2 px-5 py-2.5 text-xs disabled:opacity-50 cursor-pointer"
             >
               <Send className="w-3.5 h-3.5 stroke-[1.75]" />
               <span>Submit Blueprint</span>

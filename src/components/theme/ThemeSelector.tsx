@@ -117,8 +117,8 @@ export function ThemeSelector({
     if (variant === "dark-squircle") {
       return `w-9 h-9 rounded-[14px] flex items-center justify-center transition-all duration-150 cursor-pointer ${
         isOpen
-          ? "bg-[#303032] text-white shadow-sm"
-          : "bg-[#1C1C1E] dark:bg-[#141414] hover:bg-[#2A2A2C] text-white/90 hover:text-white shadow-sm border border-black/20 dark:border-white/5"
+          ? "bg-[var(--active-btn-bg)] text-[var(--active-btn-icon)] shadow-sm border border-[var(--active-btn-border)]"
+          : "bg-[var(--surface)] hover:bg-[var(--surface-elevated)] text-[var(--icon-primary)] shadow-sm border border-[var(--border)]"
       } focus:outline-none`;
     }
 
@@ -151,9 +151,9 @@ export function ThemeSelector({
         <div
           role="listbox"
           aria-label="Select website theme"
-          className={`absolute ${getPositionClasses()} w-48 p-1.5 rounded-[14px] bg-[var(--surface-elevated)] border border-[var(--border)] shadow-[0_12px_32px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)] z-[9999] animate-in fade-in duration-100`}
+          className={`absolute ${getPositionClasses()} w-48 p-1.5 rounded-[14px] bg-[var(--surface-elevated)] border border-[var(--border-strong)] shadow-[0_12px_32px_rgba(0,0,0,0.18),0_2px_8px_rgba(0,0,0,0.12)] z-[9999] animate-in fade-in duration-100`}
         >
-          <div className="px-2.5 py-1 text-[9.5px] font-mono tracking-wider uppercase text-[var(--text-muted)]">
+          <div className="px-2.5 py-1 text-[9.5px] font-mono tracking-wider uppercase text-[var(--text-muted)] font-semibold">
             Appearance
           </div>
 
@@ -172,23 +172,23 @@ export function ThemeSelector({
                     setTheme(opt.id);
                     setIsOpen(false);
                   }}
-                  className={`w-full flex items-center justify-between px-2.5 py-2 rounded-[10px] text-xs font-normal cursor-pointer transition-all ${
+                  className={`w-full flex items-center justify-between px-2.5 py-2 rounded-[10px] text-xs cursor-pointer transition-all ${
                     isSelected
-                      ? "bg-[var(--surface-active)] text-[var(--text-primary)] border border-[var(--border-strong)] font-medium"
-                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-muted)] border border-transparent"
+                      ? "bg-[var(--active-btn-bg)] text-[var(--active-btn-text)] border border-[var(--active-btn-border)] shadow-sm font-semibold"
+                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-soft)] border border-transparent font-normal"
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <Icon className={`w-3.5 h-3.5 stroke-[1.75] ${isSelected ? "text-[var(--text-primary)]" : "text-[var(--icon-secondary)]"}`} />
+                    <Icon className={`w-3.5 h-3.5 stroke-[1.75] ${isSelected ? "text-[var(--active-btn-icon)]" : "text-[var(--icon-secondary)]"}`} />
                     <div className="text-left">
                       <div className="leading-tight font-medium">{opt.label}</div>
-                      <div className="text-[9.5px] text-[var(--text-muted)]">
+                      <div className={`text-[9.5px] ${isSelected ? "text-[var(--active-btn-text)]/75" : "text-[var(--text-muted)]"}`}>
                         {opt.description}
                       </div>
                     </div>
                   </div>
 
-                  {isSelected && <Check className="w-3.5 h-3.5 text-[var(--accent)] stroke-[2]" />}
+                  {isSelected && <Check className="w-3.5 h-3.5 text-[var(--accent)] stroke-[2.5]" />}
                 </button>
               );
             })}

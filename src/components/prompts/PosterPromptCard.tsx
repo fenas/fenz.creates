@@ -1,7 +1,6 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Copy, Check, Bookmark, Share2, Layers } from "lucide-react";
 import { Prompt } from "@/types";
 import { usePromptStore } from "@/context/PromptContext";
@@ -13,8 +12,7 @@ interface PosterPromptCardProps {
 }
 
 export function PosterPromptCard({ prompt }: PosterPromptCardProps) {
-  const { copyPrompt, toggleSave, isSaved, setActiveModalPrompt, categories } =
-    usePromptStore();
+  const { copyPrompt, toggleSave, isSaved, categories } = usePromptStore();
   const { showToast } = useToast();
   const [copied, setCopied] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -39,6 +37,7 @@ export function PosterPromptCard({ prompt }: PosterPromptCardProps) {
   const category = categories.find((c) => c.id === prompt.categoryId);
 
   const handleCopy = async (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     setCopied(true);
     await copyPrompt(prompt);
@@ -46,11 +45,13 @@ export function PosterPromptCard({ prompt }: PosterPromptCardProps) {
   };
 
   const handleSave = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     toggleSave(prompt.id);
   };
 
   const handleShare = async (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     const url = `${window.location.origin}/prompt/${prompt.slug}`;
     if (navigator.share) {
@@ -68,12 +69,12 @@ export function PosterPromptCard({ prompt }: PosterPromptCardProps) {
   };
 
   return (
-    <div
-      onClick={() => setActiveModalPrompt(prompt)}
-      className="group relative rounded-[16px] overflow-hidden bg-[var(--surface)] border border-[var(--border)] shadow-[0_4px_16px_rgba(0,0,0,0.03),0_1px_3px_rgba(0,0,0,0.02)] hover:border-[var(--border-strong)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.06),0_2px_6px_rgba(0,0,0,0.03)] cursor-pointer aspect-[3/4] flex flex-col justify-between p-3.5 transition-all duration-200"
+    <Link
+      href={`/prompt/${prompt.slug}`}
+      className="group relative rounded-[18px] overflow-hidden bg-[var(--surface)] border border-[var(--border)] shadow-[var(--shadow-card)] hover:border-[var(--border-strong)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.55)] cursor-pointer aspect-[3/4] flex flex-col justify-between p-3.5 transition-all duration-200 block select-none"
     >
       {/* Background Multi-Image Poster */}
-      <div className="absolute inset-0 overflow-hidden bg-[#1E1E1E]">
+      <div className="absolute inset-0 overflow-hidden bg-[#0A0C0E]">
         {images.map((imgUrl, i) => (
           <Image
             key={imgUrl + i}
@@ -81,7 +82,7 @@ export function PosterPromptCard({ prompt }: PosterPromptCardProps) {
             alt={`${prompt.title} - Artwork ${i + 1}`}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-            className={`object-cover object-center transition-all duration-500 group-hover:scale-[1.02] ${
+            className={`object-cover object-center transition-all duration-500 group-hover:scale-[1.03] ${
               i === currentImageIndex
                 ? "opacity-100 scale-100 z-[1]"
                 : "opacity-0 scale-95 z-0"
@@ -92,49 +93,49 @@ export function PosterPromptCard({ prompt }: PosterPromptCardProps) {
         ))}
       </div>
 
-      {/* Subtle Vignette Gradient for readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/20 pointer-events-none z-[2]" />
+      {/* High-Contrast Vignette Gradient for readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-black/25 pointer-events-none z-[2]" />
 
       {/* Top Badges & Actions */}
       <div className="relative z-10 flex items-center justify-between w-full">
         <div className="flex items-center gap-1.5">
-          <span className="px-2 py-0.5 rounded-[6px] bg-black/60 text-[9.5px] font-medium text-white/90 border border-white/10">
+          <span className="px-2.5 py-1 rounded-[8px] bg-[#0A0C0E]/85 backdrop-blur-none text-[10px] font-semibold text-white border border-white/20 font-mono shadow-sm">
             {category?.name?.split(" ")[0] || "AI Art"}
           </span>
 
           {images.length > 1 && (
-            <span className="px-1.5 py-0.5 rounded-[6px] bg-black/60 text-[9px] font-mono text-white/80 border border-white/10 flex items-center gap-1">
-              <Layers className="w-2.5 h-2.5" />
+            <span className="px-2 py-1 rounded-[8px] bg-[#0A0C0E]/85 text-[9.5px] font-mono font-medium text-white/90 border border-white/20 flex items-center gap-1 shadow-sm">
+              <Layers className="w-2.5 h-2.5 text-[var(--accent)]" />
               <span>{images.length}</span>
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={handleShare}
-            className="p-1.5 rounded-[8px] bg-black/50 hover:bg-black/80 text-white/80 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+            className="p-2 rounded-[9px] bg-[#0A0C0E]/80 hover:bg-[#21252B] text-white/90 hover:text-white border border-white/15 transition-all opacity-0 group-hover:opacity-100 cursor-pointer shadow-sm"
             title="Share Prompt Link"
           >
-            <Share2 className="w-3 h-3 stroke-[1.75]" />
+            <Share2 className="w-3.5 h-3.5 stroke-[1.75]" />
           </button>
 
           <button
             onClick={handleSave}
-            className={`p-1.5 rounded-[8px] transition-all ${
+            className={`p-2 rounded-[9px] transition-all cursor-pointer border shadow-sm ${
               saved
-                ? "bg-[var(--accent)] text-white"
-                : "bg-black/50 text-white/80 hover:text-white hover:bg-black/80"
+                ? "bg-[var(--accent)] text-white border-[var(--accent)] shadow-[0_2px_10px_rgba(255,84,84,0.4)]"
+                : "bg-[#0A0C0E]/80 text-white/90 hover:text-white hover:bg-[#21252B] border-white/15"
             }`}
             title={saved ? "Saved" : "Save"}
           >
-            <Bookmark className={`w-3 h-3 stroke-[1.75] ${saved ? "fill-white" : ""}`} />
+            <Bookmark className={`w-3.5 h-3.5 stroke-[1.75] ${saved ? "fill-white" : ""}`} />
           </button>
         </div>
       </div>
 
       {/* Bottom Information & Action */}
-      <div className="relative z-10 space-y-2">
+      <div className="relative z-10 space-y-2.5">
         {/* Multi-Image Dots */}
         {images.length > 1 && (
           <div className="flex items-center justify-center gap-1 pb-0.5">
@@ -143,7 +144,7 @@ export function PosterPromptCard({ prompt }: PosterPromptCardProps) {
                 key={i}
                 className={`h-1 rounded-full transition-all duration-200 ${
                   i === currentImageIndex
-                    ? "w-3 bg-white shadow-sm"
+                    ? "w-3.5 bg-white shadow-sm"
                     : "w-1 bg-white/40"
                 }`}
               />
@@ -151,39 +152,39 @@ export function PosterPromptCard({ prompt }: PosterPromptCardProps) {
           </div>
         )}
 
-        <div className="flex items-end justify-between gap-2">
-          <div className="min-w-0 flex-1 space-y-0.5">
-            <h3 className="text-xs font-medium text-white truncate group-hover:text-white/90 transition-colors">
+        <div className="flex items-end justify-between gap-2.5">
+          <div className="min-w-0 flex-1 space-y-1">
+            <h3 className="text-xs font-semibold text-white tracking-tight truncate group-hover:text-white/95 transition-colors drop-shadow-sm">
               {prompt.title}
             </h3>
-            <p className="text-[10px] text-white/70 font-mono truncate">
+            <p className="text-[10.5px] text-white/80 font-mono truncate leading-tight">
               {prompt.promptText}
             </p>
-            <div className="flex items-center gap-1.5 text-[9.5px] text-white/60 pt-0.5">
-              <span className="font-mono text-white/90">{prompt.model}</span>
+            <div className="flex items-center gap-2 text-[10px] text-white/70 pt-0.5 font-mono">
+              <span className="text-white font-medium">{prompt.model}</span>
               <span>•</span>
               <span>{formatNumber(prompt.copyCount || 0)} copies</span>
             </div>
           </div>
 
-          {/* Tactile Copy Action Button */}
+          {/* Tactile High-Contrast Copy Action Button */}
           <button
             onClick={handleCopy}
-            className={`w-7 h-7 rounded-[8px] flex-shrink-0 flex items-center justify-center shadow-sm transition-all duration-150 ${
+            className={`w-8 h-8 rounded-[10px] flex-shrink-0 flex items-center justify-center transition-all duration-150 cursor-pointer ${
               copied
-                ? "bg-[var(--accent)] text-white"
-                : "bg-white/90 text-black hover:bg-white hover:scale-105 active:scale-95"
+                ? "bg-[var(--accent)] text-white shadow-[0_4px_12px_rgba(255,84,84,0.45)] scale-105"
+                : "bg-white text-black hover:bg-[var(--accent)] hover:text-white border border-white/20 hover:scale-105 active:scale-95 shadow-[0_4px_10px_rgba(0,0,0,0.4)]"
             }`}
             title="Copy Prompt"
           >
             {copied ? (
-              <Check className="w-3.5 h-3.5 stroke-[2]" />
+              <Check className="w-4 h-4 stroke-[2.2]" />
             ) : (
-              <Copy className="w-3.5 h-3.5 stroke-[1.75]" />
+              <Copy className="w-4 h-4 stroke-[2]" />
             )}
           </button>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

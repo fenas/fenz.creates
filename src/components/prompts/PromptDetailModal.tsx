@@ -115,12 +115,12 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto bg-black/60 animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto bg-black/75 animate-in fade-in duration-150">
       {/* Click outside backdrop */}
       <div className="fixed inset-0" onClick={onClose} />
 
       {/* Modal Card */}
-      <div className="relative w-full max-w-5xl rounded-[22px] bg-[var(--surface-elevated)] border border-[var(--border)] z-10 overflow-hidden my-auto max-h-[92vh] flex flex-col shadow-[0_12px_32px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)]">
+      <div className="relative w-full max-w-5xl rounded-[22px] bg-[var(--surface-elevated)] border border-[var(--border)] z-10 overflow-hidden my-auto max-h-[92vh] flex flex-col shadow-[var(--shadow-modal)]">
         {/* Top Sticky Header */}
         <div className="px-4 sm:px-6 py-3.5 border-b border-[var(--border)] flex items-center justify-between bg-[var(--surface-elevated)] z-20">
           <div className="flex items-center gap-2 min-w-0 pr-4">
@@ -135,9 +135,9 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => toggleSave(prompt.id)}
-              className={`p-2 rounded-[10px] transition-all border ${
+              className={`p-2 rounded-[10px] transition-all border cursor-pointer ${
                 saved
-                  ? "bg-[var(--accent)] text-white border-[var(--accent)]"
+                  ? "bg-[var(--accent)] text-white border-[var(--accent)] shadow-[0_2px_8px_rgba(232,92,92,0.3)]"
                   : "bg-[var(--surface-muted)] hover:bg-[var(--surface)] border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
               title={saved ? "Saved in Favorites" : "Save Prompt"}
@@ -147,7 +147,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
 
             <button
               onClick={handleShare}
-              className="p-2 rounded-[10px] bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+              className="p-2 rounded-[10px] bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
               title="Share Prompt"
             >
               <Share2 className="w-4 h-4 stroke-[1.75]" />
@@ -156,7 +156,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
             <Link
               href={`/prompt/${prompt.slug}`}
               target="_blank"
-              className="p-2 rounded-[10px] bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors hidden sm:flex"
+              className="p-2 rounded-[10px] bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors hidden sm:flex cursor-pointer"
               title="Open in Full Page"
             >
               <ExternalLink className="w-4 h-4 stroke-[1.75]" />
@@ -164,7 +164,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
 
             <button
               onClick={onClose}
-              className="p-2 rounded-[10px] bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors ml-1"
+              className="p-2 rounded-[10px] bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors ml-1 cursor-pointer"
               title="Close modal"
             >
               <X className="w-4 h-4 stroke-[1.75]" />
@@ -177,7 +177,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
             {/* Left Column: Artwork Showcase */}
             <div className="lg:col-span-6 space-y-3">
-              <div className="relative rounded-[14px] overflow-hidden bg-[#1E1E1E] border border-[var(--border)] shadow-sm group">
+              <div className="relative rounded-[16px] overflow-hidden bg-[#141619] border border-[var(--border)] shadow-[var(--shadow-card)] group">
                 <div className="relative w-full aspect-square sm:aspect-[4/3] lg:aspect-square">
                   <Image
                     src={currentImageUrl}
@@ -192,7 +192,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
 
                 {/* Media Type pill */}
                 {prompt.type === "video" && (
-                  <div className="absolute top-3 left-3 px-2.5 py-1 rounded-[6px] bg-black/70 text-white text-[10px] font-mono flex items-center gap-1.5 border border-white/10 z-20">
+                  <div className="absolute top-3 left-3 px-2.5 py-1 rounded-[6px] bg-[#141619]/80 text-white text-[10px] font-mono flex items-center gap-1.5 border border-white/10 z-20">
                     <Video className="w-3.5 h-3.5" />
                     Video Prompt
                   </div>
@@ -200,7 +200,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
 
                 {/* Image Counter Badge */}
                 {images.length > 1 && (
-                  <div className="absolute top-3 right-3 px-2 py-0.5 rounded-[6px] bg-black/75 border border-white/15 text-white font-mono text-xs z-20 flex items-center gap-1.5">
+                  <div className="absolute top-3 right-3 px-2 py-0.5 rounded-[6px] bg-[#141619]/85 border border-white/15 text-white font-mono text-xs z-20 flex items-center gap-1.5">
                     <Layers className="w-3.5 h-3.5 text-white/80" />
                     <span>{activeImageIndex + 1} / {images.length}</span>
                   </div>
@@ -215,7 +215,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                         e.stopPropagation();
                         setActiveImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
                       }}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-[8px] bg-black/70 hover:bg-black text-white flex items-center justify-center border border-white/15 transition-all z-20"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-[8px] bg-[#1D2024]/90 hover:bg-[#25292E] text-white flex items-center justify-center border border-white/15 transition-all z-20 cursor-pointer"
                       title="Previous Image"
                     >
                       <ChevronLeft className="w-4 h-4" />
@@ -227,7 +227,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                         e.stopPropagation();
                         setActiveImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
                       }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-[8px] bg-black/70 hover:bg-black text-white flex items-center justify-center border border-white/15 transition-all z-20"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-[8px] bg-[#1D2024]/90 hover:bg-[#25292E] text-white flex items-center justify-center border border-white/15 transition-all z-20 cursor-pointer"
                       title="Next Image"
                     >
                       <ChevronRight className="w-4 h-4" />
@@ -236,7 +236,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                 )}
 
                 {/* Aspect ratio overlay badge */}
-                <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-[6px] bg-black/70 text-white font-mono text-[10px] border border-white/10 z-20">
+                <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-[6px] bg-[#141619]/80 text-white font-mono text-[10px] border border-white/10 z-20">
                   {prompt.aspectRatio}
                 </div>
               </div>
@@ -249,9 +249,9 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                       key={idx}
                       type="button"
                       onClick={() => setActiveImageIndex(idx)}
-                      className={`relative w-14 h-14 rounded-[10px] overflow-hidden flex-shrink-0 border transition-all ${
+                      className={`relative w-14 h-14 rounded-[10px] overflow-hidden flex-shrink-0 border transition-all cursor-pointer ${
                         activeImageIndex === idx
-                          ? "border-[var(--text-primary)] ring-1 ring-[var(--text-primary)]"
+                          ? "border-[var(--accent)] ring-1 ring-[var(--accent)]"
                           : "border-[var(--border)] opacity-70 hover:opacity-100"
                       }`}
                     >
@@ -262,7 +262,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                         className="object-cover"
                         unoptimized={img.startsWith("data:")}
                       />
-                      <div className="absolute bottom-0 inset-x-0 bg-black/70 text-[8.5px] text-white font-mono text-center py-0.5">
+                      <div className="absolute bottom-0 inset-x-0 bg-black/80 text-[8.5px] text-white font-mono text-center py-0.5">
                         {idx + 1}
                       </div>
                     </button>
@@ -272,7 +272,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
 
               {/* Stats Bar */}
               <div className="flex items-center justify-between px-3 py-2 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-secondary)]">
-                <span className="flex items-center gap-1.5 font-medium">
+                <span className="flex items-center gap-1.5 font-medium text-[var(--text-primary)]">
                   <Copy className="w-3.5 h-3.5 stroke-[1.75]" />
                   {formatNumber(prompt.copyCount || 0)} times copied
                 </span>
@@ -283,7 +283,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
             {/* Right Column: Prompt Details & Copy Action */}
             <div className="lg:col-span-6 space-y-6">
               <div>
-                <div className="text-[11px] font-mono text-[var(--text-muted)] uppercase tracking-wider mb-1">
+                <div className="text-[11px] font-mono text-[var(--accent)] uppercase tracking-wider mb-1 font-medium">
                   {category?.name}
                 </div>
                 <h1 className="text-xl sm:text-2xl font-medium text-[var(--text-primary)] tracking-tight">
@@ -302,15 +302,15 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                   </span>
                 </div>
 
-                <div className="relative group rounded-[12px] bg-[var(--surface-muted)] border border-[var(--border)] p-4 font-mono text-xs sm:text-sm text-[var(--text-primary)] leading-relaxed shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.06)]">
-                  <p className="select-all break-words">{prompt.promptText}</p>
+                <div className="relative group rounded-[14px] bg-[var(--surface-recessed)] border border-[var(--border)] p-4 font-mono text-xs sm:text-sm text-[var(--text-primary)] leading-relaxed shadow-[inset_0_2px_6px_rgba(0,0,0,0.35)]">
+                  <p className="select-all break-words">&ldquo;{prompt.promptText}&rdquo;</p>
 
-                  <div className="mt-4 pt-3 border-t border-[var(--border)]/60 flex items-center justify-between gap-3">
+                  <div className="mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-between gap-3">
                     <button
                       onClick={handleCopyMain}
-                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-[10px] text-xs sm:text-sm font-medium transition-all ${
+                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-[10px] text-xs sm:text-sm font-medium transition-all cursor-pointer ${
                         copied
-                          ? "bg-[var(--accent)] text-white shadow-sm"
+                          ? "bg-[var(--accent)] text-white shadow-[0_2px_10px_rgba(232,92,92,0.35)]"
                           : "btn-primary"
                       }`}
                     >
@@ -339,7 +339,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                     </span>
                     <button
                       onClick={handleCopyNegative}
-                      className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 font-mono"
+                      className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 font-mono cursor-pointer"
                     >
                       {copiedNegative ? (
                         <Check className="w-3 h-3 text-[var(--accent)] stroke-[2]" />
@@ -349,7 +349,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                       <span>{copiedNegative ? "Copied" : "Copy"}</span>
                     </button>
                   </div>
-                  <div className="rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] p-3 font-mono text-xs text-[var(--text-secondary)] select-all">
+                  <div className="rounded-[10px] bg-[var(--surface-recessed)] border border-[var(--border)] p-3 font-mono text-xs text-[var(--text-secondary)] select-all shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.25)]">
                     {prompt.negativePrompt}
                   </div>
                 </div>
@@ -451,7 +451,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                   <div
                     key={related.id}
                     onClick={() => setActiveModalPrompt(related)}
-                    className="group relative rounded-[12px] overflow-hidden bg-[var(--surface-muted)] cursor-pointer border border-[var(--border)] hover:border-[var(--border-strong)] transition-all aspect-[4/3]"
+                    className="group relative rounded-[14px] overflow-hidden bg-[var(--surface-muted)] cursor-pointer border border-[var(--border)] hover:border-[var(--border-strong)] transition-all aspect-[4/3]"
                   >
                     <Image
                       src={related.mediaUrl}

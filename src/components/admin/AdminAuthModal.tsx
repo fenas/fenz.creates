@@ -40,10 +40,10 @@ export function AdminAuthModal() {
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center p-4">
-      <div className="w-full max-w-md rounded-[22px] bg-[var(--surface)] border border-[var(--border)] p-8 shadow-[0_12px_32px_rgba(0,0,0,0.06),0_2px_8px_rgba(0,0,0,0.04)] space-y-6">
+      <div className="w-full max-w-md rounded-[22px] bg-[var(--surface)] border border-[var(--border)] p-8 shadow-[var(--shadow-panel)] space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-[12px] bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center mx-auto shadow-sm">
+          <div className="w-12 h-12 rounded-[14px] bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center mx-auto shadow-sm">
             <Lock className="w-5 h-5 text-[var(--icon-primary)] stroke-[1.75]" />
           </div>
           <h1 className="text-lg font-medium text-[var(--text-primary)] tracking-tight">
@@ -72,7 +72,7 @@ export function AdminAuthModal() {
                   setErrorMsg(null);
                 }}
                 placeholder="admin@arenae.online"
-                className="w-full pl-10 pr-4 py-2.5 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-secondary)] shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.06)]"
+                className="w-full pl-10 pr-4 py-2.5 rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-secondary)] shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] transition-colors"
               />
             </div>
           </div>
@@ -86,7 +86,7 @@ export function AdminAuthModal() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 font-mono"
+                className="text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 font-mono cursor-pointer"
               >
                 {showPassword ? <EyeOff className="w-3 h-3 stroke-[1.75]" /> : <Eye className="w-3 h-3 stroke-[1.75]" />}
                 <span>{showPassword ? "Hide" : "Show"}</span>
@@ -103,13 +103,13 @@ export function AdminAuthModal() {
                   setErrorMsg(null);
                 }}
                 placeholder="••••••••••••••••••••"
-                className="w-full pl-10 pr-4 py-2.5 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-secondary)] shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.06)]"
+                className="w-full pl-10 pr-4 py-2.5 rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-secondary)] shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] transition-colors"
               />
             </div>
           </div>
 
           {errorMsg && (
-            <div className="p-3 rounded-[10px] bg-rose-500/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400 flex items-start gap-2 animate-in fade-in">
+            <div className="p-3 rounded-[10px] bg-rose-500/10 border border-rose-500/20 text-xs text-rose-400 flex items-start gap-2 animate-in fade-in">
               <ShieldAlert className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5 stroke-[1.75]" />
               <div>
                 <span>{errorMsg}</span>
@@ -120,7 +120,7 @@ export function AdminAuthModal() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full btn-primary flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-medium shadow-sm disabled:opacity-60"
+            className="w-full btn-primary flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-medium shadow-sm disabled:opacity-60 cursor-pointer"
           >
             <span>{loading ? "Signing in..." : "Sign In to Studio"}</span>
             <ArrowRight className="w-3.5 h-3.5 stroke-[1.75]" />

@@ -148,13 +148,13 @@ export function SingleSectionCardsLayout() {
             return (
               <div
                 key={tut.id}
-                className="rounded-[16px] bg-[var(--surface)] border border-[var(--border)] p-5 space-y-4 hover:border-[var(--border-strong)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.06),0_2px_6px_rgba(0,0,0,0.03)] transition-all duration-200 group flex flex-col justify-between shadow-[0_4px_16px_rgba(0,0,0,0.03)]"
+                className="rounded-[18px] bg-[var(--surface)] border border-[var(--border)] p-5 space-y-4 hover:border-[var(--border-strong)] hover:shadow-[0_16px_36px_rgba(0,0,0,0.35)] transition-all duration-200 group flex flex-col justify-between shadow-[var(--shadow-card)]"
               >
                 <div className="space-y-3.5">
                   {/* Top image & badges */}
                   <Link
                     href={`/tutorial/${tut.slug}`}
-                    className="block relative w-full h-44 rounded-[12px] overflow-hidden bg-[#1E1E1E] border border-[var(--border)]"
+                    className="block relative w-full h-44 rounded-[12px] overflow-hidden bg-[#0A0C0E] border border-[var(--border)]"
                   >
                     <Image
                       src={tut.mediaUrl}
@@ -164,13 +164,13 @@ export function SingleSectionCardsLayout() {
                       className="object-cover group-hover:scale-[1.02] transition-transform duration-500"
                       unoptimized={tut.mediaUrl?.startsWith("data:")}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
 
                     <div className="absolute top-3 left-3 flex items-center gap-1.5">
-                      <span className="px-2 py-0.5 rounded-[6px] bg-black/70 text-white text-[9.5px] font-mono border border-white/10">
+                      <span className="px-2 py-0.5 rounded-[6px] bg-[#0A0C0E]/90 text-white text-[9.5px] font-mono border border-white/20 shadow-sm">
                         {tut.model}
                       </span>
-                      <span className="px-2 py-0.5 rounded-[6px] bg-black/70 text-white/80 text-[9.5px] font-mono border border-white/10">
+                      <span className="px-2 py-0.5 rounded-[6px] bg-[#0A0C0E]/90 text-white/90 text-[9.5px] font-mono border border-white/20 shadow-sm">
                         {tut.readTime}
                       </span>
                     </div>
@@ -178,7 +178,7 @@ export function SingleSectionCardsLayout() {
                     <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
                       <button
                         onClick={(e) => handleShareTutorial(e, tut)}
-                        className="p-1.5 rounded-[8px] bg-black/60 hover:bg-black/80 text-white/80 hover:text-white border border-white/10 transition-all"
+                        className="p-1.5 rounded-[8px] bg-[#0A0C0E]/80 hover:bg-[#1E2228] text-white/90 hover:text-white border border-white/20 transition-all cursor-pointer shadow-sm"
                         title="Share Tutorial Link"
                       >
                         <Share2 className="w-3.5 h-3.5 stroke-[1.75]" />
@@ -186,10 +186,10 @@ export function SingleSectionCardsLayout() {
                     </div>
 
                     <div className="absolute bottom-3 left-3 right-3">
-                      <span className="text-[9.5px] font-mono uppercase text-[var(--accent)] font-medium">
+                      <span className="text-[9.5px] font-mono uppercase text-[var(--accent)] font-semibold tracking-wider">
                         {tut.level} Level
                       </span>
-                      <h3 className="text-sm font-medium text-white truncate drop-shadow-sm">
+                      <h3 className="text-sm font-semibold text-white truncate drop-shadow-sm">
                         {tut.title}
                       </h3>
                     </div>
@@ -200,20 +200,20 @@ export function SingleSectionCardsLayout() {
                   </p>
 
                   {/* Core Takeaways */}
-                  <div className="space-y-1.5 p-3 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-secondary)]">
-                    <span className="font-medium text-[var(--text-primary)] text-[10.5px] uppercase tracking-wider block mb-0.5 font-mono">
+                  <div className="space-y-1.5 p-3 rounded-[12px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-secondary)] shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)]">
+                    <span className="font-semibold text-[var(--text-primary)] text-[10.5px] uppercase tracking-wider block mb-0.5 font-mono">
                       Key Takeaways
                     </span>
                     {tut.content.slice(0, 2).map((point, i) => (
-                      <div key={i} className="text-[11px] leading-relaxed line-clamp-1">
+                      <div key={i} className="text-[11px] leading-relaxed line-clamp-1 text-[var(--text-secondary)]">
                         • {point}
                       </div>
                     ))}
                   </div>
 
-                  {/* Sample Formula Box */}
-                  <div className="p-3 rounded-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs font-mono text-[var(--text-primary)] space-y-1">
-                    <span className="text-[9.5px] text-[var(--text-muted)] uppercase tracking-wider block">
+                  {/* Sample Formula Box (Deep Recessed) */}
+                  <div className="p-3 rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] text-xs font-mono text-[var(--text-primary)] space-y-1 shadow-[inset_0_2px_4px_rgba(0,0,0,0.35)]">
+                    <span className="text-[9.5px] text-[var(--text-muted)] uppercase tracking-wider block font-semibold">
                       Formula Blueprint
                     </span>
                     <p className="text-[11px] line-clamp-2 text-[var(--text-secondary)]">&ldquo;{tut.samplePrompt}&rdquo;</p>
@@ -221,11 +221,11 @@ export function SingleSectionCardsLayout() {
                 </div>
 
                 {/* Actions: Read Full Guide & Copy Formula */}
-                <div className="space-y-2 pt-2 border-t border-[var(--border)]/60">
+                <div className="space-y-2 pt-2 border-t border-[var(--border)]">
                   <div className="grid grid-cols-2 gap-2">
                     <Link
                       href={`/tutorial/${tut.slug}`}
-                      className="py-2 px-3 rounded-[10px] text-xs font-medium bg-[var(--surface-muted)] hover:bg-[var(--surface-elevated)] border border-[var(--border)] text-[var(--text-primary)] flex items-center justify-center gap-1.5 transition-all"
+                      className="py-2 px-3 rounded-[10px] text-xs font-medium bg-[var(--surface-muted)] hover:bg-[var(--surface-elevated)] border border-[var(--border)] text-[var(--text-primary)] flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
                     >
                       <span>Read Guide</span>
                       <ChevronRight className="w-3.5 h-3.5 stroke-[1.75]" />
@@ -233,7 +233,7 @@ export function SingleSectionCardsLayout() {
 
                     <button
                       onClick={(e) => handleShareTutorial(e, tut)}
-                      className="py-2 px-3 rounded-[10px] text-xs font-medium bg-[var(--surface-muted)] hover:bg-[var(--surface-elevated)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center justify-center gap-1.5 transition-all"
+                      className="py-2 px-3 rounded-[10px] text-xs font-medium bg-[var(--surface-muted)] hover:bg-[var(--surface-elevated)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
                     >
                       <Share2 className="w-3.5 h-3.5 stroke-[1.75]" />
                       <span>Share Link</span>
@@ -242,9 +242,9 @@ export function SingleSectionCardsLayout() {
 
                   <button
                     onClick={(e) => handleCopyTutorialPrompt(e, tut)}
-                    className={`w-full py-2.5 px-4 rounded-[10px] text-xs font-medium flex items-center justify-center gap-2 transition-all ${
+                    className={`w-full py-2.5 px-4 rounded-[10px] text-xs font-medium flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       isCopied
-                        ? "bg-[var(--accent)] text-white shadow-sm"
+                        ? "bg-[var(--accent)] text-white shadow-[0_2px_12px_rgba(255,84,84,0.4)] font-semibold"
                         : "btn-primary"
                     }`}
                   >
@@ -273,12 +273,12 @@ export function SingleSectionCardsLayout() {
           {comingSoon.map((feat) => (
             <div
               key={feat.id}
-              className="rounded-[16px] bg-[var(--surface)] border border-[var(--border)] p-4 sm:p-5 space-y-3.5 hover:border-[var(--border-strong)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.06)] transition-all flex flex-col justify-between shadow-[0_4px_16px_rgba(0,0,0,0.03)]"
+              className="rounded-[18px] bg-[var(--surface)] border border-[var(--border)] p-4 sm:p-5 space-y-3.5 hover:border-[var(--border-strong)] hover:shadow-[0_16px_36px_rgba(0,0,0,0.35)] transition-all flex flex-col justify-between shadow-[var(--shadow-card)]"
             >
               <div className="space-y-3">
                 <Link
                   href={`/coming-soon/${feat.slug}`}
-                  className="block relative w-full h-40 rounded-[12px] overflow-hidden bg-[#1E1E1E] border border-[var(--border)]"
+                  className="block relative w-full h-40 rounded-[12px] overflow-hidden bg-[#0A0C0E] border border-[var(--border)]"
                 >
                   <Image
                     src={feat.mediaUrl}
@@ -287,10 +287,10 @@ export function SingleSectionCardsLayout() {
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover group-hover:scale-[1.02] transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
 
                   <div className="absolute top-3 left-3">
-                    <span className="px-2 py-0.5 rounded-[6px] bg-black/70 text-white text-[9.5px] font-mono border border-white/10">
+                    <span className="px-2 py-0.5 rounded-[6px] bg-[#0A0C0E]/90 text-white text-[9.5px] font-mono border border-white/20 shadow-sm">
                       {feat.badge}
                     </span>
                   </div>
@@ -298,20 +298,20 @@ export function SingleSectionCardsLayout() {
                   <div className="absolute top-3 right-3 z-10">
                     <button
                       onClick={(e) => handleShareComingSoon(e, feat)}
-                      className="p-1.5 rounded-[8px] bg-black/60 hover:bg-black/80 text-white/80 hover:text-white border border-white/10 transition-all"
+                      className="p-1.5 rounded-[8px] bg-[#0A0C0E]/80 hover:bg-[#1E2228] text-white/90 hover:text-white border border-white/20 transition-all cursor-pointer shadow-sm"
                       title="Share Feature Link"
                     >
                       <Share2 className="w-3.5 h-3.5 stroke-[1.75]" />
                     </button>
                   </div>
 
-                  <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-[6px] bg-black/70 text-[9.5px] font-mono text-white/80 border border-white/10">
+                  <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-[6px] bg-[#0A0C0E]/90 text-[9.5px] font-mono text-white/90 border border-white/20 shadow-sm">
                     ETA: {feat.eta}
                   </div>
                 </Link>
 
                 <Link href={`/coming-soon/${feat.slug}`}>
-                  <h3 className="text-sm font-medium text-[var(--text-primary)] tracking-tight hover:text-[var(--accent)] transition-colors">
+                  <h3 className="text-sm font-semibold text-[var(--text-primary)] tracking-tight hover:text-[var(--accent)] transition-colors">
                     {feat.title}
                   </h3>
                 </Link>
@@ -320,8 +320,8 @@ export function SingleSectionCardsLayout() {
                   {feat.description}
                 </p>
 
-                <div className="space-y-1 pt-2 border-t border-[var(--border)]/60">
-                  <span className="text-[9.5px] font-mono uppercase text-[var(--text-muted)] tracking-wider">
+                <div className="space-y-1 pt-2 border-t border-[var(--border)]">
+                  <span className="text-[9.5px] font-mono uppercase text-[var(--text-muted)] tracking-wider font-semibold">
                     Highlights
                   </span>
                   <ul className="list-disc list-inside text-[11px] text-[var(--text-secondary)] space-y-0.5">
@@ -332,7 +332,7 @@ export function SingleSectionCardsLayout() {
                 </div>
               </div>
 
-              <div className="pt-2 flex items-center justify-between gap-2 border-t border-[var(--border)]/60">
+              <div className="pt-2 flex items-center justify-between gap-2 border-t border-[var(--border)]">
                 <Link
                   href={`/coming-soon/${feat.slug}`}
                   className="text-xs font-medium text-[var(--text-primary)] hover:text-[var(--accent)] flex items-center gap-1 transition-colors"
@@ -343,7 +343,7 @@ export function SingleSectionCardsLayout() {
 
                 <button
                   onClick={(e) => handleShareComingSoon(e, feat)}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-[8px] bg-[var(--surface-muted)] hover:bg-[var(--surface-elevated)] text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors border border-[var(--border)]"
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-[8px] bg-[var(--surface-muted)] hover:bg-[var(--surface-elevated)] text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors border border-[var(--border)] cursor-pointer shadow-sm"
                   title="Copy Direct Link"
                 >
                   <Share2 className="w-3 h-3 stroke-[1.75]" />
@@ -364,7 +364,7 @@ export function SingleSectionCardsLayout() {
                 <SearchX className="w-6 h-6 text-[var(--icon-secondary)] stroke-[1.75]" />
               </div>
 
-              <h3 className="text-base font-medium text-[var(--text-primary)] mb-1">
+              <h3 className="text-base font-semibold text-[var(--text-primary)] mb-1">
                 No prompts found
               </h3>
 
@@ -376,7 +376,7 @@ export function SingleSectionCardsLayout() {
                 onClick={() => {
                   setSearchQuery("");
                   setSelectedCategory("all");
-                  setActiveTab("prompts");
+                  setActiveTab("discover");
                 }}
                 className="btn-primary flex items-center gap-2 px-4 py-2.5 text-xs font-medium"
               >

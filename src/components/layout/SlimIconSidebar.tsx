@@ -62,12 +62,12 @@ export function SlimIconSidebar() {
 
   return (
     <>
-      {/* Desktop & Tablet Segmented Capsule Sidebar (Tactile Matte Design) */}
+      {/* Desktop & Tablet Segmented Capsule Sidebar (Dark Matte Neomorphic Hardware Module) */}
       <aside className="hidden md:flex flex-col justify-between items-center fixed top-4 bottom-4 left-4 z-40 w-16 select-none pointer-events-auto">
         {/* Top Floating Capsule */}
-        <div className="w-full rounded-[24px] bg-[var(--surface)] border border-[var(--border)] shadow-[0_12px_32px_rgba(0,0,0,0.06),0_2px_8px_rgba(0,0,0,0.04)] p-1.5 pb-3 flex flex-col items-center justify-between flex-1 max-h-[calc(100vh-140px)] min-h-[380px] transition-all">
-          {/* Top Dark Obsidian Island Pill */}
-          <div className="w-full bg-[#1C1C1E] dark:bg-[#141414] text-white rounded-[18px] p-2 flex flex-col items-center gap-2.5 shadow-sm border border-black/20 dark:border-white/5">
+        <div className="w-full rounded-[24px] bg-[var(--surface-recessed)] border border-[var(--border)] shadow-[-6px_-6px_14px_rgba(255,255,255,0.02),8px_14px_28px_rgba(0,0,0,0.38)] p-1.5 pb-3 flex flex-col items-center justify-between flex-1 max-h-[calc(100vh-140px)] min-h-[380px] transition-all">
+          {/* Top Matte Navigation Island */}
+          <div className="w-full bg-[var(--surface)] text-[var(--text-primary)] rounded-[18px] p-2 flex flex-col items-center gap-2 shadow-[-2px_-2px_6px_rgba(255,255,255,0.02),3px_5px_12px_rgba(0,0,0,0.25)] border border-[var(--border)]">
             {/* Top Logo */}
             <Link
               href="/"
@@ -78,18 +78,18 @@ export function SlimIconSidebar() {
               className="group relative flex items-center justify-center focus:outline-none p-1 transition-transform hover:scale-105"
               title="Arenae"
             >
-              <Logo className="w-5.5 h-5.5 text-white group-hover:text-[var(--accent)] transition-colors duration-200" />
+              <Logo className="w-5.5 h-5.5 text-[var(--icon-primary)] group-hover:text-[var(--accent)] transition-colors duration-200" />
 
               {/* Hover Tooltip */}
-              <div className="absolute left-full ml-3 px-2.5 py-1 rounded-[8px] bg-[var(--surface-elevated)] text-[var(--text-primary)] text-xs font-medium shadow-md border border-[var(--border)] whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2 transition-all duration-200 z-50">
+              <div className="absolute left-full ml-3 px-2.5 py-1 rounded-[8px] bg-[var(--surface-elevated)] text-[var(--text-primary)] text-xs font-medium shadow-xl border border-[var(--border)] whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2 transition-all duration-200 z-50">
                 arenae
               </div>
             </Link>
 
             {/* Subtle Divider */}
-            <div className="w-4 h-[1px] bg-white/10 my-0.5" />
+            <div className="w-4 h-[1px] bg-[var(--border)] my-0.5" />
 
-            {/* Navigation Icon Buttons Inside Dark Island */}
+            {/* Navigation Icon Buttons */}
             <nav className="flex flex-col items-center gap-1.5 w-full">
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -100,13 +100,18 @@ export function SlimIconSidebar() {
                     <button
                       onClick={() => handleNavClick(item.id)}
                       aria-label={item.label}
-                      className={`w-9 h-9 rounded-[10px] flex items-center justify-center transition-all duration-150 relative ${
+                      className={`w-9 h-9 rounded-[10px] flex items-center justify-center transition-all duration-150 relative cursor-pointer ${
                         active
-                          ? "bg-white/15 text-white shadow-sm font-medium"
-                          : "text-white/60 hover:text-white hover:bg-white/10"
+                          ? "bg-[var(--active-btn-bg)] text-[var(--active-btn-icon)] shadow-[var(--active-btn-shadow)] border border-[var(--active-btn-border)]"
+                          : "text-[var(--icon-secondary)] hover:text-[var(--icon-primary)] hover:bg-[var(--surface-elevated)]"
                       }`}
                     >
                       <Icon className="w-4 h-4 stroke-[1.75]" />
+
+                      {/* Small Coral Accent Indicator */}
+                      {active && (
+                        <span className="absolute -left-1 top-1/2 -translate-y-1/2 w-1 h-3 rounded-r-full bg-[var(--accent)] shadow-[0_0_8px_rgba(255,84,84,0.6)]" />
+                      )}
 
                       {/* Notification Badge */}
                       {item.badge && (
@@ -115,10 +120,10 @@ export function SlimIconSidebar() {
                     </button>
 
                     {/* Hover Popup Tooltip */}
-                    <div className="absolute left-full ml-3 px-3 py-1.5 rounded-[8px] bg-[var(--surface-elevated)] text-[var(--text-primary)] text-xs font-medium shadow-md border border-[var(--border)] whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2 transition-all duration-200 z-50 flex items-center gap-2">
+                    <div className="absolute left-full ml-3 px-3 py-1.5 rounded-[8px] bg-[var(--surface-elevated)] text-[var(--text-primary)] text-xs font-medium shadow-xl border border-[var(--border)] whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2 transition-all duration-200 z-50 flex items-center gap-2">
                       <span>{item.label}</span>
                       {item.badge && (
-                        <span className="px-1.5 py-0.2 rounded-[6px] bg-[var(--surface-muted)] text-[var(--text-secondary)] text-[9px] font-mono">
+                        <span className="px-1.5 py-0.2 rounded-[6px] bg-[var(--surface-recessed)] text-[var(--accent)] text-[9px] font-mono">
                           {item.badge}
                         </span>
                       )}
@@ -129,26 +134,26 @@ export function SlimIconSidebar() {
             </nav>
           </div>
 
-          {/* Vertical Micro-Typography Watermark */}
-          <div className="py-4 flex items-center justify-center [writing-mode:vertical-rl] rotate-180 select-none text-[7px] font-mono tracking-[0.24em] font-medium text-[var(--text-muted)] uppercase opacity-80">
+          {/* Vertical Micro-Typography */}
+          <div className="py-4 flex items-center justify-center [writing-mode:vertical-rl] rotate-180 select-none text-[7px] font-mono tracking-[0.24em] font-medium text-[var(--text-muted)] uppercase opacity-70">
             ARENAE 2026
           </div>
         </div>
 
         {/* Bottom Floating Capsule (Settings / Theme Selector) */}
-        <div className="w-full rounded-[20px] bg-[var(--surface)] border border-[var(--border)] shadow-[0_8px_24px_rgba(0,0,0,0.05)] p-1.5 py-2 flex flex-col items-center justify-between gap-1.5 mt-3 transition-all">
+        <div className="w-full rounded-[20px] bg-[var(--surface-recessed)] border border-[var(--border)] shadow-[-4px_-4px_10px_rgba(255,255,255,0.015),6px_8px_18px_rgba(0,0,0,0.3)] p-1.5 py-2 flex flex-col items-center justify-between gap-1.5 mt-3 transition-all">
           {/* Vertical Micro-Text */}
-          <div className="[writing-mode:vertical-rl] rotate-180 select-none text-[6.5px] font-mono tracking-[0.2em] font-medium text-[var(--text-muted)] uppercase py-0.5 opacity-80">
+          <div className="[writing-mode:vertical-rl] rotate-180 select-none text-[6.5px] font-mono tracking-[0.2em] font-medium text-[var(--text-muted)] uppercase py-0.5 opacity-70">
             THEME
           </div>
 
-          {/* Centered Dark Squircle Theme Selector Button */}
+          {/* Theme Selector Squircle Button */}
           <ThemeSelector direction="right" variant="dark-squircle" />
         </div>
       </aside>
 
       {/* Mobile Bottom Tab Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface)] border-t border-[var(--border)] px-4 py-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-lg">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface-recessed)] border-t border-[var(--border)] px-4 py-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-2xl">
         <div className="flex items-center justify-around">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -160,8 +165,8 @@ export function SlimIconSidebar() {
                 onClick={() => handleNavClick(item.id)}
                 className={`flex flex-col items-center justify-center py-1 px-3 rounded-[10px] transition-all relative ${
                   active
-                    ? "text-[var(--text-primary)] font-medium bg-[var(--surface-elevated)]"
-                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                    ? "text-[var(--text-primary)] font-medium bg-[var(--surface)] shadow-sm"
+                    : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 <div className="relative">
