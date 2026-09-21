@@ -22,6 +22,7 @@ import {
   RotateCcw,
   Type,
   HelpCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { ArticleBlock, BlockType, CalloutVariant, ImageSize } from "@/types/blocks";
 import { AddBlockMenu, AddBlockOption, BLOCK_OPTIONS } from "./AddBlockMenu";
@@ -80,6 +81,7 @@ export function BlockItem({
   const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
   const [isSlashMenuOpen, setIsSlashMenuOpen] = useState(false);
   const [isConvertMenuOpen, setIsConvertMenuOpen] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [slashQuery, setSlashQuery] = useState("");
   const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
@@ -87,6 +89,19 @@ export function BlockItem({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoFileInputRef = useRef<HTMLInputElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
+  const deleteConfirmRef = useRef<HTMLDivElement>(null);
+
+  // Close delete confirmation when clicking outside
+  useEffect(() => {
+    if (!showDeleteConfirm) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (deleteConfirmRef.current && !deleteConfirmRef.current.contains(e.target as Node)) {
+        setShowDeleteConfirm(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showDeleteConfirm]);
 
   // Auto-resize textarea
   const handleAutoResize = (el: HTMLTextAreaElement | null) => {
@@ -145,19 +160,15 @@ export function BlockItem({
     >
       {/* Block Layout: Left Controls + Content Canvas */}
       <div className="flex items-start gap-2 relative">
-        {/* Left Floating Action Gutter */}
-        <div
-          className={`flex items-center gap-0.5 pt-1 -ml-14 w-12 justify-end transition-opacity duration-150 ${
-            isHovered || isAddMenuOpen || isConvertMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-          }`}
-        >
+        {/* Left Action Gutter - CONSTANTLY VISIBLE */}
+        <div className="flex items-center gap-1.5 pt-0.5 -ml-24 sm:-ml-28 w-24 justify-end select-none opacity-80 group-hover:opacity-100 hover:opacity-100 transition-opacity duration-200">
           {/* Add Block button (+) */}
           <div className="relative">
             <button
               type="button"
               onClick={() => setIsAddMenuOpen(!isAddMenuOpen)}
-              title="Add block below"
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-all hover:scale-110"
+              title="Add block below (+)"
+              className="w-7 h-7 flex items-center justify-center rounded-xl bg-[#11131c] hover:bg-[#E85002]/20 text-slate-400 hover:text-[#F16001] border border-white/10 hover:border-[#E85002]/40 shadow-sm hover:shadow-md hover:shadow-[#E85002]/20 hover:scale-110 active:scale-95 transition-all duration-200 ease-out cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
             </button>
@@ -175,13 +186,13 @@ export function BlockItem({
             )}
           </div>
 
-          {/* Block Options Menu (⋮⋮) */}
+          {/* Block Options & Move Menu (⋮⋮) */}
           <div className="relative">
             <button
               type="button"
               onClick={() => setIsConvertMenuOpen(!isConvertMenuOpen)}
-              title="Block options & convert"
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+              title="Move & options"
+              className="w-7 h-7 flex items-center justify-center rounded-xl bg-[#11131c] hover:bg-white/15 text-slate-400 hover:text-white border border-white/10 hover:border-white/25 shadow-sm hover:shadow-md hover:scale-110 active:scale-95 transition-all duration-200 ease-out cursor-grab"
             >
               <GripVertical className="w-3.5 h-3.5" />
             </button>
@@ -202,7 +213,8 @@ export function BlockItem({
                         onMoveUp();
                         setIsConvertMenuOpen(false);
                       }}
-                      className="p-1 rounded bg-white/5 hover:bg-white/15 disabled:opacity-30"
+                      className="p-1 rounded bg-white/5 hover:bg-white/15 disabled:opacity-30 transition-all hover:scale-105"
+                      title="Move up"
                     >
                       <ChevronUp className="w-3.5 h-3.5" />
                     </button>
@@ -213,7 +225,8 @@ export function BlockItem({
                         onMoveDown();
                         setIsConvertMenuOpen(false);
                       }}
-                      className="p-1 rounded bg-white/5 hover:bg-white/15 disabled:opacity-30"
+                      className="p-1 rounded bg-white/5 hover:bg-white/15 disabled:opacity-30 transition-all hover:scale-105"
+                      title="Move down"
                     >
                       <ChevronDown className="w-3.5 h-3.5" />
                     </button>
@@ -226,7 +239,7 @@ export function BlockItem({
                     onDuplicate();
                     setIsConvertMenuOpen(false);
                   }}
-                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/10"
+                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
                 >
                   <Copy className="w-3.5 h-3.5" />
                   <span>Duplicate block</span>
@@ -235,13 +248,13 @@ export function BlockItem({
                 <button
                   type="button"
                   onClick={() => {
-                    onDelete();
                     setIsConvertMenuOpen(false);
+                    setShowDeleteConfirm(true);
                   }}
-                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  <span>Delete block</span>
+                  <span>Delete block...</span>
                 </button>
 
                 <div className="h-[1px] bg-white/5 my-1" />
@@ -254,12 +267,65 @@ export function BlockItem({
                     key={opt.label}
                     type="button"
                     onClick={() => handleConvertType(opt)}
-                    className="w-full flex items-center gap-2 px-2.5 py-1 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 text-[11px]"
+                    className="w-full flex items-center gap-2 px-2.5 py-1 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 text-[11px] transition-colors"
                   >
                     <opt.icon className="w-3 h-3 text-[#E85002]" />
                     <span>{opt.label}</span>
                   </button>
                 ))}
+              </div>
+            )}
+          </div>
+
+          {/* Delete Block Button (🗑️) with Warning Confirmation */}
+          <div className="relative" ref={deleteConfirmRef}>
+            <button
+              type="button"
+              onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
+              title="Delete block"
+              className={`w-7 h-7 flex items-center justify-center rounded-xl border shadow-sm transition-all duration-200 ease-out cursor-pointer ${
+                showDeleteConfirm
+                  ? "bg-red-500 text-white border-red-500 shadow-md shadow-red-500/30 scale-105"
+                  : "bg-[#11131c] hover:bg-red-500/20 text-slate-400 hover:text-red-400 border-white/10 hover:border-red-500/40 hover:shadow-red-500/20 hover:scale-110 active:scale-95"
+              }`}
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Warning Confirmation Popover Message */}
+            {showDeleteConfirm && (
+              <div className="absolute right-0 bottom-full mb-2.5 z-50 w-60 p-3 rounded-2xl bg-[#11131d] border border-red-500/40 shadow-2xl backdrop-blur-2xl text-xs space-y-2.5 animate-in fade-in zoom-in-95 duration-150">
+                <div className="flex items-start gap-2.5 text-slate-200">
+                  <div className="w-6 h-6 rounded-lg bg-red-500/20 border border-red-500/30 flex items-center justify-center flex-shrink-0 text-red-400 mt-0.5">
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-bold text-white text-[11px]">Delete Block?</div>
+                    <p className="text-[10px] text-slate-400 leading-tight mt-0.5">
+                      This will remove this content block from your tutorial guide.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-1 border-t border-white/5">
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteConfirm(false)}
+                    className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-[10px] font-semibold transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowDeleteConfirm(false);
+                      onDelete();
+                    }}
+                    className="px-3 py-1 rounded-lg bg-red-500 hover:bg-red-600 text-white text-[10px] font-bold shadow-md shadow-red-500/30 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                  >
+                    Delete Block
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -814,13 +880,13 @@ export function BlockItem({
       </div>
 
       {/* Subtle Bottom Insertion Bar between blocks */}
-      <div className="relative my-1 h-3 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="relative my-1.5 h-4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 ease-out">
         <div className="absolute inset-x-0 h-[1px] bg-white/5" />
         <button
           type="button"
           onClick={() => setIsAddMenuOpen(true)}
           title="Insert block here"
-          className="relative z-10 w-5 h-5 rounded-full bg-[#181a24] hover:bg-[#E85002] border border-white/15 hover:border-[#E85002] text-slate-400 hover:text-white flex items-center justify-center transition-all hover:scale-110 shadow-lg"
+          className="relative z-10 w-5 h-5 rounded-full bg-[#181a24] hover:bg-[#E85002] border border-white/15 hover:border-[#E85002] text-slate-400 hover:text-white flex items-center justify-center transition-all duration-200 ease-out hover:scale-125 active:scale-95 shadow-lg shadow-black/40 hover:shadow-[#E85002]/30 cursor-pointer"
         >
           <Plus className="w-3 h-3" />
         </button>
