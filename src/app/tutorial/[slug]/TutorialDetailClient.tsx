@@ -135,11 +135,18 @@ export function TutorialDetailClient({
         <div className="space-y-6">
           {/* Title & Description */}
           <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-[7px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs font-mono text-[var(--accent)] font-medium">
-              <span>{tutorial.model}</span>
-              <span>•</span>
-              <span>{tutorial.readTime}</span>
-            </div>
+            {tutorial.tags && tutorial.tags.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                {tutorial.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-[7px] bg-[var(--surface-muted)] border border-[var(--border)] text-[11px] font-mono text-[var(--accent)] font-medium"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
             <h1 className="text-3xl sm:text-5xl font-medium text-[var(--text-primary)] tracking-tight leading-tight">
               {tutorial.title}
             </h1>
@@ -168,9 +175,11 @@ export function TutorialDetailClient({
                 <span className="px-2.5 py-1 rounded-[7px] bg-[#141619]/80 border border-white/10 text-[11px] font-mono">
                   Arenae Blueprint
                 </span>
-                <span className="px-2.5 py-1 rounded-[7px] bg-[#141619]/80 border border-white/10 text-[11px] font-mono text-white/80">
-                  {tutorial.level} Level
-                </span>
+                {tutorial.model && (
+                  <span className="px-2.5 py-1 rounded-[7px] bg-[#141619]/80 border border-white/10 text-[11px] font-mono text-white/80">
+                    {tutorial.model}
+                  </span>
+                )}
               </div>
             </div>
           )}
@@ -180,6 +189,52 @@ export function TutorialDetailClient({
         <section className="pt-2">
           <StructuredArticleRenderer blocks={articleBlocks} />
         </section>
+
+        {/* Guide Specifications & Metadata Section at End of Tutorial */}
+        {(tutorial.model || tutorial.level || (tutorial.tags && tutorial.tags.length > 0)) && (
+          <section className="p-5 sm:p-6 rounded-[22px] bg-[var(--surface)] border border-[var(--border)] space-y-4 shadow-[var(--shadow-card)]">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[var(--accent)] shadow-sm shadow-[var(--accent)]/50" />
+                <span className="text-xs font-mono font-medium uppercase tracking-wider text-[var(--text-secondary)]">
+                  Guide Specifications
+                </span>
+              </div>
+              {tutorial.tags && tutorial.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {tutorial.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-0.5 rounded-[6px] bg-[var(--surface-muted)] border border-[var(--border)] text-[10px] font-mono text-[var(--text-secondary)]"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              {tutorial.model && (
+                <div className="p-3.5 rounded-[14px] bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-between">
+                  <span className="text-xs text-[var(--text-secondary)] font-mono">AI Model Focus</span>
+                  <span className="text-xs font-medium text-[var(--accent)] font-mono">
+                    {tutorial.model}
+                  </span>
+                </div>
+              )}
+
+              {tutorial.level && (
+                <div className="p-3.5 rounded-[14px] bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-between">
+                  <span className="text-xs text-[var(--text-secondary)] font-mono">Difficulty Level</span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-medium bg-[var(--surface)] border border-[var(--border)] text-[var(--text-primary)]">
+                    {tutorial.level}
+                  </span>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
 
         {/* Section: Explore Related Tutorials */}
         {relatedTutorials.length > 0 && (
@@ -215,16 +270,18 @@ export function TutorialDetailClient({
                         unoptimized={tut.mediaUrl?.startsWith("data:")}
                       />
                     </div>
-                    <span className="text-[10px] font-mono text-[var(--accent)] font-medium">
-                      {tut.model}
-                    </span>
+                    {tut.model && (
+                      <span className="text-[10px] font-mono text-[var(--accent)] font-medium">
+                        {tut.model}
+                      </span>
+                    )}
                     <h4 className="text-xs font-medium text-[var(--text-primary)] line-clamp-2 group-hover:text-[var(--accent)] transition-colors">
                       {tut.title}
                     </h4>
                   </div>
 
                   <span className="text-[10px] text-[var(--text-secondary)] font-mono">
-                    {tut.readTime}
+                    {tut.level || "Beginner"}
                   </span>
                 </Link>
               ))}

@@ -5,6 +5,7 @@ import { ToastProvider } from "@/components/ui/Toast";
 import { PromptProvider } from "@/context/PromptContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { ThemeScript } from "@/components/theme/ThemeScript";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -100,6 +101,7 @@ export default function RootLayout({
             <PromptProvider>{children}</PromptProvider>
           </ToastProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );

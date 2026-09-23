@@ -62,12 +62,12 @@ export function SlimIconSidebar() {
 
   return (
     <>
-      {/* Desktop & Tablet Segmented Capsule Sidebar (Dark Matte Neomorphic Hardware Module) */}
+      {/* Desktop & Tablet Segmented Capsule Sidebar */}
       <aside className="hidden md:flex flex-col justify-between items-center fixed top-4 bottom-4 left-4 z-40 w-16 select-none pointer-events-auto">
         {/* Top Floating Capsule */}
-        <div className="w-full rounded-[24px] bg-[var(--surface-recessed)] border border-[var(--border)] shadow-[-6px_-6px_14px_rgba(255,255,255,0.02),8px_14px_28px_rgba(0,0,0,0.38)] p-1.5 pb-3 flex flex-col items-center justify-between flex-1 max-h-[calc(100vh-140px)] min-h-[380px] transition-all">
-          {/* Top Matte Navigation Island */}
-          <div className="w-full bg-[var(--surface)] text-[var(--text-primary)] rounded-[18px] p-2 flex flex-col items-center gap-2 shadow-[-2px_-2px_6px_rgba(255,255,255,0.02),3px_5px_12px_rgba(0,0,0,0.25)] border border-[var(--border)]">
+        <div className="w-full rounded-[24px] bg-[var(--surface-recessed)] border border-[var(--border)] shadow-[var(--shadow-dock)] p-1.5 pb-3 flex flex-col items-center justify-between flex-1 max-h-[calc(100vh-140px)] min-h-[380px] transition-all">
+          {/* Top Navigation Island */}
+          <div className="w-full bg-[var(--surface)] text-[var(--text-primary)] rounded-[18px] p-2 flex flex-col items-center gap-2 shadow-[var(--shadow-panel)] border border-[var(--border)]">
             {/* Top Logo */}
             <Link
               href="/"
@@ -141,7 +141,7 @@ export function SlimIconSidebar() {
         </div>
 
         {/* Bottom Floating Capsule (Settings / Theme Selector) */}
-        <div className="w-full rounded-[20px] bg-[var(--surface-recessed)] border border-[var(--border)] shadow-[-4px_-4px_10px_rgba(255,255,255,0.015),6px_8px_18px_rgba(0,0,0,0.3)] p-1.5 py-2 flex flex-col items-center justify-between gap-1.5 mt-3 transition-all">
+        <div className="w-full rounded-[20px] bg-[var(--surface-recessed)] border border-[var(--border)] shadow-[var(--shadow-panel)] p-1.5 py-2 flex flex-col items-center justify-between gap-1.5 mt-3 transition-all">
           {/* Vertical Micro-Text */}
           <div className="[writing-mode:vertical-rl] rotate-180 select-none text-[6.5px] font-mono tracking-[0.2em] font-medium text-[var(--text-muted)] uppercase py-0.5 opacity-70">
             THEME

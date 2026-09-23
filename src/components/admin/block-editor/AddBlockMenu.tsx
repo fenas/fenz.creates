@@ -241,18 +241,16 @@ export function AddBlockMenu({
                       type="button"
                       onClick={() => onSelect(opt)}
                       onMouseEnter={() => setSelectedIndex(currentIndex)}
-                      className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-all ${
-                        isSelected
+                      className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-all ${isSelected
                           ? "bg-gradient-to-r from-white/10 to-white/5 border border-white/10 text-white translate-x-0.5"
                           : "text-slate-300 hover:text-white hover:bg-white/[0.04] border border-transparent"
-                      }`}
+                        }`}
                     >
                       <div
-                        className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
-                          isSelected
+                        className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${isSelected
                             ? "bg-[#E85002] text-white shadow-md shadow-[#E85002]/30"
                             : "bg-white/5 text-slate-300 border border-white/10"
-                        }`}
+                          }`}
                       >
                         <Icon className="w-4 h-4" />
                       </div>

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { ArticleBlock } from "@/types/blocks";
 import { useToast } from "@/components/ui/Toast";
+import { renderFormattedContent } from "@/lib/inlineParser";
 import confetti from "canvas-confetti";
 
 interface StructuredArticleRendererProps {
@@ -70,7 +71,7 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
                 key={block.id}
                 className="text-base sm:text-lg text-[var(--text-secondary)] leading-relaxed font-normal whitespace-pre-line"
               >
-                {block.content}
+                {renderFormattedContent(block.content)}
               </p>
             );
 
@@ -80,7 +81,7 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
                 key={block.id}
                 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-primary)] tracking-tight pt-6 pb-1 border-b border-[var(--border-glass)]"
               >
-                {block.content}
+                {renderFormattedContent(block.content)}
               </h2>
             );
 
@@ -90,7 +91,7 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
                 key={block.id}
                 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] tracking-tight pt-4"
               >
-                {block.content}
+                {renderFormattedContent(block.content)}
               </h3>
             );
 
@@ -100,7 +101,7 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
                 key={block.id}
                 className="my-6 rounded-r-3xl border-l-4 border-[#E85002] bg-[#E85002]/[0.08] px-6 py-4 text-base sm:text-lg italic text-[var(--text-primary)]"
               >
-                &ldquo;{block.content}&rdquo;
+                &ldquo;{renderFormattedContent(block.content)}&rdquo;
               </blockquote>
             );
 
@@ -110,7 +111,7 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
                 {(block.items || []).map((item, i) => (
                   <li key={i} className="flex items-start gap-3 text-base text-[var(--text-secondary)]">
                     <span className="w-2 h-2 rounded-full bg-[#E85002] flex-shrink-0 mt-2 shadow-sm shadow-[#E85002]/50" />
-                    <span>{item}</span>
+                    <span>{renderFormattedContent(item)}</span>
                   </li>
                 ))}
               </ul>
@@ -124,7 +125,7 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
                     <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-glass)] text-xs font-mono font-bold text-[#E85002] flex-shrink-0 mt-0.5 shadow-sm">
                       {i + 1}
                     </span>
-                    <span className="flex-1">{item}</span>
+                    <span className="flex-1">{renderFormattedContent(item)}</span>
                   </li>
                 ))}
               </ol>
@@ -139,8 +140,8 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
                     block.size === "wide"
                       ? "aspect-[16/9] w-full"
                       : block.size === "full"
-                      ? "aspect-[21/9] w-full"
-                      : "aspect-[16/10] max-w-2xl mx-auto"
+                        ? "aspect-[21/9] w-full"
+                        : "aspect-[16/10] max-w-2xl mx-auto"
                   }`}
                 >
                   <Image
@@ -154,7 +155,7 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
                 </div>
                 {block.caption && (
                   <figcaption className="text-center text-xs text-[var(--text-secondary)] font-medium">
-                    {block.caption}
+                    {renderFormattedContent(block.caption)}
                   </figcaption>
                 )}
               </figure>
@@ -175,7 +176,7 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
                 </div>
                 {block.caption && (
                   <figcaption className="text-center text-xs text-[var(--text-secondary)] font-medium">
-                    {block.caption}
+                    {renderFormattedContent(block.caption)}
                   </figcaption>
                 )}
               </figure>
@@ -264,10 +265,10 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
                   block.calloutVariant === "warning"
                     ? "bg-amber-500/10 border-amber-500/30 text-amber-500 dark:text-amber-200"
                     : block.calloutVariant === "important"
-                    ? "bg-red-500/10 border-red-500/30 text-red-500 dark:text-red-200"
-                    : block.calloutVariant === "note"
-                    ? "bg-blue-500/10 border-blue-500/30 text-blue-500 dark:text-blue-200"
-                    : "bg-[#E85002]/10 border-[#E85002]/30 text-[#E85002]"
+                      ? "bg-red-500/10 border-red-500/30 text-red-500 dark:text-red-200"
+                      : block.calloutVariant === "note"
+                        ? "bg-blue-500/10 border-blue-500/30 text-blue-500 dark:text-blue-200"
+                        : "bg-[#E85002]/10 border-[#E85002]/30 text-[#E85002]"
                 }`}
               >
                 <div className="flex items-center gap-2 font-bold text-xs sm:text-sm tracking-wide uppercase">
@@ -275,7 +276,7 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
                   <span>{block.calloutTitle || "PRO TIP"}</span>
                 </div>
                 <div className="text-sm sm:text-base text-[var(--text-primary)] leading-relaxed whitespace-pre-line font-normal">
-                  {block.content}
+                  {renderFormattedContent(block.content)}
                 </div>
               </div>
             );

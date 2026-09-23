@@ -4,7 +4,7 @@
 @custom-variant grey (&:where(.grey, .grey *));
 
 @layer base {
-  /* DARK MATTE GRAPHITE (High-Contrast Tactile System) */
+  /* DARK MATTE GRAPHITE (Clean, High-Contrast Studio Dark) */
   :root,
   .dark,
   [data-theme="dark"] {
@@ -31,12 +31,20 @@
     --accent-soft: rgba(255, 84, 84, 0.16);
     --accent-dark: #D63838;
 
-    /* High-Contrast Active & Selected Button Tokens */
+    /* Active & Selected Button Tokens */
     --active-btn-bg: #282D35;
     --active-btn-text: #FFFFFF;
     --active-btn-icon: #FFFFFF;
     --active-btn-border: rgba(255, 255, 255, 0.22);
-    --active-btn-shadow: -1px -1px 3px rgba(255, 255, 255, 0.05), 2px 4px 10px rgba(0, 0, 0, 0.4);
+    --active-btn-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+
+    /* Refined Elevation & Layering Shadows */
+    --shadow-panel: 0 8px 32px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.25);
+    --shadow-dock: 0 10px 36px rgba(0, 0, 0, 0.55), 0 1px 4px rgba(0, 0, 0, 0.35);
+    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.35), 0 1px 3px rgba(0, 0, 0, 0.2);
+    --shadow-card-hover: 0 12px 36px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.3);
+    --shadow-input: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-btn: 0 2px 8px rgba(0, 0, 0, 0.35);
 
     /* Legacy Token Aliases */
     --bg-base: var(--background);
@@ -63,38 +71,46 @@
     --skeleton-mid: rgba(255, 255, 255, 0.06);
   }
 
-  /* LIGHT MODE (Clean Editorial Off-White Matte) */
+  /* LIGHT MODE (Clean, High-End Editorial Minimalist) */
   .light,
   [data-theme="light"] {
-    --background: #E5E5E2;
+    --background: #F7F7F5;
     --surface: #FFFFFF;
-    --surface-elevated: #F4F4F1;
-    --surface-soft: #E8E8E4;
-    --surface-recessed: #D8D8D3;
+    --surface-elevated: #FAFAFA;
+    --surface-soft: #F0F0EE;
+    --surface-recessed: #EAEAE6;
     --surface-active: #15171A;
 
-    --border: #C8C8C3;
-    --border-strong: #15171A;
-    --border-subtle: #DEDEDA;
+    --border: rgba(0, 0, 0, 0.08);
+    --border-strong: rgba(0, 0, 0, 0.2);
+    --border-subtle: rgba(0, 0, 0, 0.04);
 
-    --text-primary: #0F1012;
-    --text-secondary: #4A4D54;
-    --text-muted: #7A7D86;
+    --text-primary: #121417;
+    --text-secondary: #585C66;
+    --text-muted: #8E93A0;
 
-    --icon-primary: #0F1012;
-    --icon-secondary: #585B64;
+    --icon-primary: #121417;
+    --icon-secondary: #6B707D;
 
     --accent: #E84848;
     --accent-hover: #F05858;
-    --accent-soft: rgba(232, 72, 72, 0.14);
+    --accent-soft: rgba(232, 72, 72, 0.12);
     --accent-dark: #C43434;
 
-    /* High-Contrast Active & Selected Button Tokens for Light Mode */
+    /* Clean Crisp Active Button */
     --active-btn-bg: #15171A;
     --active-btn-text: #FFFFFF;
     --active-btn-icon: #FFFFFF;
     --active-btn-border: #15171A;
-    --active-btn-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    --active-btn-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+
+    /* Premium Clean Shadows (Zero muddy plastic neomorphism) */
+    --shadow-panel: 0 4px 20px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+    --shadow-dock: 0 6px 24px rgba(0, 0, 0, 0.05), 0 1px 4px rgba(0, 0, 0, 0.03);
+    --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02);
+    --shadow-card-hover: 0 12px 28px rgba(0, 0, 0, 0.07), 0 2px 6px rgba(0, 0, 0, 0.03);
+    --shadow-input: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+    --shadow-btn: 0 2px 6px rgba(0, 0, 0, 0.05);
 
     --bg-base: var(--background);
     --bg-surface: var(--surface);
@@ -112,46 +128,54 @@
     --pill-hover: var(--surface-soft);
     --pill-active: var(--active-btn-bg);
 
-    --scrollbar-track: rgba(0, 0, 0, 0.05);
-    --scrollbar-thumb: rgba(0, 0, 0, 0.22);
-    --scrollbar-thumb-hover: rgba(0, 0, 0, 0.38);
+    --scrollbar-track: rgba(0, 0, 0, 0.03);
+    --scrollbar-thumb: rgba(0, 0, 0, 0.18);
+    --scrollbar-thumb-hover: rgba(0, 0, 0, 0.32);
 
-    --skeleton-start: rgba(0, 0, 0, 0.04);
-    --skeleton-mid: rgba(0, 0, 0, 0.09);
+    --skeleton-start: rgba(0, 0, 0, 0.03);
+    --skeleton-mid: rgba(0, 0, 0, 0.07);
   }
 
-  /* GREY MODE (Tactile Studio Clay) */
+  /* GREY MODE (Studio Titanium / Refined Monochromatic Slate) */
   .grey,
   [data-theme="grey"] {
-    --background: #AEB3BA;
-    --surface: #C2C7CF;
-    --surface-elevated: #D4D9E2;
-    --surface-soft: #E0E5EE;
-    --surface-recessed: #9EA3AC;
+    --background: #DFE2E7;
+    --surface: #EDEFF4;
+    --surface-elevated: #F6F7FA;
+    --surface-soft: #E4E7EE;
+    --surface-recessed: #D2D6DE;
     --surface-active: #15171A;
 
-    --border: #9298A2;
-    --border-strong: #15171A;
-    --border-subtle: #A4AAB4;
+    --border: rgba(0, 0, 0, 0.09);
+    --border-strong: rgba(0, 0, 0, 0.22);
+    --border-subtle: rgba(0, 0, 0, 0.05);
 
-    --text-primary: #080A0E;
-    --text-secondary: #323740;
-    --text-muted: #5A606C;
+    --text-primary: #0D1014;
+    --text-secondary: #484E5A;
+    --text-muted: #787F8E;
 
-    --icon-primary: #080A0E;
-    --icon-secondary: #3E434D;
+    --icon-primary: #0D1014;
+    --icon-secondary: #555B68;
 
     --accent: #E84848;
     --accent-hover: #F05858;
-    --accent-soft: rgba(232, 72, 72, 0.16);
+    --accent-soft: rgba(232, 72, 72, 0.14);
     --accent-dark: #C43434;
 
-    /* High-Contrast Active & Selected Button Tokens for Grey Mode */
+    /* High-Contrast Active Button */
     --active-btn-bg: #15171A;
     --active-btn-text: #FFFFFF;
     --active-btn-icon: #FFFFFF;
     --active-btn-border: #15171A;
-    --active-btn-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --active-btn-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
+
+    /* Premium Clean Shadows (Zero muddy plastic neomorphism) */
+    --shadow-panel: 0 6px 22px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.03);
+    --shadow-dock: 0 8px 28px rgba(0, 0, 0, 0.07), 0 2px 6px rgba(0, 0, 0, 0.04);
+    --shadow-card: 0 3px 12px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+    --shadow-card-hover: 0 14px 32px rgba(0, 0, 0, 0.09), 0 3px 8px rgba(0, 0, 0, 0.04);
+    --shadow-input: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+    --shadow-btn: 0 2px 6px rgba(0, 0, 0, 0.07);
 
     --bg-base: var(--background);
     --bg-surface: var(--surface);
@@ -166,15 +190,15 @@
     --glass-input-bg: var(--surface-recessed);
     --glass-input-text: var(--text-primary);
     --pill-bg: var(--surface-recessed);
-    --pill-hover: #D0D5DC;
+    --pill-hover: var(--surface-soft);
     --pill-active: var(--active-btn-bg);
 
-    --scrollbar-track: rgba(0, 0, 0, 0.05);
-    --scrollbar-thumb: rgba(0, 0, 0, 0.22);
-    --scrollbar-thumb-hover: rgba(0, 0, 0, 0.4);
+    --scrollbar-track: rgba(0, 0, 0, 0.04);
+    --scrollbar-thumb: rgba(0, 0, 0, 0.2);
+    --scrollbar-thumb-hover: rgba(0, 0, 0, 0.35);
 
-    --skeleton-start: rgba(0, 0, 0, 0.04);
-    --skeleton-mid: rgba(0, 0, 0, 0.09);
+    --skeleton-start: rgba(0, 0, 0, 0.03);
+    --skeleton-mid: rgba(0, 0, 0, 0.08);
   }
 
   * {
@@ -212,15 +236,15 @@
 .light .room-backdrop,
 [data-theme="light"] .room-backdrop {
   background-image: 
-    radial-gradient(circle at 50% 0%, #EAEAE8 0%, #E8E8E6 70%),
-    radial-gradient(circle at 85% 90%, #E4E4E2 0%, transparent 50%);
+    radial-gradient(circle at 50% 0%, #FAFAF8 0%, #F5F5F3 70%),
+    radial-gradient(circle at 85% 90%, #F0F0ED 0%, transparent 50%);
 }
 
 .grey .room-backdrop,
 [data-theme="grey"] .room-backdrop {
   background-image: 
-    radial-gradient(circle at 50% 0%, #C8CBD0 0%, #C2C5CA 70%),
-    radial-gradient(circle at 85% 90%, #BCC0C6 0%, transparent 50%);
+    radial-gradient(circle at 50% 0%, #E6E9EE 0%, #DCE0E6 70%),
+    radial-gradient(circle at 85% 90%, #D4D8DF 0%, transparent 50%);
 }
 
 /* Custom Scrollbars */
@@ -258,7 +282,7 @@
 }
 
 /* =========================================================
-   SUBTLE NEOMORPHIC SURFACE LANGUAGE (Reference Direction)
+   CLEAN PREMIUM SURFACE SYSTEM
    ========================================================= */
 
 /* Elevated Matte Panels */
@@ -266,9 +290,7 @@
 .neo-panel {
   background: var(--surface);
   border: 1px solid var(--border);
-  box-shadow: 
-    -2px -2px 8px rgba(255, 255, 255, 0.04),
-     8px 16px 32px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-panel);
   transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -276,10 +298,8 @@
 .floating-dock,
 .neo-dock {
   background: var(--surface-recessed);
-  border: 1px solid var(--border-strong);
-  box-shadow: 
-    -3px -3px 10px rgba(255, 255, 255, 0.05),
-     10px 18px 36px rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-dock);
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 
@@ -290,9 +310,7 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 18px;
-  box-shadow: 
-    -2px -2px 6px rgba(255, 255, 255, 0.035),
-     6px 12px 24px rgba(0, 0, 0, 0.42);
+  box-shadow: var(--shadow-card);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -301,9 +319,7 @@
 .neo-card:hover {
   background: var(--surface-elevated);
   border-color: var(--border-strong);
-  box-shadow: 
-    -4px -4px 10px rgba(255, 255, 255, 0.06),
-     12px 18px 32px rgba(0, 0, 0, 0.55);
+  box-shadow: var(--shadow-card-hover);
   transform: translateY(-2px);
 }
 
@@ -313,9 +329,7 @@
 .neo-recessed {
   background: var(--surface-recessed);
   border: 1px solid var(--border);
-  box-shadow: 
-    inset 1px 1px -3px rgba(0, 0, 0, 0.5),
-    inset 8px 0px 14px rgba(255, 255, 255, 0.024);
+  box-shadow: var(--shadow-input);
   color: var(--text-primary);
   border-radius: 10px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -324,23 +338,18 @@
 .glass-input:focus,
 .neo-input:focus {
   outline: none;
-  border-color: rgba(255, 84, 84, 0.55);
-  box-shadow: 
-    inset 1px 1px -3px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(255, 84, 84, 0.4);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
 }
 
 /* Custom Shadows Utility */
 .shadows,
 .shadow-custom {
-  --tw-shadow: inset 1px 1px -3px var(--tw-shadow-color, #00000080), inset 8px 0px 14px var(--tw-shadow-color, #ffffff06);
-  --tw-shadow-colored: inset 1px 1px -3px var(--tw-shadow-color), inset 8px 0px 14px var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  box-shadow: var(--shadow-panel);
 }
 
 @utility shadows {
-  --tw-shadow: inset 1px 1px -3px var(--tw-shadow-color, #00000080), inset 8px 0px 14px var(--tw-shadow-color, #ffffff06);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  box-shadow: var(--shadow-panel);
 }
 
 /* Tactile Buttons */
@@ -350,13 +359,13 @@
   color: #FFFFFF;
   border-radius: 10px;
   font-weight: 500;
-  box-shadow: 0 4px 14px rgba(255, 84, 84, 0.35);
+  box-shadow: 0 4px 14px rgba(255, 84, 84, 0.3);
   transition: all 0.15s ease-out;
 }
 .btn-primary:hover,
 .neo-btn-primary:hover {
   background: var(--accent-hover);
-  box-shadow: 0 6px 20px rgba(255, 84, 84, 0.5);
+  box-shadow: 0 6px 20px rgba(255, 84, 84, 0.45);
   transform: translateY(-1px);
 }
 .btn-primary:active,
@@ -368,20 +377,17 @@
 .btn-secondary,
 .neo-btn-secondary {
   background: var(--surface-elevated);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border);
   color: var(--text-primary);
   border-radius: 10px;
   font-weight: 500;
-  box-shadow: 
-    -1px -1px 4px rgba(255, 255, 255, 0.03),
-     2px 4px 10px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-btn);
   transition: all 0.15s ease;
 }
 .btn-secondary:hover,
 .neo-btn-secondary:hover {
   background: var(--surface-soft);
-  color: #FFFFFF;
-  border-color: rgba(255, 255, 255, 0.25);
+  border-color: var(--border-strong);
 }
 .btn-secondary:active,
 .neo-btn-secondary:active {
@@ -395,7 +401,7 @@
   border: 1px solid var(--border);
   color: var(--text-secondary);
   border-radius: 10px;
-  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: none;
   transition: all 0.15s ease;
 }
 

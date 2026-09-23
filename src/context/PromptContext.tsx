@@ -110,7 +110,7 @@ interface PromptContextType {
 
 const PromptContext = createContext<PromptContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_PROMPTS = "fenz_prompts_v5";
+const LOCAL_STORAGE_PROMPTS = "fenz_prompts_v6";
 const LOCAL_STORAGE_CATEGORIES = "fenz_categories_v4";
 const LOCAL_STORAGE_TUTORIALS = "fenz_tutorials_v4";
 const LOCAL_STORAGE_COMING_SOON = "fenz_coming_soon_v4";
@@ -156,6 +156,11 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
       setIsDatabaseConnected(isConfigured);
 
       // Restore LocalStorage defaults first for instantaneous initial paint
+      let initialLocalPrompts: Prompt[] = initialPrompts;
+      let initialLocalCategories: Category[] = initialCategories;
+      let initialLocalTutorials: Tutorial[] = initialTutorials;
+      let initialLocalComingSoon: ComingSoonFeature[] = initialComingSoon;
+
       try {
         const storedPrompts = localStorage.getItem(LOCAL_STORAGE_PROMPTS);
         const storedCategories = localStorage.getItem(LOCAL_STORAGE_CATEGORIES);
@@ -166,17 +171,37 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         const storedBanner = localStorage.getItem(LOCAL_STORAGE_BANNER);
 
         if (storedBanner) setBannerPromptIdState(storedBanner);
-        if (storedPrompts) setPrompts(JSON.parse(storedPrompts));
-        else setPrompts(initialPrompts);
+        if (storedPrompts) {
+          const parsed = JSON.parse(storedPrompts);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            initialLocalPrompts = parsed;
+          }
+        }
+        setPrompts(initialLocalPrompts);
 
-        if (storedCategories) setCategories(JSON.parse(storedCategories));
-        else setCategories(initialCategories);
+        if (storedCategories) {
+          const parsed = JSON.parse(storedCategories);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            initialLocalCategories = parsed;
+          }
+        }
+        setCategories(initialLocalCategories);
 
-        if (storedTutorials) setTutorials(JSON.parse(storedTutorials));
-        else setTutorials(initialTutorials);
+        if (storedTutorials) {
+          const parsed = JSON.parse(storedTutorials);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            initialLocalTutorials = parsed;
+          }
+        }
+        setTutorials(initialLocalTutorials);
 
-        if (storedComingSoon) setComingSoon(JSON.parse(storedComingSoon));
-        else setComingSoon(initialComingSoon);
+        if (storedComingSoon) {
+          const parsed = JSON.parse(storedComingSoon);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            initialLocalComingSoon = parsed;
+          }
+        }
+        setComingSoon(initialLocalComingSoon);
 
         if (storedSaved) setSavedPromptIds(JSON.parse(storedSaved));
       } catch (e) {
@@ -213,17 +238,53 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
             ]);
 
           if (dbCategories && dbCategories.length > 0) {
-            setCategories(dbCategories);
+            setCategories((currentCats) => {
+              const dbIds = new Set(dbCategories.map((c) => c.id));
+              const dbSlugs = new Set(dbCategories.map((c) => c.slug));
+              const localBase = currentCats.length > 0 ? currentCats : initialLocalCategories;
+              const localOnly = localBase.filter(
+                (c: Category) => !dbIds.has(c.id) && !dbSlugs.has(c.slug)
+              );
+              return [...dbCategories, ...localOnly];
+            });
           }
+
           if (dbPrompts && dbPrompts.length > 0) {
-            setPrompts(dbPrompts);
+            setPrompts((currentPrompts) => {
+              const dbIds = new Set(dbPrompts.map((p) => p.id));
+              const dbSlugs = new Set(dbPrompts.map((p) => p.slug));
+              const localBase = currentPrompts.length > 0 ? currentPrompts : initialLocalPrompts;
+              const localOnly = localBase.filter(
+                (p: Prompt) => !dbIds.has(p.id) && !dbSlugs.has(p.slug)
+              );
+              return [...dbPrompts, ...localOnly];
+            });
           }
+
           if (dbTutorials && dbTutorials.length > 0) {
-            setTutorials(dbTutorials);
+            setTutorials((currentTuts) => {
+              const dbIds = new Set(dbTutorials.map((t) => t.id));
+              const dbSlugs = new Set(dbTutorials.map((t) => t.slug));
+              const localBase = currentTuts.length > 0 ? currentTuts : initialLocalTutorials;
+              const localOnly = localBase.filter(
+                (t: Tutorial) => !dbIds.has(t.id) && !dbSlugs.has(t.slug)
+              );
+              return [...dbTutorials, ...localOnly];
+            });
           }
+
           if (dbComingSoon && dbComingSoon.length > 0) {
-            setComingSoon(dbComingSoon);
+            setComingSoon((currentCS) => {
+              const dbIds = new Set(dbComingSoon.map((cs) => cs.id));
+              const dbSlugs = new Set(dbComingSoon.map((cs) => cs.slug));
+              const localBase = currentCS.length > 0 ? currentCS : initialLocalComingSoon;
+              const localOnly = localBase.filter(
+                (cs: ComingSoonFeature) => !dbIds.has(cs.id) && !dbSlugs.has(cs.slug)
+              );
+              return [...dbComingSoon, ...localOnly];
+            });
           }
+
           if (dbBannerId) {
             setBannerPromptIdState(dbBannerId);
           }
@@ -453,8 +514,18 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         updatedAt: new Date().toISOString(),
       };
 
-      setPrompts((prev) => [newPrompt, ...prev]);
-      insertPromptToDb(newPrompt);
+      setPrompts((prev) => {
+        const updated = [newPrompt, ...prev];
+        try {
+          localStorage.setItem(LOCAL_STORAGE_PROMPTS, JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
+
+      insertPromptToDb(newPrompt).catch((err) => {
+        console.warn("[Supabase] insertPrompt notice:", err);
+      });
+
       showToast("Prompt Published!", "success", newPrompt.title);
       return newPrompt;
     },
@@ -463,8 +534,8 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
 
   const updatePrompt = useCallback(
     (id: string, updates: Partial<Prompt>) => {
-      setPrompts((prev) =>
-        prev.map((p) =>
+      setPrompts((prev) => {
+        const updated = prev.map((p) =>
           p.id === id
             ? {
                 ...p,
@@ -473,9 +544,17 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
                 updatedAt: new Date().toISOString(),
               }
             : p
-        )
-      );
-      updatePromptInDb(id, updates);
+        );
+        try {
+          localStorage.setItem(LOCAL_STORAGE_PROMPTS, JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
+
+      updatePromptInDb(id, updates).catch((err) => {
+        console.warn("[Supabase] updatePrompt notice:", err);
+      });
+
       showToast("Prompt Updated", "success");
     },
     [showToast]
@@ -483,12 +562,20 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
 
   const deletePrompt = useCallback(
     (id: string) => {
-      setPrompts((prev) => prev.filter((p) => p.id !== id));
+      setPrompts((prev) => {
+        const updated = prev.filter((p) => p.id !== id);
+        try {
+          localStorage.setItem(LOCAL_STORAGE_PROMPTS, JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
       setSavedPromptIds((prev) => prev.filter((savedId) => savedId !== id));
       if (activeModalPrompt?.id === id) {
         setActiveModalPrompt(null);
       }
-      deletePromptFromDb(id);
+      deletePromptFromDb(id).catch((err) => {
+        console.warn("[Supabase] deletePrompt notice:", err);
+      });
       showToast("Prompt Removed", "info");
     },
     [activeModalPrompt, showToast]
@@ -504,8 +591,16 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         id,
         slug,
       };
-      setCategories((prev) => [...prev, newCat]);
-      insertCategoryToDb(newCat);
+      setCategories((prev) => {
+        const updated = [...prev, newCat];
+        try {
+          localStorage.setItem(LOCAL_STORAGE_CATEGORIES, JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
+      insertCategoryToDb(newCat).catch((err) => {
+        console.warn("[Supabase] insertCategory notice:", err);
+      });
       showToast("Category Created", "success", newCat.name);
       return newCat;
     },
@@ -514,8 +609,8 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
 
   const updateCategory = useCallback(
     (id: string, updates: Partial<Category>) => {
-      setCategories((prev) =>
-        prev.map((c) =>
+      setCategories((prev) => {
+        const updated = prev.map((c) =>
           c.id === id
             ? {
                 ...c,
@@ -523,9 +618,15 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
                 slug: updates.name ? slugify(updates.name) : c.slug,
               }
             : c
-        )
-      );
-      updateCategoryInDb(id, updates);
+        );
+        try {
+          localStorage.setItem(LOCAL_STORAGE_CATEGORIES, JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
+      updateCategoryInDb(id, updates).catch((err) => {
+        console.warn("[Supabase] updateCategory notice:", err);
+      });
       showToast("Category Updated", "success");
     },
     [showToast]
@@ -533,8 +634,16 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
 
   const deleteCategory = useCallback(
     (id: string) => {
-      setCategories((prev) => prev.filter((c) => c.id !== id));
-      deleteCategoryFromDb(id);
+      setCategories((prev) => {
+        const updated = prev.filter((c) => c.id !== id);
+        try {
+          localStorage.setItem(LOCAL_STORAGE_CATEGORIES, JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
+      deleteCategoryFromDb(id).catch((err) => {
+        console.warn("[Supabase] deleteCategory notice:", err);
+      });
       showToast("Category Deleted", "info");
     },
     [showToast]
@@ -553,8 +662,16 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      setTutorials((prev) => [newTut, ...prev]);
-      insertTutorialToDb(newTut);
+      setTutorials((prev) => {
+        const updated = [newTut, ...prev];
+        try {
+          localStorage.setItem(LOCAL_STORAGE_TUTORIALS, JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
+      insertTutorialToDb(newTut).catch((err) => {
+        console.warn("[Supabase] insertTutorial notice:", err);
+      });
       showToast("Workflow Guide Published!", "success", newTut.title);
       return newTut;
     },
@@ -563,8 +680,8 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
 
   const updateTutorial = useCallback(
     (id: string, updates: Partial<Tutorial>) => {
-      setTutorials((prev) =>
-        prev.map((t) =>
+      setTutorials((prev) => {
+        const updated = prev.map((t) =>
           t.id === id
             ? {
                 ...t,
@@ -573,9 +690,15 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
                 updatedAt: new Date().toISOString(),
               }
             : t
-        )
-      );
-      updateTutorialInDb(id, updates);
+        );
+        try {
+          localStorage.setItem(LOCAL_STORAGE_TUTORIALS, JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
+      updateTutorialInDb(id, updates).catch((err) => {
+        console.warn("[Supabase] updateTutorial notice:", err);
+      });
       showToast("Workflow Guide Updated", "success");
     },
     [showToast]
@@ -583,8 +706,16 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
 
   const deleteTutorial = useCallback(
     (id: string) => {
-      setTutorials((prev) => prev.filter((t) => t.id !== id));
-      deleteTutorialFromDb(id);
+      setTutorials((prev) => {
+        const updated = prev.filter((t) => t.id !== id);
+        try {
+          localStorage.setItem(LOCAL_STORAGE_TUTORIALS, JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
+      deleteTutorialFromDb(id).catch((err) => {
+        console.warn("[Supabase] deleteTutorial notice:", err);
+      });
       showToast("Workflow Removed", "info");
     },
     [showToast]
@@ -603,8 +734,16 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         slug,
         createdAt: new Date().toISOString(),
       };
-      setComingSoon((prev) => [newFeat, ...prev]);
-      insertComingSoonToDb(newFeat);
+      setComingSoon((prev) => {
+        const updated = [newFeat, ...prev];
+        try {
+          localStorage.setItem(LOCAL_STORAGE_COMING_SOON, JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
+      insertComingSoonToDb(newFeat).catch((err) => {
+        console.warn("[Supabase] insertComingSoon notice:", err);
+      });
       showToast("Roadmap Feature Created!", "success", newFeat.title);
       return newFeat;
     },
@@ -613,8 +752,8 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
 
   const updateComingSoon = useCallback(
     (id: string, updates: Partial<ComingSoonFeature>) => {
-      setComingSoon((prev) =>
-        prev.map((f) =>
+      setComingSoon((prev) => {
+        const updated = prev.map((f) =>
           f.id === id
             ? {
                 ...f,
@@ -622,9 +761,15 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
                 slug: updates.slug || (updates.title ? slugify(updates.title) : f.slug),
               }
             : f
-        )
-      );
-      updateComingSoonInDb(id, updates);
+        );
+        try {
+          localStorage.setItem(LOCAL_STORAGE_COMING_SOON, JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
+      updateComingSoonInDb(id, updates).catch((err) => {
+        console.warn("[Supabase] updateComingSoon notice:", err);
+      });
       showToast("Roadmap Item Updated", "success");
     },
     [showToast]
@@ -632,8 +777,16 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
 
   const deleteComingSoon = useCallback(
     (id: string) => {
-      setComingSoon((prev) => prev.filter((f) => f.id !== id));
-      deleteComingSoonFromDb(id);
+      setComingSoon((prev) => {
+        const updated = prev.filter((f) => f.id !== id);
+        try {
+          localStorage.setItem(LOCAL_STORAGE_COMING_SOON, JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
+      deleteComingSoonFromDb(id).catch((err) => {
+        console.warn("[Supabase] deleteComingSoon notice:", err);
+      });
       showToast("Roadmap Item Deleted", "info");
     },
     [showToast]

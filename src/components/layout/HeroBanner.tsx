@@ -26,14 +26,14 @@ export function HeroBanner() {
 
         {/* Hero Title */}
         <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-[1.15]">
-          Discover, Copy & Remix <br />
+          Discover, Explore & Remix <br />
           <span className="gradient-text-violet">World-Class AI Prompts.</span>
         </h1>
 
         {/* Description */}
         <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
           A high-aesthetic visual vault of curated prompts for Midjourney v6, Flux.1 Pro,
-          SDXL, and cinematic video generators. 100% free to browse, test, and copy in one click.
+          SDXL, and cinematic video generators. 100% free to browse, explore, and remix.
         </p>
 
         {/* Action CTAs */}
@@ -58,7 +58,7 @@ export function HeroBanner() {
         {/* Feature Badges */}
         <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-white/5 text-[11px] text-slate-400">
           <span className="flex items-center gap-1.5">
-            <Zap className="w-3.5 h-3.5 text-amber-400" /> 1-Click Instant Copy
+            <Zap className="w-3.5 h-3.5 text-amber-400" /> Detailed Prompt Blueprints
           </span>
           <span className="flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-violet-400" /> Midjourney & Flux Optimized

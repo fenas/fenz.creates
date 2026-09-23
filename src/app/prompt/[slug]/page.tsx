@@ -33,10 +33,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const snippet = prompt.promptText.slice(0, 160) + "...";
 
   return {
-    title: `${prompt.title} — AI Prompt (${prompt.model}) | fenz.creates`,
+    title: `${prompt.title} — AI Prompt | fenz.creates`,
     description: snippet,
     openGraph: {
-      title: `${prompt.title} — AI Prompt for ${prompt.model}`,
+      title: `${prompt.title} — AI Prompt`,
       description: snippet,
       images: [
         {

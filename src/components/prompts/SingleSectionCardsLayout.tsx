@@ -1,15 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  Copy,
-  Check,
   RotateCcw,
   SearchX,
   ChevronRight,
   Share2,
+  ArrowUpRight,
 } from "lucide-react";
 import { usePromptStore } from "@/context/PromptContext";
 import { Tutorial, ComingSoonFeature } from "@/types";
@@ -31,19 +30,6 @@ export function SingleSectionCardsLayout() {
   } = usePromptStore();
 
   const { showToast } = useToast();
-  const [copiedTutId, setCopiedTutId] = useState<string | null>(null);
-
-  const handleCopyTutorialPrompt = async (e: React.MouseEvent, tut: Tutorial) => {
-    e.stopPropagation();
-    try {
-      await navigator.clipboard.writeText(tut.samplePrompt);
-      setCopiedTutId(tut.id);
-      showToast("Formula Copied!", "success", tut.title);
-      setTimeout(() => setCopiedTutId(null), 2000);
-    } catch {
-      showToast("Failed to copy", "error");
-    }
-  };
 
   const handleShareTutorial = async (e: React.MouseEvent, tut: Tutorial) => {
     e.stopPropagation();
@@ -55,7 +41,7 @@ export function SingleSectionCardsLayout() {
           text: `Check out this AI guide: ${tut.title}`,
           url,
         });
-      } catch {}
+      } catch { }
     } else {
       await navigator.clipboard.writeText(url);
       showToast("Tutorial Link Copied!", "success", url);
@@ -72,14 +58,191 @@ export function SingleSectionCardsLayout() {
           text: `Check out upcoming feature: ${feat.title}`,
           url,
         });
-      } catch {}
+      } catch { }
     } else {
       await navigator.clipboard.writeText(url);
       showToast("Feature Link Copied!", "success", url);
     }
   };
 
-  // Section Header Info
+  const isHomeView =
+    (activeTab === "home" || activeTab === "discover") &&
+    selectedCategory === "all" &&
+    !searchQuery.trim();
+
+  // Helper renderer for a Workflow Guide Card
+  const renderTutorialCard = (tut: Tutorial) => (
+    <div
+      key={tut.id}
+      className="rounded-[18px] bg-[var(--surface)] border border-[var(--border)] p-5 space-y-4 hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-card-hover)] transition-all duration-200 group flex flex-col justify-between shadow-[var(--shadow-card)]"
+    >
+      <div className="space-y-3.5">
+        {/* Top image & badges */}
+        <Link
+          href={`/tutorial/${tut.slug}`}
+          className="block relative w-full h-44 rounded-[12px] overflow-hidden bg-[#0A0C0E] border border-[var(--border)]"
+        >
+          <Image
+            src={tut.mediaUrl}
+            alt={tut.title}
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover group-hover:scale-[1.02] transition-transform duration-500"
+            unoptimized={tut.mediaUrl?.startsWith("data:")}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+
+          <div className="absolute top-3 left-3 flex items-center gap-1.5">
+            {tut.model && (
+              <span className="px-2 py-0.5 rounded-[6px] bg-[#0A0C0E]/90 text-white text-[9.5px] font-mono border border-white/20 shadow-sm">
+                {tut.model}
+              </span>
+            )}
+            {tut.readTime && (
+              <span className="px-2 py-0.5 rounded-[6px] bg-[#0A0C0E]/90 text-white/90 text-[9.5px] font-mono border border-white/20 shadow-sm">
+                {tut.readTime}
+              </span>
+            )}
+          </div>
+
+          <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+            <button
+              onClick={(e) => handleShareTutorial(e, tut)}
+              className="p-1.5 rounded-[8px] bg-[#0A0C0E]/80 hover:bg-[#1E2228] text-white/90 hover:text-white border border-white/20 transition-all cursor-pointer shadow-sm"
+              title="Share Tutorial Link"
+            >
+              <Share2 className="w-3.5 h-3.5 stroke-[1.75]" />
+            </button>
+          </div>
+
+          <div className="absolute bottom-3 left-3 right-3">
+            <span className="text-[9.5px] font-mono uppercase text-[var(--accent)] font-semibold tracking-wider">
+              {tut.level || "Beginner"} Level
+            </span>
+            <h3 className="text-sm font-semibold text-white truncate drop-shadow-sm">
+              {tut.title}
+            </h3>
+          </div>
+        </Link>
+
+        <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+          {tut.description}
+        </p>
+      </div>
+
+      {/* Actions: Read Full Guide & Share */}
+      <div className="flex items-center gap-2 pt-2 border-t border-[var(--border)]">
+        <Link
+          href={`/tutorial/${tut.slug}`}
+          className="flex-1 py-2.5 px-4 rounded-[10px] text-xs font-medium btn-primary flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+        >
+          <span>Read Full Workflow</span>
+          <ChevronRight className="w-3.5 h-3.5 stroke-[1.75]" />
+        </Link>
+
+        <button
+          onClick={(e) => handleShareTutorial(e, tut)}
+          className="py-2.5 px-3 rounded-[10px] text-xs font-medium bg-[var(--surface-muted)] hover:bg-[var(--surface-elevated)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
+          title="Share Tutorial Link"
+        >
+          <Share2 className="w-3.5 h-3.5 stroke-[1.75]" />
+          <span className="hidden sm:inline">Share</span>
+        </button>
+      </div>
+    </div>
+  );
+
+  // ==========================================
+  // VIEW 1: HOME PAGE (Both Prompts & Workflows with View All)
+  // ==========================================
+  if (isHomeView) {
+    const previewPrompts = filteredPrompts.slice(0, 9);
+    const previewTutorials = tutorials.slice(0, 2);
+
+    return (
+      <div className="space-y-14 pb-16">
+        {/* SECTION 1: Discover All Prompts / Visual Systems */}
+        <section className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-[var(--border)] pb-4 gap-4">
+            <div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[var(--text-primary)] tracking-tight">
+                Discover All Prompts
+              </h2>
+            </div>
+
+            <div className="flex items-center gap-2.5 flex-shrink-0">
+              <span className="px-2.5 py-1 rounded-[8px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs font-mono text-[var(--text-secondary)] hidden sm:inline-block">
+                {filteredPrompts.length} prompts
+              </span>
+
+              <button
+                onClick={() => {
+                  setActiveTab("prompts");
+                  setSelectedCategory("all");
+                }}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-[12px] bg-[var(--surface-muted)] hover:bg-[var(--surface-elevated)] border border-[var(--border)] hover:border-[var(--border-strong)] text-xs font-semibold text-[var(--text-primary)] hover:text-[var(--accent)] transition-all cursor-pointer shadow-sm group"
+                title="View All Prompts"
+              >
+                <span>View All</span>
+                <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              </button>
+            </div>
+          </div>
+
+          {previewPrompts.length === 0 ? (
+            <div className="w-full py-16 px-4 flex flex-col items-center justify-center text-center">
+              <p className="text-xs text-[var(--text-secondary)]">No prompts uploaded yet.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-3.5 md:gap-4">
+              {previewPrompts.map((prompt) => (
+                <PosterPromptCard key={prompt.id} prompt={prompt} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* SECTION 2: Workflows & Tutorials */}
+        {tutorials.length > 0 && (
+          <section className="space-y-6 pt-2">
+            <div className="flex items-end justify-between border-b border-[var(--border)] pb-4 gap-4">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-medium text-[var(--text-primary)] tracking-tight flex items-center gap-2">
+                  <span>Workflows & Masterclasses</span>
+                </h2>
+                <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+                  Step-by-step masterclasses and advanced prompt engineering frameworks
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2.5 flex-shrink-0">
+                <span className="px-2.5 py-1 rounded-[8px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs font-mono text-[var(--text-secondary)] hidden sm:inline-block">
+                  {tutorials.length} guides
+                </span>
+
+                <button
+                  onClick={() => setActiveTab("tutorials")}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-[10px] bg-[var(--surface-muted)] hover:bg-[var(--surface-elevated)] border border-[var(--border)] hover:border-[var(--border-strong)] text-xs font-semibold text-[var(--text-primary)] hover:text-[var(--accent)] transition-all cursor-pointer shadow-sm group"
+                  title="View All Workflows"
+                >
+                  <span>View All</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {previewTutorials.map((tut) => renderTutorialCard(tut))}
+            </div>
+          </section>
+        )}
+      </div>
+    );
+  }
+
+  // ==========================================
+  // VIEW 2: DEDICATED TAB VIEWS (Full Listings)
+  // ==========================================
   const getHeaderInfo = () => {
     if (activeTab === "tutorials") {
       return {
@@ -111,7 +274,7 @@ export function SingleSectionCardsLayout() {
       };
     }
     return {
-      title: "Discover All Prompts",
+      title: "All Prompts Gallery",
       subtitle: "Explore high-performing prompts across Midjourney, Flux, and creative models",
       count: `${filteredPrompts.length} formulas`,
     };
@@ -143,127 +306,7 @@ export function SingleSectionCardsLayout() {
       {/* RENDER CASE 1: Tutorials Grid */}
       {activeTab === "tutorials" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pb-16">
-          {tutorials.map((tut) => {
-            const isCopied = copiedTutId === tut.id;
-            return (
-              <div
-                key={tut.id}
-                className="rounded-[18px] bg-[var(--surface)] border border-[var(--border)] p-5 space-y-4 hover:border-[var(--border-strong)] hover:shadow-[0_16px_36px_rgba(0,0,0,0.35)] transition-all duration-200 group flex flex-col justify-between shadow-[var(--shadow-card)]"
-              >
-                <div className="space-y-3.5">
-                  {/* Top image & badges */}
-                  <Link
-                    href={`/tutorial/${tut.slug}`}
-                    className="block relative w-full h-44 rounded-[12px] overflow-hidden bg-[#0A0C0E] border border-[var(--border)]"
-                  >
-                    <Image
-                      src={tut.mediaUrl}
-                      alt={tut.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      className="object-cover group-hover:scale-[1.02] transition-transform duration-500"
-                      unoptimized={tut.mediaUrl?.startsWith("data:")}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
-
-                    <div className="absolute top-3 left-3 flex items-center gap-1.5">
-                      <span className="px-2 py-0.5 rounded-[6px] bg-[#0A0C0E]/90 text-white text-[9.5px] font-mono border border-white/20 shadow-sm">
-                        {tut.model}
-                      </span>
-                      <span className="px-2 py-0.5 rounded-[6px] bg-[#0A0C0E]/90 text-white/90 text-[9.5px] font-mono border border-white/20 shadow-sm">
-                        {tut.readTime}
-                      </span>
-                    </div>
-
-                    <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
-                      <button
-                        onClick={(e) => handleShareTutorial(e, tut)}
-                        className="p-1.5 rounded-[8px] bg-[#0A0C0E]/80 hover:bg-[#1E2228] text-white/90 hover:text-white border border-white/20 transition-all cursor-pointer shadow-sm"
-                        title="Share Tutorial Link"
-                      >
-                        <Share2 className="w-3.5 h-3.5 stroke-[1.75]" />
-                      </button>
-                    </div>
-
-                    <div className="absolute bottom-3 left-3 right-3">
-                      <span className="text-[9.5px] font-mono uppercase text-[var(--accent)] font-semibold tracking-wider">
-                        {tut.level} Level
-                      </span>
-                      <h3 className="text-sm font-semibold text-white truncate drop-shadow-sm">
-                        {tut.title}
-                      </h3>
-                    </div>
-                  </Link>
-
-                  <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                    {tut.description}
-                  </p>
-
-                  {/* Core Takeaways */}
-                  <div className="space-y-1.5 p-3 rounded-[12px] bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-secondary)] shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)]">
-                    <span className="font-semibold text-[var(--text-primary)] text-[10.5px] uppercase tracking-wider block mb-0.5 font-mono">
-                      Key Takeaways
-                    </span>
-                    {tut.content.slice(0, 2).map((point, i) => (
-                      <div key={i} className="text-[11px] leading-relaxed line-clamp-1 text-[var(--text-secondary)]">
-                        • {point}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Sample Formula Box (Deep Recessed) */}
-                  <div className="p-3 rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] text-xs font-mono text-[var(--text-primary)] space-y-1 shadow-[inset_0_2px_4px_rgba(0,0,0,0.35)]">
-                    <span className="text-[9.5px] text-[var(--text-muted)] uppercase tracking-wider block font-semibold">
-                      Formula Blueprint
-                    </span>
-                    <p className="text-[11px] line-clamp-2 text-[var(--text-secondary)]">&ldquo;{tut.samplePrompt}&rdquo;</p>
-                  </div>
-                </div>
-
-                {/* Actions: Read Full Guide & Copy Formula */}
-                <div className="space-y-2 pt-2 border-t border-[var(--border)]">
-                  <div className="grid grid-cols-2 gap-2">
-                    <Link
-                      href={`/tutorial/${tut.slug}`}
-                      className="py-2 px-3 rounded-[10px] text-xs font-medium bg-[var(--surface-muted)] hover:bg-[var(--surface-elevated)] border border-[var(--border)] text-[var(--text-primary)] flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
-                    >
-                      <span>Read Guide</span>
-                      <ChevronRight className="w-3.5 h-3.5 stroke-[1.75]" />
-                    </Link>
-
-                    <button
-                      onClick={(e) => handleShareTutorial(e, tut)}
-                      className="py-2 px-3 rounded-[10px] text-xs font-medium bg-[var(--surface-muted)] hover:bg-[var(--surface-elevated)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
-                    >
-                      <Share2 className="w-3.5 h-3.5 stroke-[1.75]" />
-                      <span>Share Link</span>
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={(e) => handleCopyTutorialPrompt(e, tut)}
-                    className={`w-full py-2.5 px-4 rounded-[10px] text-xs font-medium flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                      isCopied
-                        ? "bg-[var(--accent)] text-white shadow-[0_2px_12px_rgba(255,84,84,0.4)] font-semibold"
-                        : "btn-primary"
-                    }`}
-                  >
-                    {isCopied ? (
-                      <>
-                        <Check className="w-3.5 h-3.5 stroke-[2]" />
-                        <span>Formula Copied!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5 stroke-[1.75]" />
-                        <span>Copy Formula Blueprint</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+          {tutorials.map((tut) => renderTutorialCard(tut))}
         </div>
       )}
 
@@ -273,7 +316,7 @@ export function SingleSectionCardsLayout() {
           {comingSoon.map((feat) => (
             <div
               key={feat.id}
-              className="rounded-[18px] bg-[var(--surface)] border border-[var(--border)] p-4 sm:p-5 space-y-3.5 hover:border-[var(--border-strong)] hover:shadow-[0_16px_36px_rgba(0,0,0,0.35)] transition-all flex flex-col justify-between shadow-[var(--shadow-card)]"
+              className="rounded-[18px] bg-[var(--surface)] border border-[var(--border)] p-4 sm:p-5 space-y-3.5 hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-card-hover)] transition-all flex flex-col justify-between shadow-[var(--shadow-card)]"
             >
               <div className="space-y-3">
                 <Link
@@ -385,7 +428,7 @@ export function SingleSectionCardsLayout() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-5 pb-16">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-3.5 md:gap-4 pb-16">
               {filteredPrompts.map((prompt) => (
                 <PosterPromptCard key={prompt.id} prompt={prompt} />
               ))}

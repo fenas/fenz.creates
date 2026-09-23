@@ -42,9 +42,9 @@ export function UnifiedHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-20 w-full bg-[var(--surface)] border border-[var(--border)] rounded-[22px] mb-6 shadow-[-2px_-2px_8px_rgba(255,255,255,0.04),8px_16px_32px_rgba(0,0,0,0.48)] transition-all">
+      <header className="sticky top-0 z-20 w-full bg-[var(--surface)] border border-[var(--border)] rounded-[22px] mb-6 shadow-[var(--shadow-panel)] transition-all">
         <div className="px-4 sm:px-6 py-3.5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-          {/* Recessed High-Contrast Search Bar */}
+          {/* Search Bar */}
           <div className="relative flex-1 max-w-lg">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--icon-secondary)] stroke-[1.75]" />
             <input
@@ -52,7 +52,7 @@ export function UnifiedHeader() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search prompt blueprints, styles, or models (e.g. 'Midjourney', 'portrait')..."
-              className="w-full pl-10 pr-9 py-2.5 rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[var(--text-muted)] text-xs font-normal shadow-[inset_2px_3px_8px_rgba(0,0,0,0.5),inset_-1px_-1px_3px_rgba(255,255,255,0.025)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/40 transition-all"
+              className="w-full pl-10 pr-9 py-2.5 rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[var(--text-muted)] text-xs font-normal shadow-[var(--shadow-input)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/40 transition-all"
             />
             {searchQuery && (
               <button
@@ -67,7 +67,7 @@ export function UnifiedHeader() {
           {/* Right Actions Row */}
           <div className="flex items-center gap-2 flex-wrap justify-between md:justify-end">
             {/* Media Type Switcher */}
-            <div className="flex items-center p-1 rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] shadow-[inset_2px_2px_6px_rgba(0,0,0,0.3)] text-xs">
+            <div className="flex items-center p-1 rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] shadow-[var(--shadow-input)] text-xs">
               <button
                 onClick={() => setSelectedMediaType("all")}
                 className={`px-3 py-1.5 rounded-[9px] transition-all cursor-pointer ${
@@ -105,7 +105,7 @@ export function UnifiedHeader() {
             {/* Surprise Me Button */}
             <button
               onClick={() => triggerRandomPrompt()}
-              className="h-10 inline-flex items-center gap-2 px-4 rounded-[12px] bg-[var(--surface-elevated)] hover:bg-[var(--surface-soft)] border border-[var(--border)] hover:border-[var(--border-strong)] text-[var(--text-primary)] font-medium text-xs shadow-[-1px_-1px_4px_rgba(255,255,255,0.03),2px_4px_10px_rgba(0,0,0,0.35)] transition-all cursor-pointer active:translate-y-[1px]"
+              className="h-10 inline-flex items-center gap-2 px-4 rounded-[12px] bg-[var(--surface-elevated)] hover:bg-[var(--surface-soft)] border border-[var(--border)] hover:border-[var(--border-strong)] text-[var(--text-primary)] font-medium text-xs shadow-[var(--shadow-btn)] transition-all cursor-pointer active:translate-y-[1px]"
               title="Surprise Me with a random prompt"
             >
               <Dices className="w-4 h-4 text-[var(--accent)] stroke-[1.75]" />

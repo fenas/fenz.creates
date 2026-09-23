@@ -4,13 +4,11 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  Copy,
-  Check,
-  Bookmark,
   MoreHorizontal,
   Volume2,
   VolumeX,
   Share2,
+  ArrowUpRight,
 } from "lucide-react";
 import { Prompt } from "@/types";
 import { usePromptStore } from "@/context/PromptContext";
@@ -21,23 +19,14 @@ interface SpotlightHeroProps {
 }
 
 export function SpotlightHero({ featuredPrompt }: SpotlightHeroProps) {
-  const { copyPrompt, toggleSave, isSaved, setActiveModalPrompt, categories } =
-    usePromptStore();
+  const { categories } = usePromptStore();
   const { showToast } = useToast();
 
-  const [copied, setCopied] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
 
   if (!featuredPrompt) return null;
 
-  const saved = isSaved(featuredPrompt.id);
   const category = categories.find((c) => c.id === featuredPrompt.categoryId);
-
-  const handleCopy = async () => {
-    setCopied(true);
-    await copyPrompt(featuredPrompt);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   const handleShare = async () => {
     const url = `${window.location.origin}/prompt/${featuredPrompt.slug}`;
@@ -83,10 +72,6 @@ export function SpotlightHero({ featuredPrompt }: SpotlightHeroProps) {
           <span className="px-2.5 py-1 rounded-[7px] bg-[#0A0C0E]/90 text-white/90 text-[10px] font-mono border border-white/20 shadow-sm">
             {category?.name || "AI Art"}
           </span>
-
-          <span className="px-2.5 py-1 rounded-[7px] bg-[#0A0C0E]/90 text-white/90 text-[10px] font-mono border border-white/20 shadow-sm">
-            {featuredPrompt.model}
-          </span>
         </div>
 
         {/* Title */}
@@ -102,28 +87,15 @@ export function SpotlightHero({ featuredPrompt }: SpotlightHeroProps) {
         </p>
 
         {/* Action Buttons Row */}
-        <div className="flex items-center gap-2 pt-1">
-          {/* Copy Prompt Button */}
-          <button
-            onClick={handleCopy}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-[10px] text-xs font-medium transition-all cursor-pointer ${
-              copied
-                ? "bg-[var(--accent)] text-white shadow-[0_2px_12px_rgba(255,84,84,0.4)] font-semibold"
-                : "btn-primary"
-            }`}
+        <div className="flex items-center gap-2 pt-1 flex-wrap">
+          {/* Explore Blueprint Button */}
+          <Link
+            href={`/prompt/${featuredPrompt.slug}`}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] text-xs font-medium btn-primary transition-all cursor-pointer shadow-sm"
           >
-            {copied ? (
-              <>
-                <Check className="w-3.5 h-3.5 stroke-[2]" />
-                <span>Copied!</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3.5 h-3.5 stroke-[1.75]" />
-                <span>Copy Blueprint</span>
-              </>
-            )}
-          </button>
+            <span>Explore Blueprint</span>
+            <ArrowUpRight className="w-3.5 h-3.5 stroke-[2]" />
+          </Link>
 
           {/* Share Button */}
           <button
@@ -134,15 +106,6 @@ export function SpotlightHero({ featuredPrompt }: SpotlightHeroProps) {
             <Share2 className="w-3.5 h-3.5 stroke-[1.75]" />
             <span>Share</span>
           </button>
-
-          {/* Inspect / Details Button */}
-          <Link
-            href={`/prompt/${featuredPrompt.slug}`}
-            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-[10px] bg-[#0A0C0E]/80 hover:bg-[#1E2228] text-white/90 hover:text-white text-xs font-medium border border-white/20 transition-all cursor-pointer shadow-sm"
-          >
-            <Bookmark className={`w-3.5 h-3.5 stroke-[1.75] ${saved ? "fill-[var(--accent)] text-[var(--accent)]" : ""}`} />
-            <span>Details</span>
-          </Link>
 
           {/* More options */}
           <Link
@@ -155,7 +118,7 @@ export function SpotlightHero({ featuredPrompt }: SpotlightHeroProps) {
         </div>
       </div>
 
-      {/* Bottom Right Audio / Specs Controls */}
+      {/* Bottom Right Audio Controls */}
       <div className="absolute bottom-5 right-5 z-10 flex items-center gap-2">
         <button
           onClick={() => setIsMuted(!isMuted)}
@@ -164,10 +127,6 @@ export function SpotlightHero({ featuredPrompt }: SpotlightHeroProps) {
         >
           {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
         </button>
-
-        <span className="px-2 py-0.5 rounded-[6px] bg-[#0A0C0E]/90 text-white/90 font-mono text-[9.5px] border border-white/20 shadow-sm">
-          {featuredPrompt.aspectRatio} • {featuredPrompt.model.split(" ")[0]}
-        </span>
       </div>
     </div>
   );

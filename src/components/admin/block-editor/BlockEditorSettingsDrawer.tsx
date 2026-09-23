@@ -5,14 +5,15 @@ import {
   X,
   Sliders,
   Sparkles,
-  Clock,
   Gauge,
   Tag,
   Globe,
   Trash2,
   Check,
+  RefreshCw,
 } from "lucide-react";
 import { Tutorial } from "@/types";
+import { slugify } from "@/lib/utils";
 
 interface BlockEditorSettingsDrawerProps {
   isOpen: boolean;
@@ -21,10 +22,11 @@ interface BlockEditorSettingsDrawerProps {
   onChangeModel: (model: string) => void;
   level: Tutorial["level"];
   onChangeLevel: (level: Tutorial["level"]) => void;
-  readTime: string;
-  onChangeReadTime: (readTime: string) => void;
   slug: string;
   onChangeSlug: (slug: string) => void;
+  isSlugCustomized?: boolean;
+  onResetSlugToAuto?: () => void;
+  articleTitle?: string;
   tags: string[];
   onChangeTags: (tags: string[]) => void;
   status: "published" | "draft";
@@ -39,10 +41,11 @@ export function BlockEditorSettingsDrawer({
   onChangeModel,
   level,
   onChangeLevel,
-  readTime,
-  onChangeReadTime,
   slug,
   onChangeSlug,
+  isSlugCustomized = false,
+  onResetSlugToAuto,
+  articleTitle = "",
   tags,
   onChangeTags,
   status,
@@ -114,69 +117,86 @@ export function BlockEditorSettingsDrawer({
           </div>
         </div>
 
-        {/* AI Model Target */}
+        {/* AI Model Target (Optional) */}
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-[#E85002]" />
-            <span>AI Model Focus</span>
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#E85002]" />
+              <span>AI Model Focus</span>
+            </label>
+            <span className="text-[10px] text-slate-500 font-mono">Optional</span>
+          </div>
           <input
             type="text"
             value={model}
             onChange={(e) => onChangeModel(e.target.value)}
-            placeholder="e.g. Midjourney v6, Flux.1 Pro, SDXL..."
+            placeholder="e.g. Midjourney v6, Flux.1 Pro (Optional)"
             className="w-full px-3 py-2 rounded-xl glass-input text-xs"
           />
         </div>
 
-        {/* Difficulty Level */}
+        {/* Difficulty Level (Optional, default Beginner) */}
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-            <Gauge className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Difficulty Level</span>
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+              <Gauge className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Difficulty Level</span>
+            </label>
+            <span className="text-[10px] text-slate-500 font-mono">Optional</span>
+          </div>
           <select
-            value={level}
+            value={level || "Beginner"}
             onChange={(e) => onChangeLevel(e.target.value as Tutorial["level"])}
             className="w-full px-3 py-2 rounded-xl glass-input text-xs"
           >
-            <option value="Beginner" className="bg-[#11131a]">Beginner</option>
+            <option value="Beginner" className="bg-[#11131a]">Beginner (Default)</option>
             <option value="Intermediate" className="bg-[#11131a]">Intermediate</option>
             <option value="Advanced" className="bg-[#11131a]">Advanced</option>
           </select>
         </div>
 
-        {/* Reading Time */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-purple-400" />
-            <span>Reading Time</span>
-          </label>
-          <input
-            type="text"
-            value={readTime}
-            onChange={(e) => onChangeReadTime(e.target.value)}
-            placeholder="e.g. 4 min read"
-            className="w-full px-3 py-2 rounded-xl glass-input text-xs"
-          />
-        </div>
+        {/* URL Slug (Auto-Generated from Title) */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+              <Globe className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Article URL Slug</span>
+            </label>
+            <div>
+              {!isSlugCustomized ? (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  <Sparkles className="w-2.5 h-2.5" />
+                  Auto-Generated
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onResetSlugToAuto}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 transition-colors"
+                  title="Re-sync slug with article title"
+                >
+                  <RefreshCw className="w-2.5 h-2.5 text-[#E85002]" />
+                  <span>Reset to Auto</span>
+                </button>
+              )}
+            </div>
+          </div>
 
-        {/* URL Slug */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-            <Globe className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Custom URL Slug</span>
-          </label>
-          <div className="flex items-center gap-1 bg-black/40 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-slate-400">
+          <div className="flex items-center gap-1 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-400 focus-within:border-[#E85002]/50 transition-colors">
             <span className="text-slate-600 font-mono select-none">/tutorial/</span>
             <input
               type="text"
               value={slug}
               onChange={(e) => onChangeSlug(e.target.value)}
-              placeholder="article-slug"
+              placeholder={slugify(articleTitle) || "article-slug"}
               className="flex-1 bg-transparent text-white font-mono text-xs outline-none border-none p-0"
             />
           </div>
+          <p className="text-[10px] text-slate-500 font-mono">
+            {!isSlugCustomized
+              ? "Slug automatically generates from the article title."
+              : "Custom slug locked. Click 'Reset to Auto' to re-sync with title."}
+          </p>
         </div>
 
         {/* Tags */}

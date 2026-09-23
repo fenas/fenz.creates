@@ -5,11 +5,24 @@ import { Prompt } from "@/types";
  * Transform DB row to Frontend Prompt type
  */
 export function mapRowToPrompt(row: any): Prompt {
+  const params = row.parameters || {};
+  const packItems =
+    row.pack_items ||
+    (Array.isArray(params.pack_items) ? params.pack_items : undefined);
+
+  const promptKind =
+    row.prompt_kind ||
+    params.prompt_kind ||
+    (packItems && packItems.length > 1 ? "pack" : "single");
+
   return {
     id: row.id,
     slug: row.slug || row.id,
     type: (row.type as "image" | "video") || "image",
+    promptKind,
     title: row.title || "",
+    subtitle: row.subtitle || params.subtitle || row.description || params.description || undefined,
+    description: row.description || params.description || row.subtitle || params.subtitle || undefined,
     promptText: row.prompt_text || "",
     negativePrompt: row.negative_prompt || undefined,
     mediaUrl: row.media_url || "",
@@ -18,16 +31,17 @@ export function mapRowToPrompt(row: any): Prompt {
       : row.media_url
       ? [row.media_url]
       : [],
+    packItems,
     thumbnailUrl: row.thumbnail_url || undefined,
     model: row.model || "Midjourney v6",
-    aspectRatio: row.aspect_ratio || "16:9",
+    aspectRatio: row.aspect_ratio || "",
     tags: Array.isArray(row.tags) ? row.tags : [],
     categoryId: row.category_id || "",
     featured: Boolean(row.featured),
     status: (row.status as "published" | "draft") || "published",
     copyCount: Number(row.copy_count || 0),
     viewCount: Number(row.view_count || 0),
-    parameters: row.parameters || {},
+    parameters: params,
     createdAt: row.created_at || new Date().toISOString(),
     updatedAt: row.updated_at || new Date().toISOString(),
   };
@@ -56,7 +70,15 @@ export function mapPromptToRow(p: Partial<Prompt>): Record<string, any> {
   if (p.status !== undefined) row.status = p.status;
   if (p.copyCount !== undefined) row.copy_count = p.copyCount;
   if (p.viewCount !== undefined) row.view_count = p.viewCount;
-  if (p.parameters !== undefined) row.parameters = p.parameters;
+
+  // Store extra metadata (subtitle, description, pack_items, prompt_kind) safely inside parameters JSONB
+  const parameters = { ...(p.parameters || {}) };
+  if (p.subtitle !== undefined) parameters.subtitle = p.subtitle;
+  if (p.description !== undefined) parameters.description = p.description;
+  if (p.packItems !== undefined) parameters.pack_items = p.packItems;
+  if (p.promptKind !== undefined) parameters.prompt_kind = p.promptKind;
+  row.parameters = parameters;
+
   if (p.createdAt !== undefined) row.created_at = p.createdAt;
   if (p.updatedAt !== undefined) row.updated_at = p.updatedAt;
 

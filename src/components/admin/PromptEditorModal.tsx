@@ -10,7 +10,6 @@ import {
   Video,
   Check,
   Save,
-  Sliders,
   Eye,
   Plus,
   Trash2,
@@ -21,7 +20,7 @@ import {
   ArrowRight,
   Layers,
 } from "lucide-react";
-import { Prompt, AspectRatio, MediaType } from "@/types";
+import { Prompt, AspectRatio, MediaType, PromptKind } from "@/types";
 import { usePromptStore } from "@/context/PromptContext";
 import { useToast } from "@/components/ui/Toast";
 import { uploadMediaToSupabase } from "@/lib/supabase";
@@ -42,16 +41,27 @@ export function PromptEditorModal({
 
   const isEditing = !!promptToEdit;
 
+  const [promptKind, setPromptKind] = useState<PromptKind>("single");
   const [title, setTitle] = useState("");
+  const [subtitle, setSubtitle] = useState("");
   const [promptText, setPromptText] = useState("");
   const [negativePrompt, setNegativePrompt] = useState("");
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
+  const [packItems, setPackItems] = useState<
+    Array<{
+      id: string;
+      imageUrl: string;
+      promptText: string;
+      negativePrompt?: string;
+      title?: string;
+    }>
+  >([]);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [urlInput, setUrlInput] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [mediaType, setMediaType] = useState<MediaType>("image");
   const [model, setModel] = useState("Midjourney v6");
-  const [aspectRatio, setAspectRatio] = useState<AspectRatio>("16:9");
+  const [aspectRatio, setAspectRatio] = useState<AspectRatio>("");
   const [categoryId, setCategoryId] = useState(categories[0]?.id || "");
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -61,17 +71,18 @@ export function PromptEditorModal({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Advanced parameters
-  const [seed, setSeed] = useState("");
-  const [stylize, setStylize] = useState("");
-  const [cfgScale, setCfgScale] = useState("");
-  const [sampler, setSampler] = useState("");
-
   useEffect(() => {
     if (promptToEdit) {
+      const isPack =
+        promptToEdit.promptKind === "pack" ||
+        (Array.isArray(promptToEdit.packItems) && promptToEdit.packItems.length > 1);
+
+      setPromptKind(isPack ? "pack" : "single");
       setTitle(promptToEdit.title);
+      setSubtitle(promptToEdit.subtitle || promptToEdit.description || "");
       setPromptText(promptToEdit.promptText);
       setNegativePrompt(promptToEdit.negativePrompt || "");
+
       const existingUrls =
         promptToEdit.mediaUrls && promptToEdit.mediaUrls.length > 0
           ? promptToEdit.mediaUrls
@@ -79,39 +90,57 @@ export function PromptEditorModal({
           ? [promptToEdit.mediaUrl]
           : [];
       setMediaUrls(existingUrls);
+
+      if (promptToEdit.packItems && promptToEdit.packItems.length > 0) {
+        setPackItems(promptToEdit.packItems);
+      } else {
+        setPackItems(
+          existingUrls.map((url, i) => ({
+            id: `item-${i + 1}`,
+            imageUrl: url,
+            promptText: promptToEdit.promptText,
+            negativePrompt: promptToEdit.negativePrompt || "",
+            title: `Image ${i + 1}`,
+          }))
+        );
+      }
+
       setActiveImageIndex(0);
       setMediaType(promptToEdit.type || "image");
       setModel(promptToEdit.model);
-      setAspectRatio(promptToEdit.aspectRatio);
+      setAspectRatio(promptToEdit.aspectRatio || "");
       setCategoryId(promptToEdit.categoryId);
       setTags(promptToEdit.tags || []);
       setFeatured(promptToEdit.featured);
       setIsHeroBanner(promptToEdit.id === bannerPromptId);
       setStatus(promptToEdit.status);
-      setSeed(promptToEdit.parameters?.seed || "");
-      setStylize(promptToEdit.parameters?.stylize?.toString() || "");
-      setCfgScale(promptToEdit.parameters?.cfgScale?.toString() || "");
-      setSampler(promptToEdit.parameters?.sampler || "");
     } else {
+      setPromptKind("single");
       setTitle("");
+      setSubtitle("");
       setPromptText("");
       setNegativePrompt("");
       setMediaUrls([
         "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop",
       ]);
+      setPackItems([
+        {
+          id: "item-1",
+          imageUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop",
+          promptText: "",
+          negativePrompt: "",
+          title: "Image 1",
+        },
+      ]);
       setActiveImageIndex(0);
       setMediaType("image");
       setModel("Midjourney v6");
-      setAspectRatio("16:9");
+      setAspectRatio("");
       setCategoryId(categories[0]?.id || "");
       setTags(["Featured", "Cinematic"]);
       setFeatured(false);
       setIsHeroBanner(false);
       setStatus("published");
-      setSeed("");
-      setStylize("");
-      setCfgScale("");
-      setSampler("");
     }
   }, [promptToEdit, categories, isOpen, bannerPromptId]);
 
@@ -126,6 +155,41 @@ export function PromptEditorModal({
 
   const handleRemoveTag = (tag: string) => {
     setTags(tags.filter((t) => t !== tag));
+  };
+
+  // Sync active pack item prompt text
+  const handleActivePromptTextChange = (val: string) => {
+    setPromptText(val);
+    if (promptKind === "pack") {
+      setPackItems((prev) => {
+        const next = [...prev];
+        if (next[activeImageIndex]) {
+          next[activeImageIndex] = { ...next[activeImageIndex], promptText: val };
+        }
+        return next;
+      });
+    }
+  };
+
+  const handleActiveNegativePromptChange = (val: string) => {
+    setNegativePrompt(val);
+    if (promptKind === "pack") {
+      setPackItems((prev) => {
+        const next = [...prev];
+        if (next[activeImageIndex]) {
+          next[activeImageIndex] = { ...next[activeImageIndex], negativePrompt: val };
+        }
+        return next;
+      });
+    }
+  };
+
+  const handleSelectImageIndex = (idx: number) => {
+    setActiveImageIndex(idx);
+    if (promptKind === "pack" && packItems[idx]) {
+      setPromptText(packItems[idx].promptText || "");
+      setNegativePrompt(packItems[idx].negativePrompt || "");
+    }
   };
 
   // Multiple local file uploads with Supabase Storage integration
@@ -152,8 +216,35 @@ export function PromptEditorModal({
         .map((r: { url: string; isRemote: boolean }) => r.url)
         .filter(Boolean);
 
-      setMediaUrls((prev) => [...prev, ...validUrls]);
-      showToast(`Added ${validUrls.length} image(s)`, "success");
+      if (validUrls.length === 0) return;
+
+      if (promptKind === "single") {
+        setMediaUrls([validUrls[0]]);
+        setPackItems([
+          {
+            id: "item-1",
+            imageUrl: validUrls[0],
+            promptText,
+            negativePrompt,
+            title: "Cover Image",
+          },
+        ]);
+        setActiveImageIndex(0);
+        showToast("Cover photo uploaded and updated!", "success");
+      } else {
+        setMediaUrls((prev) => [...prev, ...validUrls]);
+        setPackItems((prev) => [
+          ...prev,
+          ...validUrls.map((url, i) => ({
+            id: `item-${Date.now()}-${i}`,
+            imageUrl: url,
+            promptText: "",
+            negativePrompt: "",
+            title: `Image ${prev.length + i + 1}`,
+          })),
+        ]);
+        showToast(`Added ${validUrls.length} image(s)`, "success");
+      }
     } catch {
       showToast("Upload encountered an issue", "error");
     }
@@ -183,8 +274,35 @@ export function PromptEditorModal({
         .map((r: { url: string; isRemote: boolean }) => r.url)
         .filter(Boolean);
 
-      setMediaUrls((prev) => [...prev, ...validUrls]);
-      showToast(`Added ${validUrls.length} image(s)`, "success");
+      if (validUrls.length === 0) return;
+
+      if (promptKind === "single") {
+        setMediaUrls([validUrls[0]]);
+        setPackItems([
+          {
+            id: "item-1",
+            imageUrl: validUrls[0],
+            promptText,
+            negativePrompt,
+            title: "Cover Image",
+          },
+        ]);
+        setActiveImageIndex(0);
+        showToast("Cover photo dropped and updated!", "success");
+      } else {
+        setMediaUrls((prev) => [...prev, ...validUrls]);
+        setPackItems((prev) => [
+          ...prev,
+          ...validUrls.map((url, i) => ({
+            id: `item-${Date.now()}-${i}`,
+            imageUrl: url,
+            promptText: "",
+            negativePrompt: "",
+            title: `Image ${prev.length + i + 1}`,
+          })),
+        ]);
+        showToast(`Added ${validUrls.length} image(s)`, "success");
+      }
     } catch {
       showToast("Upload encountered an issue", "error");
     }
@@ -193,9 +311,36 @@ export function PromptEditorModal({
   const handleAddUrl = (e: React.FormEvent) => {
     e.preventDefault();
     if (!urlInput.trim()) return;
-    setMediaUrls((prev) => [...prev, urlInput.trim()]);
+    const url = urlInput.trim();
+
+    if (promptKind === "single") {
+      setMediaUrls([url]);
+      setPackItems([
+        {
+          id: "item-1",
+          imageUrl: url,
+          promptText,
+          negativePrompt,
+          title: "Cover Image",
+        },
+      ]);
+      setActiveImageIndex(0);
+      showToast("Cover photo URL updated!", "success");
+    } else {
+      setMediaUrls((prev) => [...prev, url]);
+      setPackItems((prev) => [
+        ...prev,
+        {
+          id: `item-${Date.now()}`,
+          imageUrl: url,
+          promptText: "",
+          negativePrompt: "",
+          title: `Image ${prev.length + 1}`,
+        },
+      ]);
+      showToast("Image URL added", "success");
+    }
     setUrlInput("");
-    showToast("Image URL added", "success");
   };
 
   const handleRemoveImage = (index: number) => {
@@ -204,8 +349,13 @@ export function PromptEditorModal({
       return;
     }
     setMediaUrls((prev) => prev.filter((_, i) => i !== index));
+    setPackItems((prev) => prev.filter((_, i) => i !== index));
     if (activeImageIndex >= mediaUrls.length - 1) {
-      setActiveImageIndex(Math.max(0, mediaUrls.length - 2));
+      const nextIdx = Math.max(0, mediaUrls.length - 2);
+      setActiveImageIndex(nextIdx);
+      if (promptKind === "pack" && packItems[nextIdx]) {
+        setPromptText(packItems[nextIdx].promptText || "");
+      }
     }
     showToast("Image removed", "info");
   };
@@ -213,6 +363,12 @@ export function PromptEditorModal({
   const handleSetPrimary = (index: number) => {
     if (index === 0) return;
     setMediaUrls((prev) => {
+      const next = [...prev];
+      const [item] = next.splice(index, 1);
+      next.unshift(item);
+      return next;
+    });
+    setPackItems((prev) => {
       const next = [...prev];
       const [item] = next.splice(index, 1);
       next.unshift(item);
@@ -230,14 +386,20 @@ export function PromptEditorModal({
       next.splice(to, 0, item);
       return next;
     });
+    setPackItems((prev) => {
+      const next = [...prev];
+      const [item] = next.splice(from, 1);
+      next.splice(to, 0, item);
+      return next;
+    });
     setActiveImageIndex(to);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title.trim() || !promptText.trim()) {
-      showToast("Title and prompt text are required", "error");
+    if (!title.trim()) {
+      showToast(promptKind === "pack" ? "Pack name is required" : "Title is required", "error");
       return;
     }
 
@@ -247,12 +409,26 @@ export function PromptEditorModal({
         : ["https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop"];
     const finalMedia = finalUrls[0];
 
+    const formattedPackItems = packItems.map((item, i) => ({
+      id: item.id || `pack-item-${i}`,
+      imageUrl: item.imageUrl || finalUrls[i] || finalMedia,
+      promptText: item.promptText || promptText,
+      negativePrompt: item.negativePrompt || negativePrompt || undefined,
+      title: item.title || `Image ${i + 1}`,
+      aspectRatio,
+      model,
+    }));
+
     const promptData = {
       title: title.trim(),
-      promptText: promptText.trim(),
+      subtitle: subtitle.trim() || undefined,
+      description: subtitle.trim() || undefined,
+      promptKind,
+      promptText: promptKind === "pack" ? formattedPackItems[0]?.promptText || promptText : promptText.trim(),
       negativePrompt: negativePrompt.trim() || undefined,
       mediaUrl: finalMedia,
       mediaUrls: finalUrls,
+      packItems: promptKind === "pack" ? formattedPackItems : undefined,
       type: mediaType,
       model,
       aspectRatio,
@@ -260,12 +436,7 @@ export function PromptEditorModal({
       tags: tags.length > 0 ? tags : ["AI Art"],
       featured,
       status,
-      parameters: {
-        seed: seed.trim() || undefined,
-        stylize: stylize ? parseFloat(stylize) : undefined,
-        cfgScale: cfgScale ? parseFloat(cfgScale) : undefined,
-        sampler: sampler.trim() || undefined,
-      },
+      parameters: promptToEdit?.parameters || undefined,
     };
 
     if (isEditing && promptToEdit) {
@@ -273,11 +444,13 @@ export function PromptEditorModal({
       if (isHeroBanner) {
         setBannerPromptId(promptToEdit.id);
       }
+      showToast("Prompt updated successfully", "success");
     } else {
       const created = addPrompt(promptData);
       if (isHeroBanner && created?.id) {
         setBannerPromptId(created.id);
       }
+      showToast("Prompt created successfully", "success");
     }
 
     onClose();
@@ -316,13 +489,56 @@ export function PromptEditorModal({
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
+          {/* Mode Switcher */}
+          <div className="p-1.5 rounded-2xl bg-white/[0.04] border border-white/10 grid grid-cols-2 gap-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                setPromptKind("single");
+                if (mediaUrls.length > 1) {
+                  setMediaUrls([mediaUrls[0]]);
+                  setPackItems([packItems[0] || {
+                    id: "item-1",
+                    imageUrl: mediaUrls[0],
+                    promptText,
+                    negativePrompt,
+                  }]);
+                  setActiveImageIndex(0);
+                }
+              }}
+              className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                promptKind === "single"
+                  ? "bg-gradient-to-r from-orange-500 to-[#E85002] text-white shadow-lg shadow-[#E85002]/25"
+                  : "text-slate-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>Single Prompt (1 Image + 1 Prompt)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setPromptKind("pack");
+              }}
+              className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                promptKind === "pack"
+                  ? "bg-gradient-to-r from-orange-500 to-[#E85002] text-white shadow-lg shadow-[#E85002]/25"
+                  : "text-slate-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              <Layers className="w-4 h-4" />
+              <span>Prompt Pack (Multi-Image + Prompts)</span>
+            </button>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Left side: Media preview & multiple upload */}
             <div className="lg:col-span-5 space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                    <span>Showcase Images</span>
+                    <span>{promptKind === "pack" ? "Pack Images" : "Showcase Image"}</span>
                     <span className="px-2 py-0.5 rounded-full bg-[#E85002]/20 text-[#F16001] text-[10px] font-bold">
                       {mediaUrls.length} image{mediaUrls.length !== 1 ? "s" : ""}
                     </span>
@@ -370,14 +586,16 @@ export function PromptEditorModal({
                     </div>
                     {activeImageIndex === 0 && (
                       <span className="px-2 py-0.5 rounded-lg bg-[#E85002] text-white text-[10px] font-bold shadow-md">
-                        Primary Cover
+                        Cover
                       </span>
                     )}
                   </div>
 
-                  <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-xs font-mono text-slate-300 z-10">
-                    {aspectRatio}
-                  </div>
+                  {aspectRatio && (
+                    <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-xs font-mono text-slate-300 z-10">
+                      {aspectRatio}
+                    </div>
+                  )}
 
                   {/* Navigation Arrows on Preview Box */}
                   {mediaUrls.length > 1 && (
@@ -386,9 +604,8 @@ export function PromptEditorModal({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setActiveImageIndex((prev) =>
-                            prev === 0 ? mediaUrls.length - 1 : prev - 1
-                          );
+                          const nextIdx = activeImageIndex === 0 ? mediaUrls.length - 1 : activeImageIndex - 1;
+                          handleSelectImageIndex(nextIdx);
                         }}
                         className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/70 hover:bg-[#E85002] text-white backdrop-blur-md transition-all z-10 shadow-lg"
                       >
@@ -398,9 +615,8 @@ export function PromptEditorModal({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setActiveImageIndex((prev) =>
-                            prev === mediaUrls.length - 1 ? 0 : prev + 1
-                          );
+                          const nextIdx = activeImageIndex === mediaUrls.length - 1 ? 0 : activeImageIndex + 1;
+                          handleSelectImageIndex(nextIdx);
                         }}
                         className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/70 hover:bg-[#E85002] text-white backdrop-blur-md transition-all z-10 shadow-lg"
                       >
@@ -414,19 +630,21 @@ export function PromptEditorModal({
               {/* Upload Multiple Files & Add URL Bar */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400 font-medium">Add more images:</span>
+                  <span className="text-slate-400 font-medium">
+                    {promptKind === "pack" ? "Add pack images:" : "Change image:"}
+                  </span>
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     className="px-2.5 py-1 rounded-lg bg-[#E85002]/15 hover:bg-[#E85002] text-[#F16001] hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 font-bold text-[11px]"
                   >
                     <Upload className="w-3.5 h-3.5" />
-                    <span>Upload Multiple Files</span>
+                    <span>{promptKind === "pack" ? "Upload Images" : "Upload Image"}</span>
                   </button>
                   <input
                     ref={fileInputRef}
                     type="file"
-                    multiple
+                    multiple={promptKind === "pack"}
                     accept="image/*"
                     onChange={handleFileUpload}
                     className="hidden"
@@ -443,7 +661,27 @@ export function PromptEditorModal({
                       if (e.key === "Enter") {
                         e.preventDefault();
                         if (urlInput.trim()) {
-                          setMediaUrls((prev) => [...prev, urlInput.trim()]);
+                          const url = urlInput.trim();
+                          if (promptKind === "single") {
+                            setMediaUrls([url]);
+                            setPackItems([{
+                              id: `item-1`,
+                              imageUrl: url,
+                              promptText,
+                              negativePrompt,
+                            }]);
+                          } else {
+                            setMediaUrls((prev) => [...prev, url]);
+                            setPackItems((prev) => [
+                              ...prev,
+                              {
+                                id: `item-${Date.now()}`,
+                                imageUrl: url,
+                                promptText: "",
+                                negativePrompt: "",
+                              },
+                            ]);
+                          }
                           setUrlInput("");
                           showToast("Image URL added", "success");
                         }
@@ -464,18 +702,18 @@ export function PromptEditorModal({
               </div>
 
               {/* Uploaded Images Gallery Strip / Manager */}
-              {mediaUrls.length > 0 && (
+              {mediaUrls.length > 0 && promptKind === "pack" && (
                 <div className="space-y-2 pt-1 border-t border-white/5">
                   <div className="text-[11px] font-semibold text-slate-400 flex items-center justify-between">
-                    <span>Manage Uploaded Gallery ({mediaUrls.length})</span>
-                    <span className="text-[10px] text-slate-400">Click to preview • Star to set cover</span>
+                    <span>Pack Gallery ({mediaUrls.length} items)</span>
+                    <span className="text-[10px] text-slate-400">Click to edit its prompt</span>
                   </div>
 
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1">
                     {mediaUrls.map((url, idx) => (
                       <div
                         key={idx}
-                        onClick={() => setActiveImageIndex(idx)}
+                        onClick={() => handleSelectImageIndex(idx)}
                         className={`group/thumb relative rounded-xl overflow-hidden aspect-square border cursor-pointer transition-all ${
                           activeImageIndex === idx
                             ? "border-[#E85002] ring-2 ring-[#E85002]/50 scale-[1.02]"
@@ -494,6 +732,11 @@ export function PromptEditorModal({
                         <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-[9px] font-mono text-white font-bold">
                           {idx === 0 ? "★ Cover" : `#${idx + 1}`}
                         </div>
+
+                        {/* Prompt configured indicator */}
+                        {packItems[idx]?.promptText?.trim() && (
+                          <div className="absolute bottom-1 right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 border border-black shadow" title="Prompt configured" />
+                        )}
 
                         {/* Hover Overlay Controls */}
                         <div className="absolute inset-0 bg-black/70 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex flex-col items-center justify-between p-1">
@@ -659,40 +902,88 @@ export function PromptEditorModal({
             <div className="lg:col-span-7 space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Artwork Title *
+                  {promptKind === "pack" ? "Prompt Pack Name *" : "Artwork Title *"}
                 </label>
                 <input
                   type="text"
                   required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Master Watchmaker in Swiss Atelier"
+                  placeholder={promptKind === "pack" ? "e.g. Cinematic Product Prompts" : "e.g. Master Watchmaker in Swiss Atelier"}
                   className="w-full px-3.5 py-2.5 rounded-xl glass-input text-xs sm:text-sm font-semibold"
                 />
               </div>
 
+              {promptKind === "pack" && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Pack Subtitle / Summary (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={subtitle}
+                    onChange={(e) => setSubtitle(e.target.value)}
+                    placeholder="e.g. 5 cohesive studio product photography prompts with lighting presets"
+                    className="w-full px-3.5 py-2 rounded-xl glass-input text-xs text-slate-300"
+                  />
+                </div>
+              )}
+
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Prompt Text *
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-slate-300">
+                    {promptKind === "pack" ? (
+                      <span className="flex items-center gap-1.5">
+                        <span>Prompt Formula for Image #{activeImageIndex + 1} *</span>
+                        <span className="text-[10px] text-[#F16001] font-mono bg-[#E85002]/15 px-1.5 py-0.2 rounded">
+                          Image {activeImageIndex + 1} of {mediaUrls.length}
+                        </span>
+                      </span>
+                    ) : (
+                      "Prompt Text *"
+                    )}
+                  </label>
+                  {promptKind === "pack" && mediaUrls.length > 1 && (
+                    <div className="flex items-center gap-1">
+                      {mediaUrls.map((_, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => handleSelectImageIndex(i)}
+                          className={`w-5 h-5 rounded-md text-[10px] font-mono font-bold transition-all ${
+                            activeImageIndex === i
+                              ? "bg-[#E85002] text-white"
+                              : "bg-white/10 text-slate-400 hover:text-white"
+                          }`}
+                        >
+                          {i + 1}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <textarea
                   required
                   rows={4}
                   value={promptText}
-                  onChange={(e) => setPromptText(e.target.value)}
-                  placeholder="Complete prompt string with lighting, camera, artist, and rendering flags..."
+                  onChange={(e) => handleActivePromptTextChange(e.target.value)}
+                  placeholder={
+                    promptKind === "pack"
+                      ? `Enter prompt formula specifically for Image #${activeImageIndex + 1}...`
+                      : "Complete prompt string with lighting, camera, artist, and rendering flags..."
+                  }
                   className="w-full px-3.5 py-2.5 rounded-xl glass-input text-xs font-mono leading-relaxed resize-none"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Negative Prompt (Optional)
+                  {promptKind === "pack" ? `Negative Prompt for Image #${activeImageIndex + 1} (Optional)` : "Negative Prompt (Optional)"}
                 </label>
                 <input
                   type="text"
                   value={negativePrompt}
-                  onChange={(e) => setNegativePrompt(e.target.value)}
+                  onChange={(e) => handleActiveNegativePromptChange(e.target.value)}
                   placeholder="e.g. blur, deformed hands, cartoon"
                   className="w-full px-3.5 py-2 rounded-xl glass-input text-xs font-mono text-slate-300"
                 />
@@ -721,6 +1012,7 @@ export function PromptEditorModal({
                     onChange={(e) => setAspectRatio(e.target.value as AspectRatio)}
                     className="w-full px-3 py-2 rounded-xl glass-input text-xs font-mono"
                   >
+                    <option value="" className="bg-[#0f1117]">None / Blank (Default)</option>
                     <option value="16:9" className="bg-[#0f1117]">16:9 (Cinema)</option>
                     <option value="1:1" className="bg-[#0f1117]">1:1 (Square)</option>
                     <option value="4:5" className="bg-[#0f1117]">4:5 (IG Portrait)</option>
@@ -748,44 +1040,7 @@ export function PromptEditorModal({
                 </div>
               </div>
 
-              {/* Advanced Parameters */}
-              <div className="space-y-2 pt-2 border-t border-white/5">
-                <span className="text-xs font-semibold text-slate-300 flex items-center gap-1">
-                  <Sliders className="w-3.5 h-3.5 text-amber-400" />
-                  Parameters (Optional)
-                </span>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <input
-                    type="text"
-                    value={seed}
-                    onChange={(e) => setSeed(e.target.value)}
-                    placeholder="Seed"
-                    className="px-2.5 py-1.5 rounded-xl glass-input text-xs font-mono"
-                  />
-                  <input
-                    type="number"
-                    value={stylize}
-                    onChange={(e) => setStylize(e.target.value)}
-                    placeholder="Stylize (s)"
-                    className="px-2.5 py-1.5 rounded-xl glass-input text-xs font-mono"
-                  />
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={cfgScale}
-                    onChange={(e) => setCfgScale(e.target.value)}
-                    placeholder="CFG Scale"
-                    className="px-2.5 py-1.5 rounded-xl glass-input text-xs font-mono"
-                  />
-                  <input
-                    type="text"
-                    value={sampler}
-                    onChange={(e) => setSampler(e.target.value)}
-                    placeholder="Sampler"
-                    className="px-2.5 py-1.5 rounded-xl glass-input text-xs font-mono"
-                  />
-                </div>
-              </div>
+
 
               {/* Tags */}
               <div className="space-y-2">

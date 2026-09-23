@@ -1,19 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
   Search,
   ArrowUpDown,
-  Copy,
-  Check,
   Flame,
   X,
   History,
+  ArrowUpRight,
 } from "lucide-react";
 import { usePromptStore } from "@/context/PromptContext";
-import { Prompt } from "@/types";
 import { formatNumber } from "@/lib/utils";
 
 export function RightCompanionPanel() {
@@ -21,13 +19,9 @@ export function RightCompanionPanel() {
     prompts,
     searchQuery,
     setSearchQuery,
-    copyPrompt,
-    setActiveModalPrompt,
     sortBy,
     setSortBy,
   } = usePromptStore();
-
-  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Top trending prompts
   const trendingPrompts = [...prompts]
@@ -39,13 +33,6 @@ export function RightCompanionPanel() {
   const recentPrompts = [...prompts]
     .filter((p) => p.status === "published")
     .slice(2, 6);
-
-  const handleCopy = async (e: React.MouseEvent, prompt: Prompt) => {
-    e.stopPropagation();
-    setCopiedId(prompt.id);
-    await copyPrompt(prompt);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
 
   return (
     <aside className="w-full lg:w-80 xl:w-88 flex-shrink-0 flex flex-col gap-4">
@@ -94,59 +81,39 @@ export function RightCompanionPanel() {
 
           {/* Stacks */}
           <div className="space-y-2">
-            {trendingPrompts.map((p) => {
-              const isCopied = copiedId === p.id;
-              return (
-                <Link
-                  key={p.id}
-                  href={`/prompt/${p.slug}`}
-                  className="group relative rounded-[14px] overflow-hidden bg-[var(--surface-muted)] border border-[var(--border)] p-3 flex items-center justify-between gap-3 cursor-pointer hover:border-[var(--border-strong)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.25)] transition-all shadow-sm block"
-                >
-                  <div className="min-w-0 flex-1 space-y-0.5">
-                    <span className="text-[9px] font-mono text-[var(--accent)] uppercase font-semibold">
-                      {p.model}
-                    </span>
-                    <h4 className="text-xs font-semibold text-[var(--text-primary)] truncate group-hover:text-[var(--accent)] transition-colors">
-                      {p.title}
-                    </h4>
-                    <p className="text-[10px] text-[var(--text-secondary)] truncate font-mono">
-                      {p.promptText}
-                    </p>
-                  </div>
+            {trendingPrompts.map((p) => (
+              <Link
+                key={p.id}
+                href={`/prompt/${p.slug}`}
+                className="group relative rounded-[14px] overflow-hidden bg-[var(--surface-muted)] border border-[var(--border)] p-3 flex items-center justify-between gap-3 cursor-pointer hover:border-[var(--border-strong)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.25)] transition-all shadow-sm block"
+              >
+                <div className="min-w-0 flex-1 space-y-0.5">
+                  <span className="text-[9px] font-mono text-[var(--accent)] uppercase font-semibold">
+                    {p.model}
+                  </span>
+                  <h4 className="text-xs font-semibold text-[var(--text-primary)] truncate group-hover:text-[var(--accent)] transition-colors">
+                    {p.title}
+                  </h4>
+                  <p className="text-[10px] text-[var(--text-secondary)] truncate font-mono">
+                    {p.promptText}
+                  </p>
+                </div>
 
-                  <div className="relative w-14 h-14 rounded-[10px] overflow-hidden bg-[#0A0C0E] flex-shrink-0 border border-[var(--border)]">
-                    <Image
-                      src={p.mediaUrl}
-                      alt={p.title}
-                      fill
-                      sizes="56px"
-                      className="object-cover group-hover:scale-[1.03] transition-transform"
-                    />
-                    <div className="absolute inset-0 bg-black/40" />
-
-                    {/* Circular Copy Button */}
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleCopy(e, p);
-                      }}
-                      className={`absolute inset-0 m-auto w-6 h-6 rounded-[7px] flex items-center justify-center transition-all cursor-pointer ${
-                        isCopied
-                          ? "bg-[var(--accent)] text-white shadow-[0_2px_8px_rgba(255,84,84,0.5)]"
-                          : "bg-[#0A0C0E]/90 text-white hover:bg-[var(--accent)] hover:text-white border border-white/20 shadow-[0_2px_6px_rgba(0,0,0,0.4)]"
-                      }`}
-                      title="Copy Prompt"
-                    >
-                      {isCopied ? (
-                        <Check className="w-3 h-3 stroke-[2]" />
-                      ) : (
-                        <Copy className="w-3 h-3 stroke-[1.75]" />
-                      )}
-                    </button>
+                <div className="relative w-14 h-14 rounded-[10px] overflow-hidden bg-[#0A0C0E] flex-shrink-0 border border-[var(--border)] group-hover:border-[var(--accent)]/40 transition-colors">
+                  <Image
+                    src={p.mediaUrl}
+                    alt={p.title}
+                    fill
+                    sizes="56px"
+                    className="object-cover group-hover:scale-[1.05] transition-transform"
+                  />
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors" />
+                  <div className="absolute bottom-1 right-1 w-5 h-5 rounded-[5px] bg-black/70 flex items-center justify-center text-white/80 group-hover:text-white transition-colors">
+                    <ArrowUpRight className="w-3 h-3 stroke-[2] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </div>
-                </Link>
-              );
-            })}
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
 
@@ -160,54 +127,37 @@ export function RightCompanionPanel() {
           </div>
 
           <div className="space-y-1.5">
-            {recentPrompts.map((p) => {
-              const isCopied = copiedId === p.id;
-              return (
-                <Link
-                  key={p.id}
-                  href={`/prompt/${p.slug}`}
-                  className="group flex items-center justify-between gap-3 p-2 rounded-[10px] hover:bg-[var(--surface-muted)] border border-transparent hover:border-[var(--border)] transition-all cursor-pointer block"
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="relative w-9 h-9 rounded-[8px] overflow-hidden bg-[#0A0C0E] flex-shrink-0 border border-[var(--border)]">
-                      <Image
-                        src={p.mediaUrl}
-                        alt={p.title}
-                        fill
-                        sizes="36px"
-                        className="object-cover"
-                      />
+            {recentPrompts.map((p) => (
+              <Link
+                key={p.id}
+                href={`/prompt/${p.slug}`}
+                className="group flex items-center justify-between gap-3 p-2 rounded-[10px] hover:bg-[var(--surface-muted)] border border-transparent hover:border-[var(--border)] transition-all cursor-pointer block"
+              >
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <div className="relative w-9 h-9 rounded-[8px] overflow-hidden bg-[#0A0C0E] flex-shrink-0 border border-[var(--border)]">
+                    <Image
+                      src={p.mediaUrl}
+                      alt={p.title}
+                      fill
+                      sizes="36px"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs font-medium text-[var(--text-primary)] truncate group-hover:text-[var(--accent)] transition-colors">
+                      {p.title}
                     </div>
-                    <div className="min-w-0">
-                      <div className="text-xs font-medium text-[var(--text-primary)] truncate group-hover:text-[var(--accent)] transition-colors">
-                        {p.title}
-                      </div>
-                      <div className="text-[9.5px] text-[var(--text-muted)] font-mono truncate">
-                        {p.model} • {formatNumber(p.copyCount || 0)} copies
-                      </div>
+                    <div className="text-[9.5px] text-[var(--text-muted)] font-mono truncate">
+                      {p.model} • {formatNumber(p.copyCount || 0)} copies
                     </div>
                   </div>
+                </div>
 
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleCopy(e, p);
-                    }}
-                    className={`w-6 h-6 rounded-[7px] flex-shrink-0 flex items-center justify-center transition-all cursor-pointer ${
-                      isCopied
-                        ? "bg-[var(--accent)] text-white shadow-[0_2px_8px_rgba(255,84,84,0.4)]"
-                        : "bg-[var(--surface-muted)] hover:bg-[var(--surface-elevated)] text-[var(--text-primary)] border border-[var(--border)] shadow-sm"
-                    }`}
-                  >
-                    {isCopied ? (
-                      <Check className="w-3 h-3 stroke-[2]" />
-                    ) : (
-                      <Copy className="w-2.5 h-2.5 stroke-[1.75]" />
-                    )}
-                  </button>
-                </Link>
-              );
-            })}
+                <div className="w-6 h-6 rounded-[7px] flex-shrink-0 flex items-center justify-center text-[var(--text-muted)] group-hover:text-[var(--text-primary)] group-hover:bg-[var(--surface-elevated)] border border-transparent group-hover:border-[var(--border)] transition-all">
+                  <ArrowUpRight className="w-3.5 h-3.5 stroke-[1.75] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </div>

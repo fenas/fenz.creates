@@ -62,10 +62,11 @@ export function TutorialEditorModal({
   const [blocks, setBlocks] = useState<ArticleBlock[]>([]);
 
   // Metadata Settings State
-  const [model, setModel] = useState("Midjourney v6");
-  const [level, setLevel] = useState<Tutorial["level"]>("Intermediate");
+  const [model, setModel] = useState("");
+  const [level, setLevel] = useState<Tutorial["level"]>("Beginner");
   const [readTime, setReadTime] = useState("1 min read");
   const [slug, setSlug] = useState("");
+  const [isSlugCustomized, setIsSlugCustomized] = useState(false);
   const [tags, setTags] = useState<string[]>(["Prompting", "Workflow"]);
   const [status, setStatus] = useState<"published" | "draft">("published");
 
@@ -83,14 +84,17 @@ export function TutorialEditorModal({
     if (!isOpen) return;
 
     if (tutorialToEdit) {
-      setTitle(tutorialToEdit.title || "");
+      const initTitle = tutorialToEdit.title || "";
+      const initSlug = tutorialToEdit.slug || slugify(initTitle);
+      setTitle(initTitle);
       setSubtitle(tutorialToEdit.subtitle || tutorialToEdit.description || "");
       setCoverImage(tutorialToEdit.mediaUrl || "");
       setCoverAlt(tutorialToEdit.coverAlt || "");
-      setModel(tutorialToEdit.model || "Midjourney v6");
-      setLevel(tutorialToEdit.level || "Intermediate");
+      setModel(tutorialToEdit.model || "");
+      setLevel(tutorialToEdit.level || "Beginner");
       setReadTime(tutorialToEdit.readTime || "1 min read");
-      setSlug(tutorialToEdit.slug || "");
+      setSlug(initSlug);
+      setIsSlugCustomized(!!tutorialToEdit.slug && tutorialToEdit.slug !== slugify(initTitle));
       setTags(tutorialToEdit.tags || ["Prompting", "Workflow"]);
       setStatus(tutorialToEdit.status || "published");
       setBlocks(convertTutorialToBlocks(tutorialToEdit));
@@ -99,10 +103,11 @@ export function TutorialEditorModal({
       setSubtitle("");
       setCoverImage("");
       setCoverAlt("");
-      setModel("Midjourney v6");
-      setLevel("Intermediate");
+      setModel("");
+      setLevel("Beginner");
       setReadTime("1 min read");
       setSlug("");
+      setIsSlugCustomized(false);
       setTags(["Prompting", "Workflow"]);
       setStatus("published");
       setBlocks([
@@ -125,12 +130,53 @@ export function TutorialEditorModal({
     }
   }, [blocks]);
 
-  // Auto-generate slug if blank
+  // Listen for block type conversions triggered by FloatingFormatToolbar (H1, H2, Paragraph)
   useEffect(() => {
-    if (!slug && title.trim()) {
-      setSlug(slugify(title));
+    const handleConvertBlockEvent = (e: Event) => {
+      const customEvent = e as CustomEvent<{ blockId: string; newType: BlockType }>;
+      if (!customEvent.detail) return;
+      const { blockId, newType } = customEvent.detail;
+
+      setBlocks((prev) =>
+        prev.map((b) => {
+          if (b.id === blockId) {
+            return {
+              ...b,
+              type: newType,
+            };
+          }
+          return b;
+        })
+      );
+    };
+
+    window.addEventListener("editor-convert-block-type", handleConvertBlockEvent);
+    return () => window.removeEventListener("editor-convert-block-type", handleConvertBlockEvent);
+  }, []);
+
+  // Reactive Title & Auto-Slug Handler
+  const handleTitleChange = (newTitle: string) => {
+    setTitle(newTitle);
+    if (!isSlugCustomized) {
+      setSlug(slugify(newTitle));
     }
-  }, [title, slug]);
+  };
+
+  const handleSlugChange = (newSlug: string) => {
+    setSlug(newSlug);
+    if (!newSlug.trim() || newSlug === slugify(title)) {
+      setIsSlugCustomized(false);
+    } else {
+      setIsSlugCustomized(true);
+    }
+  };
+
+  const handleResetSlugToAuto = () => {
+    const autoSlug = slugify(title);
+    setSlug(autoSlug);
+    setIsSlugCustomized(false);
+    showToast("Slug reset to auto-generated title", "info");
+  };
 
   if (!isOpen) return null;
 
@@ -192,9 +238,7 @@ export function TutorialEditorModal({
 
     // Extract prompt formula if present
     const promptBlock = blocks.find((b) => b.type === "prompt");
-    const samplePrompt =
-      promptBlock?.promptText ||
-      "Candid 35mm film photograph, cinematic lighting, 85mm f/1.4 lens --ar 16:9 --v 6.0";
+    const samplePrompt = promptBlock?.promptText || "";
 
     const data: Partial<Tutorial> = {
       title: title.trim(),
@@ -393,7 +437,7 @@ export function TutorialEditorModal({
               {/* Top Article Header (Cover, Title, Subtitle) */}
               <ArticleHeaderEditor
                 title={title}
-                onChangeTitle={setTitle}
+                onChangeTitle={handleTitleChange}
                 subtitle={subtitle}
                 onChangeSubtitle={setSubtitle}
                 coverImage={coverImage}
@@ -456,10 +500,11 @@ export function TutorialEditorModal({
         onChangeModel={setModel}
         level={level}
         onChangeLevel={setLevel}
-        readTime={readTime}
-        onChangeReadTime={setReadTime}
         slug={slug}
-        onChangeSlug={setSlug}
+        onChangeSlug={handleSlugChange}
+        isSlugCustomized={isSlugCustomized}
+        onResetSlugToAuto={handleResetSlugToAuto}
+        articleTitle={title}
         tags={tags}
         onChangeTags={setTags}
         status={status}

@@ -7,10 +7,8 @@ import {
   ArrowLeft,
   Copy,
   Check,
-  Bookmark,
   Share2,
   Sparkles,
-  Sliders,
   Tag,
   Layers,
   Video,
@@ -33,8 +31,6 @@ export function PromptDetailClient({
   const {
     prompts,
     copyPrompt,
-    toggleSave,
-    isSaved,
     categories,
     setActiveTab,
     setSearchQuery,
@@ -97,8 +93,19 @@ export function PromptDetailClient({
     );
   }
 
+  const isPack =
+    prompt?.promptKind === "pack" ||
+    (Array.isArray(prompt?.packItems) && prompt.packItems.length > 1) ||
+    images.length > 1;
+
+  const currentPackItem = prompt?.packItems?.[activeImageIndex];
+  const activePromptText = currentPackItem?.promptText || prompt?.promptText || "";
+  const activeNegativePrompt =
+    currentPackItem?.negativePrompt !== undefined
+      ? currentPackItem.negativePrompt
+      : prompt?.negativePrompt;
+
   const currentImageUrl = images[activeImageIndex] || prompt.mediaUrl;
-  const saved = isSaved(prompt.id);
   const category = categories.find((c) => c.id === prompt.categoryId);
 
   const relatedPrompts = prompts
@@ -113,13 +120,28 @@ export function PromptDetailClient({
 
   const handleCopyMain = async () => {
     setCopied(true);
+    await navigator.clipboard.writeText(activePromptText);
     await copyPrompt(prompt);
+    showToast("Prompt Copied to Clipboard!", "success");
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleCopyAllPackPrompts = async () => {
+    if (!prompt.packItems || prompt.packItems.length === 0) {
+      await handleCopyMain();
+      return;
+    }
+    const allText = prompt.packItems
+      .map((item, idx) => `/* [${prompt.title} - Image ${idx + 1}] */\n${item.promptText}`)
+      .join("\n\n");
+    await navigator.clipboard.writeText(allText);
+    await copyPrompt(prompt);
+    showToast(`Copied all ${prompt.packItems.length} pack prompts!`, "success");
+  };
+
   const handleCopyNegative = async () => {
-    if (!prompt.negativePrompt) return;
-    await navigator.clipboard.writeText(prompt.negativePrompt);
+    if (!activeNegativePrompt) return;
+    await navigator.clipboard.writeText(activeNegativePrompt);
     setCopiedNegative(true);
     showToast("Negative Prompt Copied", "info");
     setTimeout(() => setCopiedNegative(false), 2000);
@@ -155,18 +177,6 @@ export function PromptDetailClient({
           </Link>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <button
-              onClick={() => toggleSave(prompt.id)}
-              className={`p-2 rounded-[10px] transition-all border cursor-pointer ${
-                saved
-                  ? "bg-[var(--accent)] text-white border-[var(--accent)] shadow-[0_2px_8px_rgba(232,92,92,0.3)]"
-                  : "bg-[var(--surface-muted)] hover:bg-[var(--surface)] border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-              }`}
-              title={saved ? "Saved" : "Save Prompt"}
-            >
-              <Bookmark className={`w-4 h-4 stroke-[1.75] ${saved ? "fill-current" : ""}`} />
-            </button>
-
             <button
               onClick={handleShare}
               className="p-2 rounded-[10px] bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
@@ -240,10 +250,6 @@ export function PromptDetailClient({
                   Video Prompt
                 </div>
               )}
-
-              <div className="absolute bottom-4 right-4 px-2.5 py-1 rounded-[7px] bg-[#141619]/80 text-white/80 font-mono text-xs border border-white/10 z-20">
-                {prompt.aspectRatio}
-              </div>
             </div>
 
             {/* Thumbnail Navigation Strip */}
@@ -256,7 +262,7 @@ export function PromptDetailClient({
                     onClick={() => setActiveImageIndex(idx)}
                     className={`relative w-16 h-16 rounded-[12px] overflow-hidden flex-shrink-0 border transition-all cursor-pointer ${
                       activeImageIndex === idx
-                        ? "border-[var(--accent)] ring-1 ring-[var(--accent)]"
+                        ? "border-[#E85002] ring-2 ring-[#E85002]/60 scale-[1.03]"
                         : "border-[var(--border)] opacity-60 hover:opacity-100"
                     }`}
                   >
@@ -267,7 +273,7 @@ export function PromptDetailClient({
                       className="object-cover"
                       unoptimized={img.startsWith("data:")}
                     />
-                    <div className="absolute bottom-0 inset-x-0 bg-black/80 text-[9px] text-white font-mono text-center py-0.5">
+                    <div className="absolute bottom-0 inset-x-0 bg-black/80 text-[9px] text-white font-mono text-center py-0.5 font-bold">
                       {idx + 1}
                     </div>
                   </button>
@@ -287,32 +293,47 @@ export function PromptDetailClient({
           {/* Prompt Details */}
           <div className="lg:col-span-6 space-y-6">
             <div>
-              <div className="text-xs font-medium text-[var(--accent)] font-mono uppercase tracking-wider mb-1.5">
-                {category?.name || "AI Art"}
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="text-xs font-medium text-[var(--accent)] font-mono uppercase tracking-wider">
+                  {category?.name || "AI Art"}
+                </span>
+                {isPack && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E85002]/15 text-[#F16001] font-mono">
+                    Prompt Pack Collection
+                  </span>
+                )}
               </div>
               <h1 className="text-2xl sm:text-3xl font-medium text-[var(--text-primary)] tracking-tight">
                 {prompt.title}
               </h1>
+              {prompt.subtitle && (
+                <p className="text-sm text-[var(--text-secondary)] mt-1.5 leading-relaxed">
+                  {prompt.subtitle}
+                </p>
+              )}
             </div>
 
             {/* Copyable prompt box (Recessed) */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider font-mono flex items-center gap-1.5">
-                  Prompt Formula
-                </span>
-                <span className="text-[11px] text-[var(--text-muted)] font-mono px-2 py-0.5 rounded-[6px] bg-[var(--surface-muted)] border border-[var(--border)]">
-                  {prompt.model}
+                  {isPack ? (
+                    <span className="text-[#F16001]">
+                      Prompt for Image #{activeImageIndex + 1} of {images.length}
+                    </span>
+                  ) : (
+                    "Prompt Formula"
+                  )}
                 </span>
               </div>
 
               <div className="rounded-[16px] bg-[var(--surface-recessed)] border border-[var(--border)] p-5 font-mono text-xs sm:text-sm text-[var(--text-primary)] leading-relaxed shadow-[inset_0_2px_6px_rgba(0,0,0,0.35)]">
-                <p className="select-all break-words">&ldquo;{prompt.promptText}&rdquo;</p>
+                <p className="select-all break-words">&ldquo;{activePromptText}&rdquo;</p>
 
-                <div className="mt-5 pt-4 border-t border-[var(--border)]">
+                <div className="mt-5 pt-4 border-t border-[var(--border)] flex flex-wrap items-center justify-between gap-2.5">
                   <button
                     onClick={handleCopyMain}
-                    className={`w-full flex items-center justify-center gap-2.5 py-3 px-6 rounded-[12px] text-xs sm:text-sm font-medium transition-all cursor-pointer ${
+                    className={`flex-1 flex items-center justify-center gap-2.5 py-3 px-6 rounded-[12px] text-xs sm:text-sm font-medium transition-all cursor-pointer ${
                       copied
                         ? "bg-[var(--accent)] text-white shadow-[0_2px_10px_rgba(232,92,92,0.35)]"
                         : "btn-primary"
@@ -326,16 +347,27 @@ export function PromptDetailClient({
                     ) : (
                       <>
                         <Copy className="w-4 h-4 stroke-[1.75]" />
-                        <span>Copy Full Prompt</span>
+                        <span>{isPack ? `Copy Image #${activeImageIndex + 1} Prompt` : "Copy Full Prompt"}</span>
                       </>
                     )}
                   </button>
+
+                  {isPack && prompt.packItems && prompt.packItems.length > 1 && (
+                    <button
+                      onClick={handleCopyAllPackPrompts}
+                      className="px-4 py-3 rounded-[12px] bg-white/5 hover:bg-white/10 text-[var(--text-secondary)] hover:text-white border border-white/10 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                      title="Copy all prompts in this pack"
+                    >
+                      <Layers className="w-4 h-4 text-[#E85002]" />
+                      <span>Copy All ({prompt.packItems.length})</span>
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
 
             {/* Negative prompt */}
-            {prompt.negativePrompt && (
+            {activeNegativePrompt && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs font-mono uppercase text-[var(--text-muted)]">
                   <span>Negative Parameters</span>
@@ -348,47 +380,10 @@ export function PromptDetailClient({
                   </button>
                 </div>
                 <div className="rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] p-3.5 font-mono text-xs text-[var(--text-secondary)] select-all shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.25)]">
-                  {prompt.negativePrompt}
+                  {activeNegativePrompt}
                 </div>
               </div>
             )}
-
-            {/* Technical Parameters */}
-            <div className="space-y-3">
-              <span className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider font-mono flex items-center gap-1.5">
-                <Sliders className="w-3.5 h-3.5 stroke-[1.75]" />
-                Technical Settings
-              </span>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
-                <div className="p-3 rounded-[12px] bg-[var(--surface-muted)] border border-[var(--border)]">
-                  <div className="text-[10px] text-[var(--text-muted)]">AI Model</div>
-                  <div className="font-mono text-[var(--text-primary)] truncate mt-0.5">{prompt.model}</div>
-                </div>
-                <div className="p-3 rounded-[12px] bg-[var(--surface-muted)] border border-[var(--border)]">
-                  <div className="text-[10px] text-[var(--text-muted)]">Aspect Ratio</div>
-                  <div className="font-mono text-[var(--text-primary)] mt-0.5">{prompt.aspectRatio}</div>
-                </div>
-                {prompt.parameters?.stylize !== undefined && (
-                  <div className="p-3 rounded-[12px] bg-[var(--surface-muted)] border border-[var(--border)]">
-                    <div className="text-[10px] text-[var(--text-muted)]">Stylize (--s)</div>
-                    <div className="font-mono text-[var(--text-primary)] mt-0.5">{prompt.parameters.stylize}</div>
-                  </div>
-                )}
-                {prompt.parameters?.cfgScale !== undefined && (
-                  <div className="p-3 rounded-[12px] bg-[var(--surface-muted)] border border-[var(--border)]">
-                    <div className="text-[10px] text-[var(--text-muted)]">CFG Scale</div>
-                    <div className="font-mono text-[var(--text-primary)] mt-0.5">{prompt.parameters.cfgScale}</div>
-                  </div>
-                )}
-                {prompt.parameters?.seed && (
-                  <div className="p-3 rounded-[12px] bg-[var(--surface-muted)] border border-[var(--border)]">
-                    <div className="text-[10px] text-[var(--text-muted)]">Seed</div>
-                    <div className="font-mono text-[var(--text-primary)] mt-0.5">{prompt.parameters.seed}</div>
-                  </div>
-                )}
-              </div>
-            </div>
 
             {/* Tags */}
             <div className="space-y-2">
@@ -439,9 +434,6 @@ export function PromptDetailClient({
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-3 flex flex-col justify-end">
                     <span className="text-xs font-medium text-white truncate drop-shadow">
                       {related.title}
-                    </span>
-                    <span className="text-[10px] text-white/70 font-mono">
-                      {related.model}
                     </span>
                   </div>
                 </Link>

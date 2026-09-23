@@ -16,6 +16,7 @@ export default function Home() {
     prompts,
     activeTab,
     selectedCategory,
+    searchQuery,
     bannerPromptId,
   } = usePromptStore();
 
@@ -27,7 +28,8 @@ export default function Home() {
 
   const showSpotlightHero =
     (activeTab === "home" || activeTab === "discover") &&
-    selectedCategory === "all";
+    selectedCategory === "all" &&
+    !searchQuery.trim();
 
   return (
     <div className="min-h-screen room-backdrop text-[var(--text-primary)] flex flex-col md:flex-row relative overflow-x-hidden transition-colors duration-200">

@@ -218,9 +218,13 @@ export function PromptManagerTable({
                         <div className="space-y-0.5">
                           <div className="font-medium text-slate-200">{p.model}</div>
                           <div className="flex items-center gap-1.5">
-                            <span className="px-1.5 py-0.2 rounded bg-[#E85002]/20 text-[#F16001] text-[9px] font-bold border border-[#E85002]/40">
-                              {p.aspectRatio}
-                            </span>
+                            {p.aspectRatio ? (
+                              <span className="px-1.5 py-0.2 rounded bg-[#E85002]/20 text-[#F16001] text-[9px] font-bold border border-[#E85002]/40">
+                                {p.aspectRatio}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-slate-500 font-mono">—</span>
+                            )}
                           </div>
                         </div>
                       </td>

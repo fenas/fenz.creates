@@ -154,6 +154,8 @@ export function BlockItem({
 
   return (
     <div
+      data-block-id={block.id}
+      data-block-type={block.type}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className="relative group py-2"
@@ -283,11 +285,10 @@ export function BlockItem({
               type="button"
               onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
               title="Delete block"
-              className={`w-7 h-7 flex items-center justify-center rounded-xl border shadow-sm transition-all duration-200 ease-out cursor-pointer ${
-                showDeleteConfirm
+              className={`w-7 h-7 flex items-center justify-center rounded-xl border shadow-sm transition-all duration-200 ease-out cursor-pointer ${showDeleteConfirm
                   ? "bg-red-500 text-white border-red-500 shadow-md shadow-red-500/30 scale-105"
                   : "bg-[#11131c] hover:bg-red-500/20 text-slate-400 hover:text-red-400 border-white/10 hover:border-red-500/40 hover:shadow-red-500/20 hover:scale-110 active:scale-95"
-              }`}
+                }`}
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
@@ -482,13 +483,12 @@ export function BlockItem({
               {block.url ? (
                 <div className="space-y-2">
                   <div
-                    className={`relative rounded-2xl overflow-hidden bg-slate-950 border border-white/10 group/img ${
-                      block.size === "wide"
+                    className={`relative rounded-2xl overflow-hidden bg-slate-950 border border-white/10 group/img ${block.size === "wide"
                         ? "aspect-[16/9] w-full"
                         : block.size === "full"
-                        ? "aspect-[21/9] w-full"
-                        : "aspect-[16/10] max-w-xl mx-auto"
-                    }`}
+                          ? "aspect-[21/9] w-full"
+                          : "aspect-[16/10] max-w-xl mx-auto"
+                      }`}
                   >
                     <Image
                       src={block.url}
@@ -736,15 +736,14 @@ export function BlockItem({
           {/* 10. CALLOUT BLOCK */}
           {block.type === "callout" && (
             <div
-              className={`rounded-2xl p-4 sm:p-5 border space-y-2 transition-all ${
-                block.calloutVariant === "warning"
+              className={`rounded-2xl p-4 sm:p-5 border space-y-2 transition-all ${block.calloutVariant === "warning"
                   ? "bg-amber-500/10 border-amber-500/30 text-amber-200"
                   : block.calloutVariant === "important"
-                  ? "bg-red-500/10 border-red-500/30 text-red-200"
-                  : block.calloutVariant === "note"
-                  ? "bg-blue-500/10 border-blue-500/30 text-blue-200"
-                  : "bg-[#E85002]/10 border-[#E85002]/30 text-[#F16001]"
-              }`}
+                    ? "bg-red-500/10 border-red-500/30 text-red-200"
+                    : block.calloutVariant === "note"
+                      ? "bg-blue-500/10 border-blue-500/30 text-blue-200"
+                      : "bg-[#E85002]/10 border-[#E85002]/30 text-[#F16001]"
+                }`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -758,10 +757,10 @@ export function BlockItem({
                           e.target.value === "warning"
                             ? "⚠️ WARNING"
                             : e.target.value === "important"
-                            ? "⚡ IMPORTANT"
-                            : e.target.value === "note"
-                            ? "📝 NOTE"
-                            : "💡 PRO TIP",
+                              ? "⚡ IMPORTANT"
+                              : e.target.value === "note"
+                                ? "📝 NOTE"
+                                : "💡 PRO TIP",
                       })
                     }
                     className="px-2 py-0.5 rounded-lg bg-black/40 border border-white/15 text-[11px] font-bold uppercase tracking-wider outline-none text-white"

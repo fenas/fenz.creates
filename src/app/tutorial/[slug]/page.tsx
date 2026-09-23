@@ -32,11 +32,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const snippet = tutorial.description.slice(0, 160);
 
+  const modelPart = tutorial.model ? ` (${tutorial.model})` : "";
+  const modelOgPart = tutorial.model ? ` — ${tutorial.model} Guide` : " — AI Guide";
+
   return {
-    title: `${tutorial.title} — AI Prompting Guide (${tutorial.model}) | fenz.creates`,
+    title: `${tutorial.title} — AI Prompting Guide${modelPart} | fenz.creates`,
     description: snippet,
     openGraph: {
-      title: `${tutorial.title} — ${tutorial.model} Guide | fenz.creates`,
+      title: `${tutorial.title}${modelOgPart} | fenz.creates`,
       description: snippet,
       images: [
         {

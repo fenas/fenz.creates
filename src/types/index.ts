@@ -1,6 +1,6 @@
 export type MediaType = "image" | "video";
 
-export type AspectRatio = "1:1" | "16:9" | "9:16" | "4:5" | "3:2" | "2:3" | "21:9";
+export type AspectRatio = "1:1" | "16:9" | "9:16" | "4:5" | "3:2" | "2:3" | "21:9" | "" | string;
 
 export interface PromptParameters {
   seed?: string;
@@ -10,20 +10,39 @@ export interface PromptParameters {
   steps?: number;
   negativePrompt?: string;
   version?: string;
+  pack_items?: unknown;
+  prompt_kind?: string;
+  [key: string]: unknown;
+}
+
+export type PromptKind = "single" | "pack";
+
+export interface PromptPackItem {
+  id: string;
+  imageUrl: string;
+  promptText: string;
+  negativePrompt?: string;
+  title?: string;
+  aspectRatio?: AspectRatio;
+  model?: string;
 }
 
 export interface Prompt {
   id: string;
   slug: string;
   type: MediaType;
+  promptKind?: PromptKind;
   title: string;
+  subtitle?: string;
+  description?: string;
   promptText: string;
   negativePrompt?: string;
   mediaUrl: string;
   mediaUrls?: string[];
+  packItems?: PromptPackItem[];
   thumbnailUrl?: string;
   model: string;
-  aspectRatio: AspectRatio;
+  aspectRatio?: AspectRatio;
   tags: string[];
   categoryId: string;
   featured: boolean;
@@ -54,9 +73,9 @@ export interface Tutorial {
   title: string;
   subtitle?: string;
   description: string;
-  readTime: string;
-  level: "Beginner" | "Intermediate" | "Advanced";
-  model: string;
+  readTime?: string;
+  level?: "Beginner" | "Intermediate" | "Advanced";
+  model?: string;
   mediaUrl: string;
   coverAlt?: string;
   status?: "published" | "draft";

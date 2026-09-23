@@ -24,7 +24,8 @@ export function TutorialManagerTable({
   const filtered = tutorials.filter(
     (t) =>
       t.title.toLowerCase().includes(search.toLowerCase()) ||
-      t.model.toLowerCase().includes(search.toLowerCase())
+      (t.model?.toLowerCase() || "").includes(search.toLowerCase()) ||
+      (t.level?.toLowerCase() || "").includes(search.toLowerCase())
   );
 
   const handleDelete = (id: string, title: string) => {
@@ -115,13 +116,15 @@ export function TutorialManagerTable({
                         </div>
                       </div>
                     </td>
-                    <td className="p-4 font-semibold text-[#E85002] whitespace-nowrap">{t.model}</td>
+                    <td className="p-4 font-semibold text-[#E85002] whitespace-nowrap">
+                      {t.model || <span className="text-slate-500 font-normal">Universal</span>}
+                    </td>
                     <td className="p-4 whitespace-nowrap">
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white/5 text-slate-300">
-                        {t.level}
+                        {t.level || "Beginner"}
                       </span>
                     </td>
-                    <td className="p-4 text-[#A7A7A7] font-mono whitespace-nowrap">{t.readTime}</td>
+                    <td className="p-4 text-[#A7A7A7] font-mono whitespace-nowrap">{t.readTime || "—"}</td>
                     <td className="p-4 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1.5">
                         <button
