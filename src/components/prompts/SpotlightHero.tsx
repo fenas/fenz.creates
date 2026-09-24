@@ -33,7 +33,7 @@ export function SpotlightHero({ featuredPrompt }: SpotlightHeroProps) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `${featuredPrompt.title} - Arenae`,
+          title: `${featuredPrompt.title} - Aistronaut`,
           text: `Check out this trending prompt for ${featuredPrompt.model}: "${featuredPrompt.title}"`,
           url,
         });

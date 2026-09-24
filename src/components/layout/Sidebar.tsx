@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { usePromptStore } from "@/context/PromptContext";
 import { ViewTab } from "@/types";
+import { Logo } from "@/components/ui/Logo";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -72,17 +73,13 @@ export function Sidebar() {
               setSelectedCategory("all");
             }}
           >
-            <div className="relative w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-amber-500 p-0.5 shadow-lg shadow-violet-900/30 group-hover:shadow-violet-700/50 transition-all">
-              <div className="w-full h-full bg-[#090b10] rounded-[10px] flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-violet-400 group-hover:rotate-12 transition-transform duration-300" />
-              </div>
-            </div>
+            <Logo className="w-8.5 h-8.5 group-hover:scale-105 transition-all" />
             <div className="hidden lg:flex flex-col">
               <span className="font-bold text-base tracking-tight text-white flex items-center gap-1.5">
-                fenz<span className="text-violet-400">.creates</span>
+                Aistronaut
               </span>
               <span className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">
-                Prompt Gallery
+                Prompt Studio
               </span>
             </div>
           </Link>

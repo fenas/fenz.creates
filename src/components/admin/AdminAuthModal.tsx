@@ -47,7 +47,7 @@ export function AdminAuthModal() {
             <Lock className="w-5 h-5 text-[var(--icon-primary)] stroke-[1.75]" />
           </div>
           <h1 className="text-lg font-medium text-[var(--text-primary)] tracking-tight">
-            Arenae Admin Studio
+            Aistronaut Admin Studio
           </h1>
           <p className="text-xs text-[var(--text-secondary)]">
             Sign in with your administrator credentials to access the studio.
@@ -71,7 +71,7 @@ export function AdminAuthModal() {
                   setEmail(e.target.value);
                   setErrorMsg(null);
                 }}
-                placeholder="admin@arenae.online"
+                placeholder="admin@aistronaut.online"
                 className="w-full pl-10 pr-4 py-2.5 rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-secondary)] shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] transition-colors"
               />
             </div>

@@ -37,7 +37,7 @@ export function SingleSectionCardsLayout() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `${tut.title} - Arenae`,
+          title: `${tut.title} - Aistronaut`,
           text: `Check out this AI guide: ${tut.title}`,
           url,
         });
@@ -54,7 +54,7 @@ export function SingleSectionCardsLayout() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `${feat.title} - Arenae Roadmap`,
+          title: `${feat.title} - Aistronaut Roadmap`,
           text: `Check out upcoming feature: ${feat.title}`,
           url,
         });

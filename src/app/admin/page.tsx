@@ -135,9 +135,7 @@ export default function AdminPage() {
             </Link>
 
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-glass)] flex items-center justify-center p-1.5 shadow-sm text-[var(--text-primary)]">
-                <Logo className="w-6 h-6 text-[#E85002]" />
-              </div>
+              <Logo className="w-8.5 h-8.5" />
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-sm sm:text-base text-[var(--text-primary)]">

@@ -51,7 +51,7 @@ export async function signInAdmin(
       return {
         user: null,
         session: null,
-        error: "Access Denied: Only the authorized administrator account is permitted to access the Arenae Admin Studio.",
+        error: "Access Denied: Only the authorized administrator account is permitted to access the Aistronaut Admin Studio.",
       };
     }
 

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { usePromptStore } from "@/context/PromptContext";
 import { ViewTab } from "@/types";
+import { Logo } from "@/components/ui/Logo";
 
 interface UnifiedSidePanelProps {
   isCollapsed: boolean;
@@ -94,14 +95,11 @@ export function UnifiedSidePanel({
               }}
               className="flex items-center gap-2.5 overflow-hidden group focus:outline-none"
             >
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#E85002] to-[#F16001] flex items-center justify-center font-black text-white text-base shadow-lg shadow-[#E85002]/40 flex-shrink-0 group-hover:scale-105 transition-transform">
-                F
-              </div>
+              <Logo className="w-8 h-8 flex-shrink-0 group-hover:scale-105 transition-transform" />
               {!isCollapsed && (
                 <div className="flex flex-col truncate">
                   <span className="font-extrabold text-sm tracking-tight text-white flex items-center gap-1">
-                    <span className="text-[#E85002] font-black tracking-wider">FENZ</span>
-                    <span className="text-[#F9F9F9]">.CREATES</span>
+                    Aistronaut
                   </span>
                   <span className="text-[9px] text-[#A7A7A7] uppercase tracking-widest font-semibold">
                     AI Prompt Showcase

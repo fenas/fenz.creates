@@ -71,8 +71,8 @@ export function ComingSoonDetailClient({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `${feature.title} - Arenae Roadmap`,
-          text: `Check out upcoming feature "${feature.title}" launching in ${feature.eta} on Arenae!`,
+          title: `${feature.title} - Aistronaut Roadmap`,
+          text: `Check out upcoming feature "${feature.title}" launching in ${feature.eta} on Aistronaut!`,
           url,
         });
       } catch {

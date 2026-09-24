@@ -25,18 +25,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       .join(" ");
 
     return {
-      title: `${formattedTitle} — Roadmap Feature | fenz.creates`,
-      description: "Upcoming feature on fenz.creates roadmap.",
+      title: `${formattedTitle} — Roadmap Feature | Aistronaut`,
+      description: "Upcoming feature on Aistronaut roadmap.",
     };
   }
 
   const snippet = feature.description.slice(0, 160);
 
   return {
-    title: `${feature.title} — Coming Soon Roadmap | fenz.creates`,
+    title: `${feature.title} — Coming Soon Roadmap | Aistronaut`,
     description: snippet,
     openGraph: {
-      title: `${feature.title} (${feature.badge}) | fenz.creates Roadmap`,
+      title: `${feature.title} (${feature.badge}) | Aistronaut Roadmap`,
       description: snippet,
       images: [
         {

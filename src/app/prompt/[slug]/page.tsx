@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       .join(" ");
 
     return {
-      title: `${formattedTitle} — AI Prompt Showcase | fenz.creates`,
+      title: `${formattedTitle} — AI Prompt Showcase | Aistronaut`,
       description: "AI Prompt formula showcase and parameter breakdown.",
     };
   }
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const snippet = prompt.promptText.slice(0, 160) + "...";
 
   return {
-    title: `${prompt.title} — AI Prompt | fenz.creates`,
+    title: `${prompt.title} — AI Prompt | Aistronaut`,
     description: snippet,
     openGraph: {
       title: `${prompt.title} — AI Prompt`,

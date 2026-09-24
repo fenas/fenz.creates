@@ -196,7 +196,7 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
                   <div className="flex items-center gap-2.5">
                     <span className="px-2.5 py-1 rounded-full bg-[#E85002] text-white text-[10px] font-extrabold uppercase tracking-wider shadow-md shadow-[#E85002]/40 flex items-center gap-1.5">
                       <Sparkles className="w-3 h-3" />
-                      <span>ARENAE FORMULA</span>
+                      <span>AISTRONAUT FORMULA</span>
                     </span>
                     {block.promptTitle && (
                       <span className="text-sm font-bold text-[var(--text-primary)]">

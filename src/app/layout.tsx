@@ -18,12 +18,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Arenae — AI Prompt Showcase & Workflow Studio",
+  title: "Aistronaut — AI Prompt Showcase & Workflow Studio",
   description:
     "Curated library of world-class AI prompts for Midjourney v6, Flux.1 Pro, SDXL, and video models. Free to browse, learn workflows, and 1-click copy.",
   keywords: [
-    "Arenae",
-    "Arenae Online",
+    "Aistronaut",
+    "Aistronaut Online",
     "AI Prompts",
     "Midjourney Prompts",
     "Flux Prompts",
@@ -31,19 +31,19 @@ export const metadata: Metadata = {
     "AI Art Gallery",
     "Prompt Engineering",
   ],
-  authors: [{ name: "Arenae Online" }],
+  authors: [{ name: "Aistronaut" }],
   openGraph: {
-    title: "Arenae — Curated AI Prompt Gallery & Workflow Studio",
+    title: "Aistronaut — Curated AI Prompt Gallery & Workflow Studio",
     description:
       "Explore, copy, and remix world-class AI prompt formulas. Instant 1-click copy, high-res visual showcases, and workflow tutorials.",
-    url: "https://arenae.online",
-    siteName: "Arenae Online",
+    url: "https://aistronaut.online",
+    siteName: "Aistronaut",
     images: [
       {
-        url: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=1600&auto=format&fit=crop",
-        width: 1200,
-        height: 630,
-        alt: "Arenae AI Prompt Gallery",
+        url: "/logo.png",
+        width: 1024,
+        height: 1024,
+        alt: "Aistronaut AI Prompt Gallery",
       },
     ],
     locale: "en_US",
@@ -51,12 +51,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Arenae — AI Prompt Showcase",
+    title: "Aistronaut — AI Prompt Showcase",
     description:
       "Curated visual formulas and masterclass workflows for Midjourney, Flux, and AI video creators.",
-    images: [
-      "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=1600&auto=format&fit=crop",
-    ],
+    images: ["/logo.png"],
   },
   icons: {
     icon: [

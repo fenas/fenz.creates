@@ -37,7 +37,7 @@ export interface ArticleBlock {
   // Callout properties
   calloutVariant?: CalloutVariant;
   calloutTitle?: string;
-  // Prompt block properties (dedicated Arenae AI Prompt)
+  // Prompt block properties (dedicated Aistronaut AI Prompt)
   promptTitle?: string;
   promptText?: string;
   promptModel?: string;

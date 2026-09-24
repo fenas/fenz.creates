@@ -1,4 +1,4 @@
-# fenz.creates — AI Prompt Showcase & Creator Studio
+# Aistronaut — AI Prompt Showcase & Creator Studio
 
 An ultra-sleek, dark-mode AI Prompt Showcase and Creator Studio built with **Next.js 16 (App Router)**, **TypeScript**, and **Tailwind CSS**.
 

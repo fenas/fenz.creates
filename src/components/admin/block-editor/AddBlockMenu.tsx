@@ -95,7 +95,7 @@ export const BLOCK_OPTIONS: AddBlockOption[] = [
   // Creative / AI
   {
     type: "prompt",
-    label: "Arenae Prompt Block",
+    label: "Aistronaut Prompt Block",
     description: "Copyable AI prompt card with parameters & model badge",
     icon: Sparkles,
     category: "Creative / AI",

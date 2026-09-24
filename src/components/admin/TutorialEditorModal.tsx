@@ -233,7 +233,7 @@ export function TutorialEditorModal({
 
     const finalSlug = slug.trim() || slugify(title) || `tutorial-${Date.now()}`;
     const description =
-      subtitle.trim() || extractSummaryFromBlocks(blocks, "Arenae AI Prompt Masterclass & Workflow Guide");
+      subtitle.trim() || extractSummaryFromBlocks(blocks, "Aistronaut AI Prompt Masterclass & Workflow Guide");
     const htmlBody = convertBlocksToHtml(blocks);
 
     // Extract prompt formula if present

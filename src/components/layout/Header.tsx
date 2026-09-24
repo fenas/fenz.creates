@@ -13,6 +13,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { usePromptStore } from "@/context/PromptContext";
+import { Logo } from "@/components/ui/Logo";
 
 export function Header() {
   const {
@@ -40,13 +41,9 @@ export function Header() {
         {/* Mobile Brand Logo */}
         <div className="flex md:hidden items-center gap-2.5">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-violet-600 to-amber-500 p-0.5 shadow-md shadow-violet-900/40">
-              <div className="w-full h-full bg-[#090b10] rounded-[10px] flex items-center justify-center">
-                <Sparkles className="w-3.5 h-3.5 text-violet-400" />
-              </div>
-            </div>
+            <Logo className="w-7.5 h-7.5" />
             <span className="font-bold text-base tracking-tight text-white">
-              fenz<span className="text-violet-400">.creates</span>
+              Aistronaut
             </span>
           </Link>
         </div>

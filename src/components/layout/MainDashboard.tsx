@@ -20,6 +20,7 @@ import { usePromptStore } from "@/context/PromptContext";
 import { SpotlightHero } from "@/components/prompts/SpotlightHero";
 import { PosterPromptCard } from "@/components/prompts/PosterPromptCard";
 import { ViewTab } from "@/types";
+import { Logo } from "@/components/ui/Logo";
 
 export function MainDashboard() {
   const {
@@ -83,14 +84,11 @@ export function MainDashboard() {
                 setActiveTab("discover");
                 setSelectedCategory("all");
               }}
-              className="flex items-center gap-2 group"
+              className="flex items-center gap-2.5 group"
             >
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#E85002] to-[#F16001] flex items-center justify-center font-black text-white text-base shadow-lg shadow-[#E85002]/40">
-                F
-              </div>
+              <Logo className="w-8 h-8 group-hover:scale-105 transition-transform" />
               <span className="font-extrabold text-base tracking-tight text-white">
-                <span className="text-[#E85002] font-black tracking-wider">FENZ</span>
-                <span className="text-[#F9F9F9]">.CREATES</span>
+                Aistronaut
               </span>
             </Link>
           </div>

@@ -67,7 +67,7 @@ export function TutorialDetailClient({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `${tutorial.title} - Arenae`,
+          title: `${tutorial.title} - Aistronaut`,
           text: `Read this AI Prompt Engineering Guide for ${tutorial.model}: "${tutorial.title}"`,
           url,
         });
@@ -173,7 +173,7 @@ export function TutorialDetailClient({
 
               <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-white">
                 <span className="px-2.5 py-1 rounded-[7px] bg-[#141619]/80 border border-white/10 text-[11px] font-mono">
-                  Arenae Blueprint
+                  Aistronaut Blueprint
                 </span>
                 {tutorial.model && (
                   <span className="px-2.5 py-1 rounded-[7px] bg-[#141619]/80 border border-white/10 text-[11px] font-mono text-white/80">

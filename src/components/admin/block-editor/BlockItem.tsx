@@ -660,7 +660,7 @@ export function BlockItem({
             </div>
           )}
 
-          {/* 9. PROMPT BLOCK (Dedicated Arenae AI Prompt Blueprint) */}
+          {/* 9. PROMPT BLOCK (Dedicated Aistronaut AI Prompt Blueprint) */}
           {block.type === "prompt" && (
             <div className="rounded-2xl border border-[#E85002]/30 bg-gradient-to-br from-[#121016] to-[#090b10] p-4 sm:p-5 shadow-xl space-y-3 relative overflow-hidden">
               <div className="flex items-center justify-between flex-wrap gap-2">

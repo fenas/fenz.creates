@@ -46,7 +46,7 @@ export function PosterPromptCard({ prompt }: PosterPromptCardProps) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `${prompt.title} - Arenae`,
+          title: `${prompt.title} - Aistronaut`,
           text: `Check out this AI prompt for ${prompt.model}: "${prompt.title}"`,
           url,
         });

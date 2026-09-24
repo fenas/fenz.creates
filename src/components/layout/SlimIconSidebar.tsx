@@ -75,14 +75,14 @@ export function SlimIconSidebar() {
                 setActiveTab("home");
                 setSelectedCategory("all");
               }}
-              className="group relative flex items-center justify-center focus:outline-none p-1 transition-transform hover:scale-105"
-              title="Arenae"
+              className="group relative flex items-center justify-center focus:outline-none p-0.5 transition-transform hover:scale-105"
+              title="Aistronaut"
             >
-              <Logo className="w-5.5 h-5.5 text-[var(--icon-primary)] group-hover:text-[var(--accent)] transition-colors duration-200" />
+              <Logo className="w-8 h-8 transition-transform duration-200" />
 
               {/* Hover Tooltip */}
               <div className="absolute left-full ml-3 px-2.5 py-1 rounded-[8px] bg-[var(--surface-elevated)] text-[var(--text-primary)] text-xs font-medium shadow-xl border border-[var(--border)] whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2 transition-all duration-200 z-50">
-                arenae
+                Aistronaut
               </div>
             </Link>
 
@@ -136,7 +136,7 @@ export function SlimIconSidebar() {
 
           {/* Vertical Micro-Typography */}
           <div className="py-4 flex items-center justify-center [writing-mode:vertical-rl] rotate-180 select-none text-[7px] font-mono tracking-[0.24em] font-medium text-[var(--text-muted)] uppercase opacity-70">
-            ARENAE 2026
+            AISTRONAUT 2026
           </div>
         </div>
 

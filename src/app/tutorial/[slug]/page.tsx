@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       .join(" ");
 
     return {
-      title: `${formattedTitle} — AI Prompting Guide | fenz.creates`,
+      title: `${formattedTitle} — AI Prompting Guide | Aistronaut`,
       description: "Step-by-step AI workflow and prompt engineering tutorial.",
     };
   }
@@ -36,10 +36,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const modelOgPart = tutorial.model ? ` — ${tutorial.model} Guide` : " — AI Guide";
 
   return {
-    title: `${tutorial.title} — AI Prompting Guide${modelPart} | fenz.creates`,
+    title: `${tutorial.title} — AI Prompting Guide${modelPart} | Aistronaut`,
     description: snippet,
     openGraph: {
-      title: `${tutorial.title}${modelOgPart} | fenz.creates`,
+      title: `${tutorial.title}${modelOgPart} | Aistronaut`,
       description: snippet,
       images: [
         {
