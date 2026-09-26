@@ -157,7 +157,7 @@ export async function deleteTutorialFromDb(id: string): Promise<boolean> {
   if (!supabase) return false;
 
   try {
-    const { error } = await supabase.from("tutorials").delete().eq("id", id);
+    const { error } = await supabase.from("tutorials").delete().or(`id.eq.${id},slug.eq.${id}`);
     if (error) {
       console.error("[Supabase] deleteTutorial error:", error);
       return false;

@@ -28,7 +28,7 @@ const THEME_OPTIONS: ThemeOption[] = [
     id: "grey",
     label: "Grey",
     icon: CircleDot,
-    description: "Studio clay & tactile",
+    description: "Dark gunmetal slate",
   },
   {
     id: "system",

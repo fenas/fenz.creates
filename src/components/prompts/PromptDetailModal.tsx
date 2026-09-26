@@ -38,8 +38,8 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
     prompt?.mediaUrls && prompt.mediaUrls.length > 0
       ? prompt.mediaUrls
       : prompt?.mediaUrl
-      ? [prompt.mediaUrl]
-      : [];
+        ? [prompt.mediaUrl]
+        : [];
 
   // Reset image index when prompt changes
   useEffect(() => {
@@ -126,7 +126,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
           text: `Check out this AI prompt for ${prompt.model}: "${prompt.title}"`,
           url,
         });
-      } catch {}
+      } catch { }
     } else {
       await navigator.clipboard.writeText(url);
       showToast("Link Copied to Clipboard!", "success", url);
@@ -149,7 +149,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
         <div className="px-4 sm:px-6 py-3.5 border-b border-[var(--border)] flex items-center justify-between bg-[var(--surface-elevated)] z-20">
           <div className="flex items-center gap-2 min-w-0 pr-4">
             {isPack && (
-              <span className="px-2.5 py-1 rounded-[8px] text-[11px] font-bold bg-[#E85002]/20 text-[#F16001] border border-[#E85002]/30 flex items-center gap-1.5 flex-shrink-0 font-mono">
+              <span className="px-2.5 py-1 rounded-[8px] text-[11px] font-bold bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent)]/30 flex items-center gap-1.5 flex-shrink-0 font-mono">
                 <Layers className="w-3.5 h-3.5" />
                 PACK • {images.length} PROMPTS
               </span>
@@ -259,11 +259,10 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                       key={idx}
                       type="button"
                       onClick={() => setActiveImageIndex(idx)}
-                      className={`relative w-14 h-14 rounded-[10px] overflow-hidden flex-shrink-0 border transition-all cursor-pointer ${
-                        activeImageIndex === idx
-                          ? "border-[#E85002] ring-2 ring-[#E85002]/60 scale-[1.03]"
+                      className={`relative w-14 h-14 rounded-[10px] overflow-hidden flex-shrink-0 border transition-all cursor-pointer ${activeImageIndex === idx
+                          ? "border-[var(--accent)] ring-2 ring-[var(--accent)]/60 scale-[1.03]"
                           : "border-[var(--border)] opacity-70 hover:opacity-100"
-                      }`}
+                        }`}
                     >
                       <Image
                         src={img}
@@ -298,7 +297,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                     {category?.name}
                   </span>
                   {isPack && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E85002]/15 text-[#F16001] font-mono">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] font-mono">
                       Prompt Pack Collection
                     </span>
                   )}
@@ -318,7 +317,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider font-mono flex items-center gap-1.5">
                     {isPack ? (
-                      <span className="text-[#F16001]">
+                      <span className="text-[var(--accent)]">
                         Prompt for Image #{activeImageIndex + 1} of {images.length}
                       </span>
                     ) : (
@@ -336,11 +335,10 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                   <div className="mt-4 pt-3 border-t border-[var(--border)] flex flex-wrap items-center justify-between gap-2.5">
                     <button
                       onClick={handleCopyMain}
-                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-[10px] text-xs sm:text-sm font-medium transition-all cursor-pointer ${
-                        copied
+                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-[10px] text-xs sm:text-sm font-medium transition-all cursor-pointer ${copied
                           ? "bg-[var(--accent)] text-white shadow-[0_2px_10px_rgba(232,92,92,0.35)]"
                           : "btn-primary"
-                      }`}
+                        }`}
                     >
                       {copied ? (
                         <>
@@ -361,7 +359,7 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                         className="px-3 py-2.5 rounded-[10px] bg-white/5 hover:bg-white/10 text-[var(--text-secondary)] hover:text-white border border-white/10 text-xs font-semibold flex items-center gap-1.5 transition-colors"
                         title="Copy all prompts in this pack"
                       >
-                        <Layers className="w-3.5 h-3.5 text-[#E85002]" />
+                        <Layers className="w-3.5 h-3.5 text-[var(--accent)]" />
                         <span>Copy All ({prompt.packItems.length})</span>
                       </button>
                     )}

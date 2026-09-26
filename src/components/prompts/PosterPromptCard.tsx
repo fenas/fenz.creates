@@ -50,7 +50,7 @@ export function PosterPromptCard({ prompt }: PosterPromptCardProps) {
           text: `Check out this AI prompt for ${prompt.model}: "${prompt.title}"`,
           url,
         });
-      } catch {}
+      } catch { }
     } else {
       await navigator.clipboard.writeText(url);
       showToast("Prompt Link Copied!", "success", url);
@@ -71,11 +71,10 @@ export function PosterPromptCard({ prompt }: PosterPromptCardProps) {
             alt={`${prompt.title} - ${i + 1}`}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className={`object-cover object-center transition-all duration-700 ease-out group-hover:scale-105 ${
-              i === currentImageIndex
+            className={`object-cover object-center transition-all duration-700 ease-out group-hover:scale-105 ${i === currentImageIndex
                 ? "opacity-100 scale-100 z-[1]"
                 : "opacity-0 scale-95 z-0"
-            }`}
+              }`}
             unoptimized={imgUrl.startsWith("data:")}
             priority={i === 0}
           />
@@ -96,7 +95,7 @@ export function PosterPromptCard({ prompt }: PosterPromptCardProps) {
 
           {images.length > 1 && (
             <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[9.5px] font-mono font-medium text-white/90 border border-white/15 flex items-center gap-1 shadow-sm">
-              <Layers className="w-3 h-3 text-[#E85002]" />
+              <Layers className="w-3 h-3 text-[var(--accent)]" />
               <span>Pack • {images.length} Prompts</span>
             </span>
           )}
@@ -105,7 +104,7 @@ export function PosterPromptCard({ prompt }: PosterPromptCardProps) {
         <div className="flex items-center gap-1.5">
           <button
             onClick={handleShare}
-            className="p-2 rounded-full bg-black/60 backdrop-blur-md hover:bg-black/90 text-white/90 hover:text-white border border-white/15 transition-all opacity-0 group-hover:opacity-100 cursor-pointer shadow-md"
+            className="p-2 rounded-full bg-black/60 backdrop-blur-md hover:bg-black/90 text-white/90 hover:text-white border border-white/15 transition-all opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95 cursor-pointer shadow-md"
             title="Share Prompt Link"
           >
             <Share2 className="w-3.5 h-3.5 stroke-[2]" />
@@ -126,7 +125,7 @@ export function PosterPromptCard({ prompt }: PosterPromptCardProps) {
         </div>
 
         {/* Right: Corner Arrow Button */}
-        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-black/80 group-hover:bg-[#E85002] border border-white/15 text-white flex items-center justify-center transition-all duration-300 shadow-xl group-hover:scale-105 active:scale-95 flex-shrink-0">
+        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-black/80 group-hover:bg-[var(--accent)] border border-white/15 text-white flex items-center justify-center transition-all duration-300 shadow-xl group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(255,108,0,0.5)] active:scale-95 flex-shrink-0">
           <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2] text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
         </div>
       </div>

@@ -67,56 +67,74 @@ interface PromptContextType {
   setActiveModalPrompt: (prompt: Prompt | null) => void;
   isSubmitModalOpen: boolean;
   setIsSubmitModalOpen: (open: boolean) => void;
-  
+
   // Auth & Roles (Restricted to Authorized Admin ID)
   isAdminAuth: boolean;
   adminEmail: string;
   adminRole: AdminRole;
   adminProfile: AdminProfile | null;
   isDatabaseConnected: boolean;
+  isLoaded: boolean;
+  refreshData: () => Promise<void>;
   loginAdmin: (email: string, pass: string) => Promise<boolean>;
   logoutAdmin: () => Promise<void>;
-  
+
   copyPrompt: (prompt: Prompt) => Promise<void>;
   toggleSave: (promptId: string) => void;
   isSaved: (promptId: string) => boolean;
   triggerRandomPrompt: () => Prompt | null;
   bannerPromptId: string;
   setBannerPromptId: (id: string) => void;
-  
+
   // Prompts CRUD
   addPrompt: (newPrompt: Omit<Prompt, "id" | "slug" | "createdAt" | "updatedAt" | "copyCount" | "viewCount">) => Prompt;
   updatePrompt: (id: string, updates: Partial<Prompt>) => void;
   deletePrompt: (id: string) => void;
-  
+
   // Categories CRUD
   addCategory: (cat: Omit<Category, "id" | "slug">) => Category;
   updateCategory: (id: string, updates: Partial<Category>) => void;
   deleteCategory: (id: string) => void;
-  
+
   // Tutorials CRUD
   addTutorial: (tut: Omit<Tutorial, "id" | "slug"> & { slug?: string }) => Tutorial;
   updateTutorial: (id: string, updates: Partial<Tutorial>) => void;
   deleteTutorial: (id: string) => void;
-  
+
   // Coming Soon CRUD
   addComingSoon: (feat: Omit<ComingSoonFeature, "id" | "slug"> & { slug?: string }) => ComingSoonFeature;
   updateComingSoon: (id: string, updates: Partial<ComingSoonFeature>) => void;
   deleteComingSoon: (id: string) => void;
-  
+
   resetToDefaults: () => void;
   filteredPrompts: Prompt[];
 }
 
 const PromptContext = createContext<PromptContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_PROMPTS = "fenz_prompts_v6";
-const LOCAL_STORAGE_CATEGORIES = "fenz_categories_v4";
-const LOCAL_STORAGE_TUTORIALS = "fenz_tutorials_v4";
-const LOCAL_STORAGE_COMING_SOON = "fenz_coming_soon_v4";
-const LOCAL_STORAGE_SAVED = "fenz_saved_v4";
-const LOCAL_STORAGE_ADMIN = "fenz_admin_session_v4";
-const LOCAL_STORAGE_BANNER = "fenz_banner_prompt_id_v4";
+const LOCAL_STORAGE_PROMPTS = "aistronaut_prompts_v7";
+const LOCAL_STORAGE_CATEGORIES = "aistronaut_categories_v5";
+const LOCAL_STORAGE_TUTORIALS = "aistronaut_tutorials_v5";
+const LOCAL_STORAGE_COMING_SOON = "aistronaut_coming_soon_v5";
+const LOCAL_STORAGE_SAVED = "aistronaut_saved_v5";
+const LOCAL_STORAGE_ADMIN = "aistronaut_admin_session_v5";
+const LOCAL_STORAGE_BANNER = "aistronaut_banner_prompt_id_v5";
+
+// Clear legacy storage keys if present to prevent stale caches
+if (typeof window !== "undefined") {
+  try {
+    const legacyKeys = [
+      "fenz_prompts_v6",
+      "fenz_categories_v4",
+      "fenz_tutorials_v4",
+      "fenz_coming_soon_v4",
+      "fenz_saved_v4",
+      "fenz_admin_session_v4",
+      "fenz_banner_prompt_id_v4",
+    ];
+    legacyKeys.forEach((key) => localStorage.removeItem(key));
+  } catch {}
+}
 
 export function PromptProvider({ children }: { children: React.ReactNode }) {
   const { showToast } = useToast();
@@ -126,14 +144,14 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
   const [tutorials, setTutorials] = useState<Tutorial[]>([]);
   const [comingSoon, setComingSoon] = useState<ComingSoonFeature[]>([]);
   const [savedPromptIds, setSavedPromptIds] = useState<string[]>([]);
-  
+
   // Admin and Auth State
   const [isAdminAuth, setIsAdminAuth] = useState<boolean>(false);
   const [adminEmail, setAdminEmail] = useState<string>("fenas.fnz@gmail.com");
   const [adminRole, setAdminRole] = useState<AdminRole>("super_admin");
   const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
   const [isDatabaseConnected, setIsDatabaseConnected] = useState<boolean>(false);
-  
+
   const [bannerPromptId, setBannerPromptIdState] = useState<string>("prompt-1");
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -149,17 +167,71 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
   const [activeModalPrompt, setActiveModalPrompt] = useState<Prompt | null>(null);
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
 
+  // Reusable live sync with Supabase
+  const refreshData = useCallback(async () => {
+    const isConfigured = isSupabaseConfigured();
+    setIsDatabaseConnected(isConfigured);
+    if (!isConfigured) return;
+
+    try {
+      const [dbPrompts, dbCategories, dbTutorials, dbComingSoon, dbBannerId] =
+        await Promise.all([
+          fetchPromptsFromDb(),
+          fetchCategoriesFromDb(),
+          fetchTutorialsFromDb(),
+          fetchComingSoonFromDb(),
+          fetchBannerPromptIdFromDb(),
+        ]);
+
+      if (dbCategories !== null && dbCategories.length > 0) {
+        setCategories(dbCategories);
+        try {
+          localStorage.setItem(LOCAL_STORAGE_CATEGORIES, JSON.stringify(dbCategories));
+        } catch {}
+      }
+
+      if (dbPrompts !== null) {
+        setPrompts(dbPrompts);
+        try {
+          localStorage.setItem(LOCAL_STORAGE_PROMPTS, JSON.stringify(dbPrompts));
+        } catch {}
+      }
+
+      if (dbTutorials !== null) {
+        setTutorials(dbTutorials);
+        try {
+          localStorage.setItem(LOCAL_STORAGE_TUTORIALS, JSON.stringify(dbTutorials));
+        } catch {}
+      }
+
+      if (dbComingSoon !== null) {
+        setComingSoon(dbComingSoon);
+        try {
+          localStorage.setItem(LOCAL_STORAGE_COMING_SOON, JSON.stringify(dbComingSoon));
+        } catch {}
+      }
+
+      if (dbBannerId) {
+        setBannerPromptIdState(dbBannerId);
+        try {
+          localStorage.setItem(LOCAL_STORAGE_BANNER, dbBannerId);
+        } catch {}
+      }
+    } catch (err) {
+      console.warn("[Supabase] refreshData error:", err);
+    }
+  }, []);
+
   // 1. Initial Data Hydration from Supabase (with fallback to LocalStorage/Seed)
   useEffect(() => {
     async function hydrateData() {
       const isConfigured = isSupabaseConfigured();
       setIsDatabaseConnected(isConfigured);
 
-      // Restore LocalStorage defaults first for instantaneous initial paint
-      let initialLocalPrompts: Prompt[] = initialPrompts;
-      let initialLocalCategories: Category[] = initialCategories;
-      let initialLocalTutorials: Tutorial[] = initialTutorials;
-      let initialLocalComingSoon: ComingSoonFeature[] = initialComingSoon;
+      let initialLocalPrompts: Prompt[] = [];
+      let initialLocalCategories: Category[] = [];
+      let initialLocalTutorials: Tutorial[] = [];
+      let initialLocalComingSoon: ComingSoonFeature[] = [];
 
       try {
         const storedPrompts = localStorage.getItem(LOCAL_STORAGE_PROMPTS);
@@ -167,50 +239,59 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         const storedTutorials = localStorage.getItem(LOCAL_STORAGE_TUTORIALS);
         const storedComingSoon = localStorage.getItem(LOCAL_STORAGE_COMING_SOON);
         const storedSaved = localStorage.getItem(LOCAL_STORAGE_SAVED);
-        const storedAdmin = localStorage.getItem(LOCAL_STORAGE_ADMIN);
         const storedBanner = localStorage.getItem(LOCAL_STORAGE_BANNER);
 
         if (storedBanner) setBannerPromptIdState(storedBanner);
         if (storedPrompts) {
           const parsed = JSON.parse(storedPrompts);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            initialLocalPrompts = parsed;
-          }
+          if (Array.isArray(parsed)) initialLocalPrompts = parsed;
         }
-        setPrompts(initialLocalPrompts);
-
         if (storedCategories) {
           const parsed = JSON.parse(storedCategories);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            initialLocalCategories = parsed;
-          }
+          if (Array.isArray(parsed)) initialLocalCategories = parsed;
         }
-        setCategories(initialLocalCategories);
-
         if (storedTutorials) {
           const parsed = JSON.parse(storedTutorials);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            initialLocalTutorials = parsed;
-          }
+          if (Array.isArray(parsed)) initialLocalTutorials = parsed;
         }
-        setTutorials(initialLocalTutorials);
-
         if (storedComingSoon) {
           const parsed = JSON.parse(storedComingSoon);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            initialLocalComingSoon = parsed;
-          }
+          if (Array.isArray(parsed)) initialLocalComingSoon = parsed;
         }
-        setComingSoon(initialLocalComingSoon);
-
-        if (storedSaved) setSavedPromptIds(JSON.parse(storedSaved));
+        if (storedSaved) {
+          const parsed = JSON.parse(storedSaved);
+          if (Array.isArray(parsed)) setSavedPromptIds(parsed);
+        }
       } catch (e) {
         console.error("Local storage load error:", e);
-      } finally {
-        setIsLoaded(true);
       }
 
-      // If Supabase is configured, fetch live production data
+      // Populate local caches if present; otherwise fallback to seed defaults only when Supabase is unconfigured
+      if (initialLocalPrompts.length > 0) {
+        setPrompts(initialLocalPrompts);
+      } else if (!isConfigured) {
+        setPrompts(initialPrompts);
+      }
+
+      if (initialLocalCategories.length > 0) {
+        setCategories(initialLocalCategories);
+      } else if (!isConfigured) {
+        setCategories(initialCategories);
+      }
+
+      if (initialLocalTutorials.length > 0) {
+        setTutorials(initialLocalTutorials);
+      } else if (!isConfigured) {
+        setTutorials(initialTutorials);
+      }
+
+      if (initialLocalComingSoon.length > 0) {
+        setComingSoon(initialLocalComingSoon);
+      } else if (!isConfigured) {
+        setComingSoon(initialComingSoon);
+      }
+
+      // If Supabase is configured, fetch authoritative live production data
       if (isConfigured) {
         try {
           // Check Auth Session for strict authorized admin ID
@@ -237,68 +318,112 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
               fetchBannerPromptIdFromDb(),
             ]);
 
-          if (dbCategories && dbCategories.length > 0) {
-            setCategories((currentCats) => {
-              const dbIds = new Set(dbCategories.map((c) => c.id));
-              const dbSlugs = new Set(dbCategories.map((c) => c.slug));
-              const localBase = currentCats.length > 0 ? currentCats : initialLocalCategories;
-              const localOnly = localBase.filter(
-                (c: Category) => !dbIds.has(c.id) && !dbSlugs.has(c.slug)
-              );
-              return [...dbCategories, ...localOnly];
-            });
+          // Exact authoritative sync from database
+          if (dbCategories !== null && dbCategories.length > 0) {
+            setCategories(dbCategories);
+            try {
+              localStorage.setItem(LOCAL_STORAGE_CATEGORIES, JSON.stringify(dbCategories));
+            } catch {}
           }
 
-          if (dbPrompts && dbPrompts.length > 0) {
-            setPrompts((currentPrompts) => {
-              const dbIds = new Set(dbPrompts.map((p) => p.id));
-              const dbSlugs = new Set(dbPrompts.map((p) => p.slug));
-              const localBase = currentPrompts.length > 0 ? currentPrompts : initialLocalPrompts;
-              const localOnly = localBase.filter(
-                (p: Prompt) => !dbIds.has(p.id) && !dbSlugs.has(p.slug)
-              );
-              return [...dbPrompts, ...localOnly];
-            });
+          if (dbPrompts !== null) {
+            setPrompts(dbPrompts);
+            try {
+              localStorage.setItem(LOCAL_STORAGE_PROMPTS, JSON.stringify(dbPrompts));
+            } catch {}
           }
 
-          if (dbTutorials && dbTutorials.length > 0) {
-            setTutorials((currentTuts) => {
-              const dbIds = new Set(dbTutorials.map((t) => t.id));
-              const dbSlugs = new Set(dbTutorials.map((t) => t.slug));
-              const localBase = currentTuts.length > 0 ? currentTuts : initialLocalTutorials;
-              const localOnly = localBase.filter(
-                (t: Tutorial) => !dbIds.has(t.id) && !dbSlugs.has(t.slug)
-              );
-              return [...dbTutorials, ...localOnly];
-            });
+          if (dbTutorials !== null) {
+            setTutorials(dbTutorials);
+            try {
+              localStorage.setItem(LOCAL_STORAGE_TUTORIALS, JSON.stringify(dbTutorials));
+            } catch {}
           }
 
-          if (dbComingSoon && dbComingSoon.length > 0) {
-            setComingSoon((currentCS) => {
-              const dbIds = new Set(dbComingSoon.map((cs) => cs.id));
-              const dbSlugs = new Set(dbComingSoon.map((cs) => cs.slug));
-              const localBase = currentCS.length > 0 ? currentCS : initialLocalComingSoon;
-              const localOnly = localBase.filter(
-                (cs: ComingSoonFeature) => !dbIds.has(cs.id) && !dbSlugs.has(cs.slug)
-              );
-              return [...dbComingSoon, ...localOnly];
-            });
+          if (dbComingSoon !== null) {
+            setComingSoon(dbComingSoon);
+            try {
+              localStorage.setItem(LOCAL_STORAGE_COMING_SOON, JSON.stringify(dbComingSoon));
+            } catch {}
           }
 
           if (dbBannerId) {
             setBannerPromptIdState(dbBannerId);
+            try {
+              localStorage.setItem(LOCAL_STORAGE_BANNER, dbBannerId);
+            } catch {}
           }
         } catch (err) {
           console.warn("[Supabase] Data sync error:", err);
+        } finally {
+          setIsLoaded(true);
         }
+      } else {
+        setIsLoaded(true);
       }
     }
 
     hydrateData();
 
-    // Listen to Supabase Auth state changes
+    // Listen to Supabase Realtime changes and Auth state changes
     const supabase = getSupabaseClient();
     if (supabase) {
+      const channel = supabase
+        .channel("public-db-realtime")
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "prompts" },
+          async () => {
+            const dbPrompts = await fetchPromptsFromDb();
+            if (dbPrompts !== null) {
+              setPrompts(dbPrompts);
+              try {
+                localStorage.setItem(LOCAL_STORAGE_PROMPTS, JSON.stringify(dbPrompts));
+              } catch {}
+            }
+          }
+        )
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "tutorials" },
+          async () => {
+            const dbTutorials = await fetchTutorialsFromDb();
+            if (dbTutorials !== null) {
+              setTutorials(dbTutorials);
+              try {
+                localStorage.setItem(LOCAL_STORAGE_TUTORIALS, JSON.stringify(dbTutorials));
+              } catch {}
+            }
+          }
+        )
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "categories" },
+          async () => {
+            const dbCategories = await fetchCategoriesFromDb();
+            if (dbCategories !== null) {
+              setCategories(dbCategories);
+              try {
+                localStorage.setItem(LOCAL_STORAGE_CATEGORIES, JSON.stringify(dbCategories));
+              } catch {}
+            }
+          }
+        )
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "coming_soon_features" },
+          async () => {
+            const dbComingSoon = await fetchComingSoonFromDb();
+            if (dbComingSoon !== null) {
+              setComingSoon(dbComingSoon);
+              try {
+                localStorage.setItem(LOCAL_STORAGE_COMING_SOON, JSON.stringify(dbComingSoon));
+              } catch {}
+            }
+          }
+        )
+        .subscribe();
+
       const {
         data: { subscription },
       } = supabase.auth.onAuthStateChange(async (_event, session) => {
@@ -317,6 +442,7 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
       });
 
       return () => {
+        supabase.removeChannel(channel);
         subscription.unsubscribe();
       };
     }
@@ -327,35 +453,35 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
     if (!isLoaded) return;
     try {
       localStorage.setItem(LOCAL_STORAGE_PROMPTS, JSON.stringify(prompts));
-    } catch {}
+    } catch { }
   }, [prompts, isLoaded]);
 
   useEffect(() => {
     if (!isLoaded) return;
     try {
       localStorage.setItem(LOCAL_STORAGE_CATEGORIES, JSON.stringify(categories));
-    } catch {}
+    } catch { }
   }, [categories, isLoaded]);
 
   useEffect(() => {
     if (!isLoaded) return;
     try {
       localStorage.setItem(LOCAL_STORAGE_TUTORIALS, JSON.stringify(tutorials));
-    } catch {}
+    } catch { }
   }, [tutorials, isLoaded]);
 
   useEffect(() => {
     if (!isLoaded) return;
     try {
       localStorage.setItem(LOCAL_STORAGE_COMING_SOON, JSON.stringify(comingSoon));
-    } catch {}
+    } catch { }
   }, [comingSoon, isLoaded]);
 
   useEffect(() => {
     if (!isLoaded) return;
     try {
       localStorage.setItem(LOCAL_STORAGE_SAVED, JSON.stringify(savedPromptIds));
-    } catch {}
+    } catch { }
   }, [savedPromptIds, isLoaded]);
 
   // Auth: Supabase Auth Login strictly allowing only AUTHORIZED_ADMIN_USER_ID
@@ -432,10 +558,10 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
               particleCount: 35,
               spread: 60,
               origin: { y: 0.85 },
-              colors: ["#E85002", "#F16001", "#ffffff", "#38BDF8"],
+              colors: ["#FFA04D", "#FF7824", "#FFC078", "#EA580C", "#ffffff"],
               disableForReducedMotion: true,
             });
-          } catch {}
+          } catch { }
         }
 
         // Optimistic local update
@@ -518,7 +644,7 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         const updated = [newPrompt, ...prev];
         try {
           localStorage.setItem(LOCAL_STORAGE_PROMPTS, JSON.stringify(updated));
-        } catch {}
+        } catch { }
         return updated;
       });
 
@@ -538,16 +664,16 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         const updated = prev.map((p) =>
           p.id === id
             ? {
-                ...p,
-                ...updates,
-                slug: updates.title ? slugify(updates.title) : p.slug,
-                updatedAt: new Date().toISOString(),
-              }
+              ...p,
+              ...updates,
+              slug: updates.title ? slugify(updates.title) : p.slug,
+              updatedAt: new Date().toISOString(),
+            }
             : p
         );
         try {
           localStorage.setItem(LOCAL_STORAGE_PROMPTS, JSON.stringify(updated));
-        } catch {}
+        } catch { }
         return updated;
       });
 
@@ -566,7 +692,7 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         const updated = prev.filter((p) => p.id !== id);
         try {
           localStorage.setItem(LOCAL_STORAGE_PROMPTS, JSON.stringify(updated));
-        } catch {}
+        } catch { }
         return updated;
       });
       setSavedPromptIds((prev) => prev.filter((savedId) => savedId !== id));
@@ -595,7 +721,7 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         const updated = [...prev, newCat];
         try {
           localStorage.setItem(LOCAL_STORAGE_CATEGORIES, JSON.stringify(updated));
-        } catch {}
+        } catch { }
         return updated;
       });
       insertCategoryToDb(newCat).catch((err) => {
@@ -613,15 +739,15 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         const updated = prev.map((c) =>
           c.id === id
             ? {
-                ...c,
-                ...updates,
-                slug: updates.name ? slugify(updates.name) : c.slug,
-              }
+              ...c,
+              ...updates,
+              slug: updates.name ? slugify(updates.name) : c.slug,
+            }
             : c
         );
         try {
           localStorage.setItem(LOCAL_STORAGE_CATEGORIES, JSON.stringify(updated));
-        } catch {}
+        } catch { }
         return updated;
       });
       updateCategoryInDb(id, updates).catch((err) => {
@@ -638,7 +764,7 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         const updated = prev.filter((c) => c.id !== id);
         try {
           localStorage.setItem(LOCAL_STORAGE_CATEGORIES, JSON.stringify(updated));
-        } catch {}
+        } catch { }
         return updated;
       });
       deleteCategoryFromDb(id).catch((err) => {
@@ -666,7 +792,7 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         const updated = [newTut, ...prev];
         try {
           localStorage.setItem(LOCAL_STORAGE_TUTORIALS, JSON.stringify(updated));
-        } catch {}
+        } catch { }
         return updated;
       });
       insertTutorialToDb(newTut).catch((err) => {
@@ -684,16 +810,16 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         const updated = prev.map((t) =>
           t.id === id
             ? {
-                ...t,
-                ...updates,
-                slug: updates.slug || (updates.title ? slugify(updates.title) : t.slug),
-                updatedAt: new Date().toISOString(),
-              }
+              ...t,
+              ...updates,
+              slug: updates.slug || (updates.title ? slugify(updates.title) : t.slug),
+              updatedAt: new Date().toISOString(),
+            }
             : t
         );
         try {
           localStorage.setItem(LOCAL_STORAGE_TUTORIALS, JSON.stringify(updated));
-        } catch {}
+        } catch { }
         return updated;
       });
       updateTutorialInDb(id, updates).catch((err) => {
@@ -710,7 +836,7 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         const updated = prev.filter((t) => t.id !== id);
         try {
           localStorage.setItem(LOCAL_STORAGE_TUTORIALS, JSON.stringify(updated));
-        } catch {}
+        } catch { }
         return updated;
       });
       deleteTutorialFromDb(id).catch((err) => {
@@ -738,7 +864,7 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         const updated = [newFeat, ...prev];
         try {
           localStorage.setItem(LOCAL_STORAGE_COMING_SOON, JSON.stringify(updated));
-        } catch {}
+        } catch { }
         return updated;
       });
       insertComingSoonToDb(newFeat).catch((err) => {
@@ -756,15 +882,15 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         const updated = prev.map((f) =>
           f.id === id
             ? {
-                ...f,
-                ...updates,
-                slug: updates.slug || (updates.title ? slugify(updates.title) : f.slug),
-              }
+              ...f,
+              ...updates,
+              slug: updates.slug || (updates.title ? slugify(updates.title) : f.slug),
+            }
             : f
         );
         try {
           localStorage.setItem(LOCAL_STORAGE_COMING_SOON, JSON.stringify(updated));
-        } catch {}
+        } catch { }
         return updated;
       });
       updateComingSoonInDb(id, updates).catch((err) => {
@@ -781,7 +907,7 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         const updated = prev.filter((f) => f.id !== id);
         try {
           localStorage.setItem(LOCAL_STORAGE_COMING_SOON, JSON.stringify(updated));
-        } catch {}
+        } catch { }
         return updated;
       });
       deleteComingSoonFromDb(id).catch((err) => {
@@ -878,6 +1004,8 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
       adminRole,
       adminProfile,
       isDatabaseConnected,
+      isLoaded,
+      refreshData,
       loginAdmin,
       logoutAdmin,
       copyPrompt,
@@ -920,6 +1048,8 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
       adminRole,
       adminProfile,
       isDatabaseConnected,
+      isLoaded,
+      refreshData,
       loginAdmin,
       logoutAdmin,
       copyPrompt,

@@ -56,7 +56,7 @@ export function TutorialManagerTable({
 
         <button
           onClick={onOpenCreate}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#E85002] to-[#F16001] text-white font-bold text-xs shadow-lg shadow-[#E85002]/20 transition-all hover:scale-105"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl btn-accent-gradient text-xs font-semibold"
         >
           <Plus className="w-4 h-4" />
           <span>Upload Tutorial</span>
@@ -90,7 +90,7 @@ export function TutorialManagerTable({
                         <Link
                           href={`/tutorial/${t.slug}`}
                           target="_blank"
-                          className="relative w-12 h-12 rounded-xl overflow-hidden bg-slate-900 border border-white/10 flex-shrink-0 hover:border-[#E85002]/40 transition-colors"
+                          className="relative w-12 h-12 rounded-xl overflow-hidden bg-slate-900 border border-white/10 flex-shrink-0 hover:border-[var(--accent)]/40 transition-colors"
                         >
                           <Image
                             src={t.mediaUrl}
@@ -105,7 +105,7 @@ export function TutorialManagerTable({
                           <Link
                             href={`/tutorial/${t.slug}`}
                             target="_blank"
-                            className="font-semibold text-white truncate hover:text-[#E85002] transition-colors flex items-center gap-1.5"
+                            className="font-semibold text-white truncate hover:text-[var(--accent)] transition-colors flex items-center gap-1.5"
                           >
                             <span className="truncate">{t.title}</span>
                             <ExternalLink className="w-3 h-3 text-[#A7A7A7] opacity-60 flex-shrink-0" />
@@ -116,7 +116,7 @@ export function TutorialManagerTable({
                         </div>
                       </div>
                     </td>
-                    <td className="p-4 font-semibold text-[#E85002] whitespace-nowrap">
+                    <td className="p-4 font-semibold text-[var(--accent)] whitespace-nowrap">
                       {t.model || <span className="text-slate-500 font-normal">Universal</span>}
                     </td>
                     <td className="p-4 whitespace-nowrap">
@@ -129,7 +129,7 @@ export function TutorialManagerTable({
                       <div className="flex items-center justify-end gap-1.5">
                         <button
                           onClick={() => handleCopyLink(t)}
-                          className="p-1.5 rounded-lg hover:bg-white/10 text-[#A7A7A7] hover:text-[#E85002]"
+                          className="p-1.5 rounded-lg hover:bg-white/10 text-[#A7A7A7] hover:text-[var(--accent)]"
                           title="Copy Sharable URL"
                         >
                           <Share2 className="w-3.5 h-3.5" />

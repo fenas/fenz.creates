@@ -20,6 +20,8 @@ import { usePromptStore } from "@/context/PromptContext";
 import { useToast } from "@/components/ui/Toast";
 import { ThemeSelector } from "@/components/theme/ThemeSelector";
 
+import { DetailLoadingState } from "@/components/ui/DetailLoadingState";
+
 export function ComingSoonDetailClient({
   initialFeature,
   slug,
@@ -27,22 +29,29 @@ export function ComingSoonDetailClient({
   initialFeature?: ComingSoonFeature | null;
   slug: string;
 }) {
-  const { comingSoon } = usePromptStore();
+  const { comingSoon, isLoaded } = usePromptStore();
   const { showToast } = useToast();
 
-  const feature =
-    comingSoon.find(
-      (f) =>
-        f.slug === slug ||
-        f.id === slug ||
-        (initialFeature && (f.slug === initialFeature.slug || f.id === initialFeature.id))
-    ) || initialFeature;
+  // Find latest in store; only use initialFeature as SSR placeholder before store is loaded
+  const matchedFeature = comingSoon.find(
+    (f) =>
+      f.slug === slug ||
+      f.id === slug ||
+      (initialFeature && (f.slug === initialFeature.slug || f.id === initialFeature.id))
+  );
+
+  const feature = matchedFeature || (!isLoaded ? initialFeature : null);
 
   const [copiedLink, setCopiedLink] = useState(false);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
 
+  // If data is still loading and we don't have the feature yet, show glowing loader animation
   if (!feature) {
+    if (!isLoaded) {
+      return <DetailLoadingState type="feature" />;
+    }
+
     return (
       <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] flex flex-col items-center justify-center p-6 text-center transition-colors duration-200">
         <div className="w-16 h-16 rounded-2xl bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center mb-4 text-[var(--accent)] shadow-sm">

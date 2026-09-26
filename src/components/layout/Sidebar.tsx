@@ -101,8 +101,8 @@ export function Sidebar() {
                   onClick={() => handleNavClick(item.id)}
                   title={item.label}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${isActive
-                      ? "bg-violet-600/15 text-violet-300 border border-violet-500/30 shadow-sm shadow-violet-950"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] border border-transparent"
+                    ? "bg-violet-600/15 text-violet-300 border border-violet-500/30 shadow-sm shadow-violet-950"
+                    : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] border border-transparent"
                     }`}
                 >
                   <Icon
@@ -115,8 +115,8 @@ export function Sidebar() {
                   {item.count !== null && (
                     <span
                       className={`hidden lg:inline-flex items-center justify-center text-xs font-semibold px-2 py-0.5 rounded-full ${isActive
-                          ? "bg-violet-500 text-white"
-                          : "bg-white/10 text-slate-300"
+                        ? "bg-violet-500 text-white"
+                        : "bg-white/10 text-slate-300"
                         }`}
                     >
                       {item.count}
@@ -140,8 +140,8 @@ export function Sidebar() {
                   setActiveTab("discover");
                 }}
                 className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${selectedCategory === "all" && activeTab === "discover"
-                    ? "text-violet-400 bg-violet-500/10 font-semibold"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.03]"
+                  ? "text-violet-400 bg-violet-500/10 font-semibold"
+                  : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.03]"
                   }`}
               >
                 <span>All Categories</span>
@@ -159,8 +159,8 @@ export function Sidebar() {
                       setActiveTab("discover");
                     }}
                     className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${isSelected
-                        ? "text-violet-400 bg-violet-500/10 font-semibold"
-                        : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.03]"
+                      ? "text-violet-400 bg-violet-500/10 font-semibold"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.03]"
                       }`}
                   >
                     <span className="truncate">{cat.name}</span>
@@ -180,7 +180,7 @@ export function Sidebar() {
           <button
             onClick={() => setIsSubmitModalOpen(true)}
             title="Submit Prompt"
-            className="w-full flex items-center justify-center lg:justify-start gap-2.5 px-3 py-2.5 rounded-xl bg-gradient-to-r from-[#E85002] to-[#F16001] hover:from-[#F16001] hover:to-[#E85002] text-white font-medium text-xs shadow-lg shadow-[#E85002]/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full flex items-center justify-center lg:justify-start gap-2.5 px-3 py-2.5 rounded-xl btn-accent-gradient text-xs font-semibold"
           >
             <PlusCircle className="w-4 h-4 flex-shrink-0" />
             <span className="hidden lg:inline">Submit Prompt</span>

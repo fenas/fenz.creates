@@ -311,11 +311,10 @@ export function TutorialEditorModal({
 
           <div className="flex items-center gap-2">
             <span
-              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                status === "published"
+              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${status === "published"
                   ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
                   : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-              }`}
+                }`}
             >
               ● {status === "published" ? "Published" : "Draft"}
             </span>
@@ -334,11 +333,10 @@ export function TutorialEditorModal({
           <button
             type="button"
             onClick={() => setIsPreviewMode(!isPreviewMode)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-              isPreviewMode
-                ? "bg-[#E85002] text-white shadow-lg shadow-[#E85002]/30"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${isPreviewMode
+                ? "bg-[var(--accent)] text-white shadow-lg shadow-[var(--accent)]/30"
                 : "bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white"
-            }`}
+              }`}
           >
             <Eye className="w-3.5 h-3.5" />
             <span>{isPreviewMode ? "Edit Mode" : "Preview"}</span>
@@ -350,7 +348,7 @@ export function TutorialEditorModal({
             onClick={() => setIsSettingsOpen(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs font-semibold transition-colors"
           >
-            <Sliders className="w-3.5 h-3.5 text-[#E85002]" />
+            <Sliders className="w-3.5 h-3.5 text-[var(--accent)]" />
             <span className="hidden sm:inline">Settings</span>
           </button>
 
@@ -370,7 +368,7 @@ export function TutorialEditorModal({
             type="button"
             onClick={() => handleSave("published")}
             disabled={isSaving}
-            className="flex items-center gap-2 px-5 py-1.5 rounded-xl bg-gradient-to-r from-[#E85002] to-[#F16001] hover:from-[#F16001] hover:to-[#E85002] text-white text-xs font-extrabold shadow-lg shadow-[#E85002]/40 transition-all hover:scale-105 active:scale-95"
+            className="btn-accent-gradient flex items-center gap-2 px-5 py-1.5 rounded-xl text-xs font-extrabold shadow-lg"
           >
             <Send className="w-3.5 h-3.5" />
             <span>{isEditing ? "Update Article" : "Publish Article"}</span>
@@ -391,7 +389,7 @@ export function TutorialEditorModal({
           {isPreviewMode ? (
             /* LIVE PREVIEW MODE */
             <div className="space-y-8 animate-in fade-in duration-200">
-              <div className="p-4 rounded-2xl bg-[#E85002]/10 border border-[#E85002]/30 text-[#F16001] flex items-center justify-between text-xs font-bold">
+              <div className="p-4 rounded-2xl bg-[var(--accent-soft)] border border-[var(--accent)]/30 text-[var(--accent)] flex items-center justify-between text-xs font-bold">
                 <div className="flex items-center gap-2">
                   <Eye className="w-4 h-4" />
                   <span>Reader Preview Mode</span>
@@ -399,7 +397,7 @@ export function TutorialEditorModal({
                 <button
                   type="button"
                   onClick={() => setIsPreviewMode(false)}
-                  className="px-3 py-1 rounded-xl bg-[#E85002] text-white hover:bg-[#F16001]"
+                  className="btn-accent-gradient px-3 py-1 rounded-xl text-xs font-bold"
                 >
                   Return to Editor
                 </button>
@@ -471,7 +469,7 @@ export function TutorialEditorModal({
                   onClick={() => setIsBottomAddMenuOpen(!isBottomAddMenuOpen)}
                   className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-bold transition-all hover:scale-105 shadow-xl"
                 >
-                  <Plus className="w-4 h-4 text-[#E85002]" />
+                  <Plus className="w-4 h-4 text-[var(--accent)]" />
                   <span>Add Content Block</span>
                 </button>
 

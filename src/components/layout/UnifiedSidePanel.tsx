@@ -60,7 +60,7 @@ export function UnifiedSidePanel({
       label: "Coming soon",
       icon: Clock,
       badge: "3",
-      badgeColor: "bg-[#E85002] text-white",
+      badgeColor: "bg-[var(--accent)] text-white",
     },
   ];
 
@@ -134,8 +134,8 @@ export function UnifiedSidePanel({
                   onClick={() => handleNavClick(item.id)}
                   title={item.label}
                   className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-xs font-semibold transition-all group relative ${active
-                      ? "bg-[#202433] text-white grey:bg-white grey:text-black shadow-md shadow-black/40 border border-white/10 grey:border-none"
-                      : "text-slate-400 hover:text-white hover:bg-white/[0.05]"
+                    ? "bg-[#202433] text-white grey:bg-white grey:text-black shadow-md shadow-black/40 border border-white/10 grey:border-none"
+                    : "text-slate-400 hover:text-white hover:bg-white/[0.05]"
                     } ${isCollapsed ? "justify-center px-0" : ""}`}
                 >
                   <Icon
@@ -157,7 +157,7 @@ export function UnifiedSidePanel({
 
                   {/* Collapsed Badge Dot */}
                   {item.badge && isCollapsed && (
-                    <span className="absolute top-2 right-3 w-2 h-2 rounded-full bg-[#E85002]" />
+                    <span className="absolute top-2 right-3 w-2 h-2 rounded-full bg-[var(--accent)]" />
                   )}
                 </button>
               );
@@ -174,7 +174,7 @@ export function UnifiedSidePanel({
               <span className="font-mono text-white">v2.4</span>
             </div>
             <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
-              <div className="bg-gradient-to-r from-[#C10801] via-[#E85002] to-[#F16001] h-full w-3/4 rounded-full" />
+              <div className="bg-[var(--accent)] h-full w-3/4 rounded-full" />
             </div>
             <p className="text-[10px] text-slate-400">
               Free to copy and remix prompts for AI creators.
@@ -187,7 +187,7 @@ export function UnifiedSidePanel({
           <button
             onClick={() => setIsSubmitModalOpen(true)}
             title="Submit Prompt"
-            className={`w-full flex items-center gap-2.5 py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#E85002] to-[#F16001] hover:from-[#F16001] hover:to-[#E85002] text-white text-xs font-bold shadow-lg shadow-[#E85002]/40 transition-all hover:scale-[1.02] active:scale-[0.98] ${isCollapsed ? "justify-center px-0" : ""
+            className={`w-full flex items-center gap-2.5 py-2.5 px-3 rounded-xl btn-accent-gradient text-xs font-semibold ${isCollapsed ? "justify-center px-0" : ""
               }`}
           >
             <PlusCircle className="w-4 h-4 flex-shrink-0" />
@@ -213,7 +213,7 @@ export function UnifiedSidePanel({
                 <div className="relative">
                   <Icon className="w-5 h-5" />
                   {item.badge && (
-                    <span className="absolute -top-1 -right-2 w-3.5 h-3.5 bg-[#E85002] text-white text-[8px] font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1 -right-2 w-3.5 h-3.5 bg-[var(--accent)] text-white text-[8px] font-bold rounded-full flex items-center justify-center">
                       {item.badge}
                     </span>
                   )}

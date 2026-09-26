@@ -1,7 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { initialTutorials } from "@/data/tutorialsData";
+import { fetchTutorialBySlugFromDb } from "@/lib/supabase";
 import { TutorialDetailClient } from "./TutorialDetailClient";
 
 interface Props {
@@ -16,7 +16,8 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const tutorial = initialTutorials.find((t) => t.slug === slug);
+  const dbTutorial = await fetchTutorialBySlugFromDb(slug);
+  const tutorial = dbTutorial || initialTutorials.find((t) => t.slug === slug);
 
   if (!tutorial) {
     const formattedTitle = slug
@@ -62,7 +63,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function TutorialPage({ params }: Props) {
   const { slug } = await params;
-  const initialTutorial = initialTutorials.find((t) => t.slug === slug) || null;
+  const dbTutorial = await fetchTutorialBySlugFromDb(slug);
+  const initialTutorial = dbTutorial || initialTutorials.find((t) => t.slug === slug) || null;
 
   return <TutorialDetailClient initialTutorial={initialTutorial} slug={slug} />;
 }

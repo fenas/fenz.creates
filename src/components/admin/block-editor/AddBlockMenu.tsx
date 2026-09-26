@@ -242,14 +242,14 @@ export function AddBlockMenu({
                       onClick={() => onSelect(opt)}
                       onMouseEnter={() => setSelectedIndex(currentIndex)}
                       className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-all ${isSelected
-                          ? "bg-gradient-to-r from-white/10 to-white/5 border border-white/10 text-white translate-x-0.5"
-                          : "text-slate-300 hover:text-white hover:bg-white/[0.04] border border-transparent"
+                        ? "bg-gradient-to-r from-white/10 to-white/5 border border-white/10 text-white translate-x-0.5"
+                        : "text-slate-300 hover:text-white hover:bg-white/[0.04] border border-transparent"
                         }`}
                     >
                       <div
                         className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${isSelected
-                            ? "bg-[#E85002] text-white shadow-md shadow-[#E85002]/30"
-                            : "bg-white/5 text-slate-300 border border-white/10"
+                          ? "bg-[var(--accent)] text-white shadow-md shadow-[var(--accent)]/30"
+                          : "bg-white/5 text-slate-300 border border-white/10"
                           }`}
                       >
                         <Icon className="w-4 h-4" />
@@ -258,7 +258,7 @@ export function AddBlockMenu({
                         <div className="flex items-center gap-1.5">
                           <span className="text-xs font-semibold">{opt.label}</span>
                           {opt.badge && (
-                            <span className="px-1.5 py-0.2 rounded-full bg-[#E85002]/20 border border-[#E85002]/40 text-[#F16001] text-[9px] font-bold">
+                            <span className="px-1.5 py-0.2 rounded-full bg-[var(--accent-soft)] border border-[var(--accent)]/40 text-[var(--accent)] text-[9px] font-bold">
                               {opt.badge}
                             </span>
                           )}

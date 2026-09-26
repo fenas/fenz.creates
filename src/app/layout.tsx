@@ -92,7 +92,7 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className="min-h-screen selection:bg-[#E85002]/30 selection:text-current"
+        className="min-h-screen selection:bg-[var(--accent)]/30 selection:text-current"
       >
         <ThemeProvider>
           <ToastProvider>

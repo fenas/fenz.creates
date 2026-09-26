@@ -83,7 +83,7 @@ export async function deleteCategoryFromDb(id: string): Promise<boolean> {
   if (!supabase) return false;
 
   try {
-    const { error } = await supabase.from("categories").delete().eq("id", id);
+    const { error } = await supabase.from("categories").delete().or(`id.eq.${id},slug.eq.${id}`);
     return !error;
   } catch {
     return false;

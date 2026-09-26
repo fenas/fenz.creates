@@ -17,6 +17,8 @@ import { StructuredArticleRenderer } from "@/components/tutorials/StructuredArti
 import { convertTutorialToBlocks } from "@/lib/blockConverter";
 import { ThemeSelector } from "@/components/theme/ThemeSelector";
 
+import { DetailLoadingState } from "@/components/ui/DetailLoadingState";
+
 export function TutorialDetailClient({
   initialTutorial,
   slug,
@@ -24,21 +26,27 @@ export function TutorialDetailClient({
   initialTutorial?: Tutorial | null;
   slug: string;
 }) {
-  const { tutorials } = usePromptStore();
+  const { tutorials, isLoaded } = usePromptStore();
   const { showToast } = useToast();
 
-  // Find latest from store or fallback to initialTutorial
-  const tutorial =
-    tutorials.find(
-      (t) =>
-        t.slug === slug ||
-        t.id === slug ||
-        (initialTutorial && (t.slug === initialTutorial.slug || t.id === initialTutorial.id))
-    ) || initialTutorial;
+  // Find latest from store; only use initialTutorial as SSR placeholder before store is loaded
+  const matchedTutorial = tutorials.find(
+    (t) =>
+      t.slug === slug ||
+      t.id === slug ||
+      (initialTutorial && (t.slug === initialTutorial.slug || t.id === initialTutorial.id))
+  );
+
+  const tutorial = matchedTutorial || (!isLoaded ? initialTutorial : null);
 
   const [copiedLink, setCopiedLink] = useState(false);
 
+  // If data is still loading and we don't have the tutorial yet, show the glowing loading animation
   if (!tutorial) {
+    if (!isLoaded) {
+      return <DetailLoadingState type="tutorial" />;
+    }
+
     return (
       <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] flex flex-col items-center justify-center p-6 text-center transition-colors duration-200">
         <div className="w-16 h-16 rounded-2xl bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center mb-4 text-[var(--accent)] shadow-sm">

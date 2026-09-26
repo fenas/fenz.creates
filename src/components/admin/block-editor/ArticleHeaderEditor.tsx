@@ -13,6 +13,7 @@ import {
   Check,
 } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
+import { AutoResizeTextarea } from "./AutoResizeTextarea";
 
 import { uploadMediaToSupabase } from "@/lib/supabase";
 
@@ -163,14 +164,13 @@ export function ArticleHeaderEditor({
             }}
             onDragLeave={() => setIsDragging(false)}
             onDrop={handleDrop}
-            className={`relative w-full aspect-[21/9] sm:aspect-[24/9] rounded-3xl border-2 border-dashed transition-all flex flex-col items-center justify-center p-6 text-center group cursor-pointer ${
-              isDragging
-                ? "border-[#E85002] bg-[#E85002]/10 scale-[1.01]"
+            className={`relative w-full aspect-[21/9] sm:aspect-[24/9] rounded-3xl border-2 border-dashed transition-all flex flex-col items-center justify-center p-6 text-center group cursor-pointer ${isDragging
+                ? "border-[var(--accent)] bg-[var(--accent-soft)] scale-[1.01]"
                 : "border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.04]"
-            }`}
+              }`}
             onClick={() => fileInputRef.current?.click()}
           >
-            <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-3 group-hover:scale-110 group-hover:border-[#E85002]/40 group-hover:bg-[#E85002]/10 transition-all text-slate-400 group-hover:text-[#E85002]">
+            <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-3 group-hover:scale-110 group-hover:border-[var(--accent)]/40 group-hover:bg-[var(--accent-soft)] transition-all text-slate-400 group-hover:text-[var(--accent)]">
               <Upload className="w-5 h-5" />
             </div>
 
@@ -190,7 +190,7 @@ export function ArticleHeaderEditor({
               }}
               className="mt-3 px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-[11px] font-semibold text-slate-400 hover:text-white border border-white/10 transition-colors flex items-center gap-1.5"
             >
-              <LinkIcon className="w-3 h-3 text-[#E85002]" />
+              <LinkIcon className="w-3 h-3 text-[var(--accent)]" />
               <span>Or paste image URL</span>
             </button>
           </div>
@@ -233,7 +233,7 @@ export function ArticleHeaderEditor({
             <div className="w-full max-w-md p-6 rounded-3xl bg-[#11131a] border border-white/15 shadow-2xl space-y-4 animate-in fade-in zoom-in-95">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <LinkIcon className="w-4 h-4 text-[#E85002]" />
+                  <LinkIcon className="w-4 h-4 text-[var(--accent)]" />
                   <span>Insert Cover Image URL</span>
                 </h3>
                 <button
@@ -266,7 +266,7 @@ export function ArticleHeaderEditor({
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#E85002] to-[#F16001] text-white font-bold text-xs shadow-lg shadow-[#E85002]/30"
+                    className="px-4 py-2 rounded-xl btn-accent-gradient text-xs shadow-lg"
                   >
                     Set Cover Image
                   </button>
@@ -280,28 +280,19 @@ export function ArticleHeaderEditor({
       {/* 2. Article Title & Subtitle Section */}
       <div className="space-y-3">
         {/* Title Input */}
-        <textarea
+        <AutoResizeTextarea
           rows={1}
           value={title}
-          onChange={(e) => {
-            onChangeTitle(e.target.value);
-            // Auto-adjust height
-            e.target.style.height = "auto";
-            e.target.style.height = `${e.target.scrollHeight}px`;
-          }}
+          onChange={(e) => onChangeTitle(e.target.value)}
           placeholder="Article title"
           className="w-full bg-transparent text-3xl sm:text-4xl md:text-5xl font-extrabold text-white placeholder:text-slate-600 outline-none border-none resize-none leading-tight tracking-tight focus:ring-0 p-0"
         />
 
         {/* Subtitle / Short Description Input */}
-        <textarea
+        <AutoResizeTextarea
           rows={2}
           value={subtitle}
-          onChange={(e) => {
-            onChangeSubtitle(e.target.value);
-            e.target.style.height = "auto";
-            e.target.style.height = `${e.target.scrollHeight}px`;
-          }}
+          onChange={(e) => onChangeSubtitle(e.target.value)}
           placeholder="Add a short description or subtitle..."
           className="w-full bg-transparent text-base sm:text-lg text-slate-400 placeholder:text-slate-600 outline-none border-none resize-none leading-relaxed focus:ring-0 p-0"
         />

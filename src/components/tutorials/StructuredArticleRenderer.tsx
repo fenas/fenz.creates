@@ -39,7 +39,7 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
         particleCount: 35,
         spread: 60,
         origin: { y: 0.8 },
-        colors: ["#E85002", "#F16001", "#ffffff"],
+        colors: ["#FFA04D", "#FF7824", "#FFC078", "#EA580C", "#ffffff"],
       });
 
       setTimeout(() => setCopiedBlockId(null), 2500);
@@ -99,7 +99,7 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
             return (
               <blockquote
                 key={block.id}
-                className="my-6 rounded-r-3xl border-l-4 border-[#E85002] bg-[#E85002]/[0.08] px-6 py-4 text-base sm:text-lg italic text-[var(--text-primary)]"
+                className="my-6 rounded-r-3xl border-l-4 border-[var(--accent)] bg-[var(--accent-soft)] px-6 py-4 text-base sm:text-lg italic text-[var(--text-primary)]"
               >
                 &ldquo;{renderFormattedContent(block.content)}&rdquo;
               </blockquote>
@@ -110,7 +110,7 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
               <ul key={block.id} className="space-y-2.5 my-4 pl-2">
                 {(block.items || []).map((item, i) => (
                   <li key={i} className="flex items-start gap-3 text-base text-[var(--text-secondary)]">
-                    <span className="w-2 h-2 rounded-full bg-[#E85002] flex-shrink-0 mt-2 shadow-sm shadow-[#E85002]/50" />
+                    <span className="w-2 h-2 rounded-full bg-[var(--accent)] flex-shrink-0 mt-2 shadow-sm shadow-[var(--accent)]/50" />
                     <span>{renderFormattedContent(item)}</span>
                   </li>
                 ))}
@@ -122,7 +122,7 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
               <ol key={block.id} className="space-y-3 my-4 pl-2">
                 {(block.items || []).map((item, i) => (
                   <li key={i} className="flex items-start gap-3 text-base text-[var(--text-secondary)]">
-                    <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-glass)] text-xs font-mono font-bold text-[#E85002] flex-shrink-0 mt-0.5 shadow-sm">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-glass)] text-xs font-mono font-bold text-[var(--accent)] flex-shrink-0 mt-0.5 shadow-sm">
                       {i + 1}
                     </span>
                     <span className="flex-1">{renderFormattedContent(item)}</span>
@@ -136,13 +136,12 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
             return (
               <figure key={block.id} className="my-8 space-y-2">
                 <div
-                  className={`relative rounded-3xl overflow-hidden bg-slate-900 dark:bg-slate-950 border border-[var(--border-glass)] shadow-2xl ${
-                    block.size === "wide"
+                  className={`relative rounded-3xl overflow-hidden bg-slate-900 dark:bg-slate-950 border border-[var(--border-glass)] shadow-2xl ${block.size === "wide"
                       ? "aspect-[16/9] w-full"
                       : block.size === "full"
                         ? "aspect-[21/9] w-full"
                         : "aspect-[16/10] max-w-2xl mx-auto"
-                  }`}
+                    }`}
                 >
                   <Image
                     src={block.url}
@@ -186,15 +185,15 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
             return (
               <div
                 key={block.id}
-                className="my-8 rounded-3xl border border-[#E85002]/35 bg-[var(--bg-surface)] p-6 shadow-2xl space-y-4 relative overflow-hidden group"
+                className="my-8 rounded-3xl border border-[var(--accent)]/35 bg-[var(--bg-surface)] p-6 shadow-2xl space-y-4 relative overflow-hidden group"
               >
                 {/* Glow accent */}
-                <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-[#E85002]/15 blur-3xl pointer-events-none" />
+                <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-[var(--accent)]/15 blur-3xl pointer-events-none" />
 
                 {/* Header */}
                 <div className="flex items-center justify-between flex-wrap gap-2 border-b border-[var(--border-glass)] pb-3">
                   <div className="flex items-center gap-2.5">
-                    <span className="px-2.5 py-1 rounded-full bg-[#E85002] text-white text-[10px] font-extrabold uppercase tracking-wider shadow-md shadow-[#E85002]/40 flex items-center gap-1.5">
+                    <span className="px-2.5 py-1 rounded-full bg-[var(--accent)] text-white text-[10px] font-extrabold uppercase tracking-wider shadow-md shadow-[var(--accent)]/40 flex items-center gap-1.5">
                       <Sparkles className="w-3 h-3" />
                       <span>AISTRONAUT FORMULA</span>
                     </span>
@@ -215,11 +214,10 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
                     <button
                       type="button"
                       onClick={() => handleCopyPrompt(block)}
-                      className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition-all shadow-lg ${
-                        copiedBlockId === block.id
+                      className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition-all shadow-lg ${copiedBlockId === block.id
                           ? "bg-emerald-500 text-white shadow-emerald-500/30"
-                          : "bg-gradient-to-r from-[#E85002] to-[#F16001] text-white hover:opacity-95 hover:scale-105 active:scale-95"
-                      }`}
+                          : "btn-accent-gradient !px-4 !py-1.5 !rounded-xl !text-xs shadow-[var(--accent-shadow)]"
+                        }`}
                     >
                       {copiedBlockId === block.id ? (
                         <>
@@ -261,15 +259,14 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
             return (
               <div
                 key={block.id}
-                className={`my-6 rounded-3xl p-5 sm:p-6 border space-y-2 shadow-xl ${
-                  block.calloutVariant === "warning"
+                className={`my-6 rounded-3xl p-5 sm:p-6 border space-y-2 shadow-xl ${block.calloutVariant === "warning"
                     ? "bg-amber-500/10 border-amber-500/30 text-amber-500 dark:text-amber-200"
                     : block.calloutVariant === "important"
                       ? "bg-red-500/10 border-red-500/30 text-red-500 dark:text-red-200"
                       : block.calloutVariant === "note"
                         ? "bg-blue-500/10 border-blue-500/30 text-blue-500 dark:text-blue-200"
-                        : "bg-[#E85002]/10 border-[#E85002]/30 text-[#E85002]"
-                }`}
+                        : "bg-[var(--accent-soft)] border-[var(--accent)]/30 text-[var(--accent)]"
+                  }`}
               >
                 <div className="flex items-center gap-2 font-bold text-xs sm:text-sm tracking-wide uppercase">
                   <Zap className="w-4 h-4 text-inherit" />
@@ -289,7 +286,7 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
               >
                 <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
                   <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
-                    <Code2 className="w-3.5 h-3.5 text-[#E85002]" />
+                    <Code2 className="w-3.5 h-3.5 text-[var(--accent)]" />
                     <span>{block.language || "code"}</span>
                   </div>
 
@@ -326,7 +323,7 @@ export function StructuredArticleRenderer({ blocks }: StructuredArticleRendererP
                 <Link
                   href={block.buttonUrl || "#"}
                   target={block.buttonUrl?.startsWith("http") ? "_blank" : undefined}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#E85002] to-[#F16001] text-white font-bold text-sm shadow-xl shadow-[#E85002]/40 hover:scale-105 active:scale-95 transition-all"
+                  className="btn-accent-gradient px-6 py-3 !rounded-full font-bold text-sm shadow-xl flex items-center gap-2"
                 >
                   <span>{block.buttonText || "Learn More"}</span>
                   <ExternalLink className="w-4 h-4" />

@@ -37,6 +37,39 @@ export async function fetchComingSoonFromDb(): Promise<ComingSoonFeature[] | nul
 }
 
 /**
+ * Fetch a single coming soon feature by slug or ID
+ */
+export async function fetchComingSoonBySlugFromDb(slugOrId: string): Promise<ComingSoonFeature | null> {
+  const supabase = getSupabaseClient();
+  if (!supabase) return null;
+
+  try {
+    const { data, error } = await supabase
+      .from("coming_soon_features")
+      .select("*")
+      .or(`slug.eq.${slugOrId},id.eq.${slugOrId}`)
+      .limit(1)
+      .maybeSingle();
+
+    if (error || !data) return null;
+
+    return {
+      id: data.id,
+      slug: data.slug || data.id,
+      title: data.title,
+      description: data.description,
+      badge: data.badge || "Coming Soon",
+      eta: data.eta || "Q4 2026",
+      mediaUrl: data.media_url,
+      highlights: Array.isArray(data.highlights) ? data.highlights : [],
+      createdAt: data.created_at || new Date().toISOString(),
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Insert a roadmap feature into Supabase
  */
 export async function insertComingSoonToDb(feat: ComingSoonFeature): Promise<boolean> {
@@ -100,7 +133,7 @@ export async function deleteComingSoonFromDb(id: string): Promise<boolean> {
   if (!supabase) return false;
 
   try {
-    const { error } = await supabase.from("coming_soon_features").delete().eq("id", id);
+    const { error } = await supabase.from("coming_soon_features").delete().or(`id.eq.${id},slug.eq.${id}`);
     return !error;
   } catch {
     return false;

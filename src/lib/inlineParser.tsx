@@ -60,7 +60,7 @@ function parseInlineMarkdown(input: string): React.ReactNode[] {
           href={linkUrl}
           target={isExternal ? "_blank" : undefined}
           rel={isExternal ? "noopener noreferrer" : undefined}
-          className="text-[#E85002] hover:text-[#F16001] font-semibold underline underline-offset-4 decoration-[#E85002]/40 hover:decoration-[#E85002] transition-colors"
+          className="text-[var(--accent)] hover:text-[var(--accent-hover)] font-semibold underline underline-offset-4 decoration-[var(--accent)]/40 hover:decoration-[var(--accent)] transition-colors"
           onClick={(e) => e.stopPropagation()}
         >
           {parseInlineMarkdown(linkText)}
@@ -88,7 +88,7 @@ function parseInlineMarkdown(input: string): React.ReactNode[] {
       nodes.push(
         <mark
           key={key}
-          className="bg-[#E85002]/20 text-[#E85002] dark:text-[#F16001] px-1.5 py-0.5 rounded-md font-medium"
+          className="bg-[var(--accent-soft)] text-[var(--accent)] px-1.5 py-0.5 rounded-md font-medium"
         >
           {parseInlineMarkdown(inner)}
         </mark>
@@ -99,7 +99,7 @@ function parseInlineMarkdown(input: string): React.ReactNode[] {
       nodes.push(
         <code
           key={key}
-          className="px-1.5 py-0.5 rounded-md bg-[#E85002]/10 text-[#E85002] dark:text-[#F16001] font-mono text-[0.88em] border border-[#E85002]/20"
+          className="px-1.5 py-0.5 rounded-md bg-[var(--accent-soft)] text-[var(--accent)] font-mono text-[0.88em] border border-[var(--accent)]/20"
         >
           {inner}
         </code>

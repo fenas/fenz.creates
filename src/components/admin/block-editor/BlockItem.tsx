@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { ArticleBlock, BlockType, CalloutVariant, ImageSize } from "@/types/blocks";
 import { AddBlockMenu, AddBlockOption, BLOCK_OPTIONS } from "./AddBlockMenu";
+import { AutoResizeTextarea } from "./AutoResizeTextarea";
 import { useToast } from "@/components/ui/Toast";
 import { uploadMediaToSupabase } from "@/lib/supabase";
 
@@ -77,7 +78,6 @@ export function BlockItem({
   onInsertAfter,
 }: BlockItemProps) {
   const { showToast } = useToast();
-  const [isHovered, setIsHovered] = useState(false);
   const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
   const [isSlashMenuOpen, setIsSlashMenuOpen] = useState(false);
   const [isConvertMenuOpen, setIsConvertMenuOpen] = useState(false);
@@ -102,13 +102,6 @@ export function BlockItem({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showDeleteConfirm]);
-
-  // Auto-resize textarea
-  const handleAutoResize = (el: HTMLTextAreaElement | null) => {
-    if (!el) return;
-    el.style.height = "auto";
-    el.style.height = `${el.scrollHeight}px`;
-  };
 
   // Handle Slash Command Trigger inside text blocks
   const handleTextChange = (value: string) => {
@@ -156,8 +149,6 @@ export function BlockItem({
     <div
       data-block-id={block.id}
       data-block-type={block.type}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       className="relative group py-2"
     >
       {/* Block Layout: Left Controls + Content Canvas */}
@@ -170,7 +161,7 @@ export function BlockItem({
               type="button"
               onClick={() => setIsAddMenuOpen(!isAddMenuOpen)}
               title="Add block below (+)"
-              className="w-7 h-7 flex items-center justify-center rounded-xl bg-[#11131c] hover:bg-[#E85002]/20 text-slate-400 hover:text-[#F16001] border border-white/10 hover:border-[#E85002]/40 shadow-sm hover:shadow-md hover:shadow-[#E85002]/20 hover:scale-110 active:scale-95 transition-all duration-200 ease-out cursor-pointer"
+              className="w-7 h-7 flex items-center justify-center rounded-xl bg-[#11131c] hover:bg-[var(--accent-soft)] text-slate-400 hover:text-[var(--accent)] border border-white/10 hover:border-[var(--accent)]/40 shadow-sm hover:shadow-md hover:shadow-[var(--accent)]/20 hover:scale-110 active:scale-95 transition-all duration-200 ease-out cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
             </button>
@@ -271,7 +262,7 @@ export function BlockItem({
                     onClick={() => handleConvertType(opt)}
                     className="w-full flex items-center gap-2 px-2.5 py-1 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 text-[11px] transition-colors"
                   >
-                    <opt.icon className="w-3 h-3 text-[#E85002]" />
+                    <opt.icon className="w-3 h-3 text-[var(--accent)]" />
                     <span>{opt.label}</span>
                   </button>
                 ))}
@@ -286,8 +277,8 @@ export function BlockItem({
               onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
               title="Delete block"
               className={`w-7 h-7 flex items-center justify-center rounded-xl border shadow-sm transition-all duration-200 ease-out cursor-pointer ${showDeleteConfirm
-                  ? "bg-red-500 text-white border-red-500 shadow-md shadow-red-500/30 scale-105"
-                  : "bg-[#11131c] hover:bg-red-500/20 text-slate-400 hover:text-red-400 border-white/10 hover:border-red-500/40 hover:shadow-red-500/20 hover:scale-110 active:scale-95"
+                ? "bg-red-500 text-white border-red-500 shadow-md shadow-red-500/30 scale-105"
+                : "bg-[#11131c] hover:bg-red-500/20 text-slate-400 hover:text-red-400 border-white/10 hover:border-red-500/40 hover:shadow-red-500/20 hover:scale-110 active:scale-95"
                 }`}
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -337,11 +328,8 @@ export function BlockItem({
           {/* 1. PARAGRAPH BLOCK */}
           {block.type === "paragraph" && (
             <div className="relative">
-              <textarea
-                ref={(el) => {
-                  (textRef as any).current = el;
-                  handleAutoResize(el);
-                }}
+              <AutoResizeTextarea
+                ref={textRef}
                 rows={1}
                 value={block.content || ""}
                 onChange={(e) => handleTextChange(e.target.value)}
@@ -371,8 +359,7 @@ export function BlockItem({
 
           {/* 2. HEADING 1 BLOCK */}
           {block.type === "heading" && (
-            <textarea
-              ref={handleAutoResize}
+            <AutoResizeTextarea
               rows={1}
               value={block.content || ""}
               onChange={(e) => onChange({ ...block, content: e.target.value })}
@@ -383,8 +370,7 @@ export function BlockItem({
 
           {/* 3. SUBHEADING BLOCK */}
           {block.type === "subheading" && (
-            <textarea
-              ref={handleAutoResize}
+            <AutoResizeTextarea
               rows={1}
               value={block.content || ""}
               onChange={(e) => onChange({ ...block, content: e.target.value })}
@@ -395,9 +381,8 @@ export function BlockItem({
 
           {/* 4. QUOTE BLOCK */}
           {block.type === "quote" && (
-            <div className="relative border-l-2 border-[#E85002] bg-[#E85002]/5 rounded-r-2xl px-4 py-3">
-              <textarea
-                ref={handleAutoResize}
+            <div className="relative border-l-2 border-[var(--accent)] bg-[var(--accent-soft)]/20 rounded-r-2xl px-4 py-3">
+              <AutoResizeTextarea
                 rows={2}
                 value={block.content || ""}
                 onChange={(e) => onChange({ ...block, content: e.target.value })}
@@ -412,7 +397,7 @@ export function BlockItem({
             <div className="space-y-2 pl-2">
               {(block.items || [""]).map((item, i) => (
                 <div key={i} className="flex items-start gap-2">
-                  <span className="text-[#E85002] font-bold text-sm select-none pt-0.5">•</span>
+                  <span className="text-[var(--accent)] font-bold text-sm select-none pt-0.5">•</span>
                   <input
                     type="text"
                     value={item}
@@ -446,7 +431,7 @@ export function BlockItem({
             <div className="space-y-2 pl-2">
               {(block.items || [""]).map((item, i) => (
                 <div key={i} className="flex items-start gap-2">
-                  <span className="text-[#E85002] font-mono font-bold text-xs select-none pt-0.5 min-w-[18px]">
+                  <span className="text-[var(--accent)] font-mono font-bold text-xs select-none pt-0.5 min-w-[18px]">
                     {i + 1}.
                   </span>
                   <input
@@ -484,10 +469,10 @@ export function BlockItem({
                 <div className="space-y-2">
                   <div
                     className={`relative rounded-2xl overflow-hidden bg-slate-950 border border-white/10 group/img ${block.size === "wide"
-                        ? "aspect-[16/9] w-full"
-                        : block.size === "full"
-                          ? "aspect-[21/9] w-full"
-                          : "aspect-[16/10] max-w-xl mx-auto"
+                      ? "aspect-[16/9] w-full"
+                      : block.size === "full"
+                        ? "aspect-[21/9] w-full"
+                        : "aspect-[16/10] max-w-xl mx-auto"
                       }`}
                   >
                     <Image
@@ -547,7 +532,7 @@ export function BlockItem({
                 /* Upload Prompt for Image */
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-xl border-2 border-dashed border-white/10 bg-white/[0.02]">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#E85002]">
+                    <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[var(--accent)]">
                       <Upload className="w-5 h-5" />
                     </div>
                     <div>
@@ -625,7 +610,7 @@ export function BlockItem({
               ) : (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <Video className="w-4 h-4 text-[#E85002]" />
+                    <Video className="w-4 h-4 text-[var(--accent)]" />
                     <span className="text-xs font-bold text-white">Embed Video (YouTube / Vimeo)</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -650,7 +635,7 @@ export function BlockItem({
                           onChange({ ...block, embedUrl: embed });
                         }
                       }}
-                      className="px-4 py-2 rounded-xl bg-[#E85002] hover:bg-[#F16001] text-white font-bold text-xs shadow-md"
+                      className="px-4 py-2 rounded-xl btn-accent-gradient text-xs shadow-md"
                     >
                       Embed
                     </button>
@@ -662,10 +647,10 @@ export function BlockItem({
 
           {/* 9. PROMPT BLOCK (Dedicated Aistronaut AI Prompt Blueprint) */}
           {block.type === "prompt" && (
-            <div className="rounded-2xl border border-[#E85002]/30 bg-gradient-to-br from-[#121016] to-[#090b10] p-4 sm:p-5 shadow-xl space-y-3 relative overflow-hidden">
+            <div className="rounded-2xl border border-[var(--accent)]/30 bg-gradient-to-br from-[#121016] to-[#090b10] p-4 sm:p-5 shadow-xl space-y-3 relative overflow-hidden">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#E85002] text-white text-[10px] font-extrabold tracking-wider uppercase shadow-md shadow-[#E85002]/30">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[var(--accent)] text-white text-[10px] font-extrabold tracking-wider uppercase shadow-md shadow-[var(--accent)]/30">
                     AI PROMPT FORMULA
                   </span>
                   <input
@@ -673,7 +658,7 @@ export function BlockItem({
                     value={block.promptTitle || ""}
                     onChange={(e) => onChange({ ...block, promptTitle: e.target.value })}
                     placeholder="Formula Name (e.g. Cyberpunk Cinematic Portrait)"
-                    className="text-xs font-bold text-white bg-transparent outline-none border-b border-white/10 hover:border-white/30 focus:border-[#E85002] pb-0.5 px-1 min-w-[200px]"
+                    className="text-xs font-bold text-white bg-transparent outline-none border-b border-white/10 hover:border-white/30 focus:border-[var(--accent)] pb-0.5 px-1 min-w-[200px]"
                   />
                 </div>
 
@@ -711,13 +696,12 @@ export function BlockItem({
               </div>
 
               {/* Monospace Prompt Body */}
-              <textarea
-                ref={handleAutoResize}
+              <AutoResizeTextarea
                 rows={3}
                 value={block.promptText || ""}
                 onChange={(e) => onChange({ ...block, promptText: e.target.value })}
                 placeholder="Enter the exact master prompt formula here (e.g. Master portrait of... --ar 16:9 --v 6.0)..."
-                className="w-full rounded-xl bg-black/60 border border-white/10 p-3.5 text-xs sm:text-sm font-mono text-emerald-300 placeholder:text-slate-600 outline-none resize-none leading-relaxed focus:border-[#E85002]/50"
+                className="w-full rounded-xl bg-black/60 border border-white/10 p-3.5 text-xs sm:text-sm font-mono text-emerald-300 placeholder:text-slate-600 outline-none resize-none leading-relaxed focus:border-[var(--accent)]/50"
               />
 
               {/* Optional parameters row */}
@@ -737,12 +721,12 @@ export function BlockItem({
           {block.type === "callout" && (
             <div
               className={`rounded-2xl p-4 sm:p-5 border space-y-2 transition-all ${block.calloutVariant === "warning"
-                  ? "bg-amber-500/10 border-amber-500/30 text-amber-200"
-                  : block.calloutVariant === "important"
-                    ? "bg-red-500/10 border-red-500/30 text-red-200"
-                    : block.calloutVariant === "note"
-                      ? "bg-blue-500/10 border-blue-500/30 text-blue-200"
-                      : "bg-[#E85002]/10 border-[#E85002]/30 text-[#F16001]"
+                ? "bg-amber-500/10 border-amber-500/30 text-amber-200"
+                : block.calloutVariant === "important"
+                  ? "bg-red-500/10 border-red-500/30 text-red-200"
+                  : block.calloutVariant === "note"
+                    ? "bg-blue-500/10 border-blue-500/30 text-blue-200"
+                    : "bg-[var(--accent-soft)] border-[var(--accent)]/30 text-[var(--accent)]"
                 }`}
             >
               <div className="flex items-center justify-between">
@@ -780,8 +764,7 @@ export function BlockItem({
                 </div>
               </div>
 
-              <textarea
-                ref={handleAutoResize}
+              <AutoResizeTextarea
                 rows={2}
                 value={block.content || ""}
                 onChange={(e) => onChange({ ...block, content: e.target.value })}
@@ -796,7 +779,7 @@ export function BlockItem({
             <div className="rounded-2xl border border-white/10 bg-[#06080d] p-3.5 space-y-2">
               <div className="flex items-center justify-between border-b border-white/5 pb-2">
                 <div className="flex items-center gap-2">
-                  <Code2 className="w-3.5 h-3.5 text-[#E85002]" />
+                  <Code2 className="w-3.5 h-3.5 text-[var(--accent)]" />
                   <select
                     value={block.language || "python"}
                     onChange={(e) => onChange({ ...block, language: e.target.value })}
@@ -829,8 +812,7 @@ export function BlockItem({
                 </button>
               </div>
 
-              <textarea
-                ref={handleAutoResize}
+              <AutoResizeTextarea
                 rows={4}
                 value={block.content || ""}
                 onChange={(e) => onChange({ ...block, content: e.target.value })}
@@ -885,7 +867,7 @@ export function BlockItem({
           type="button"
           onClick={() => setIsAddMenuOpen(true)}
           title="Insert block here"
-          className="relative z-10 w-5 h-5 rounded-full bg-[#181a24] hover:bg-[#E85002] border border-white/15 hover:border-[#E85002] text-slate-400 hover:text-white flex items-center justify-center transition-all duration-200 ease-out hover:scale-125 active:scale-95 shadow-lg shadow-black/40 hover:shadow-[#E85002]/30 cursor-pointer"
+          className="relative z-10 w-5 h-5 rounded-full bg-[#181a24] hover:bg-[var(--accent)] border border-white/15 hover:border-[var(--accent)] text-slate-400 hover:text-white flex items-center justify-center transition-all duration-200 ease-out hover:scale-125 active:scale-95 shadow-lg shadow-black/40 hover:shadow-[var(--accent)]/30 cursor-pointer"
         >
           <Plus className="w-3 h-3" />
         </button>

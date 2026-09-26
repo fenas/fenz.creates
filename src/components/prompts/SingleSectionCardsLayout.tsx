@@ -24,6 +24,7 @@ export function SingleSectionCardsLayout() {
     tutorials,
     comingSoon,
     searchQuery,
+    isLoaded,
     setSearchQuery,
     setSelectedCategory,
     setActiveTab,
@@ -190,9 +191,22 @@ export function SingleSectionCardsLayout() {
           </div>
 
           {previewPrompts.length === 0 ? (
-            <div className="w-full py-16 px-4 flex flex-col items-center justify-center text-center">
-              <p className="text-xs text-[var(--text-secondary)]">No prompts uploaded yet.</p>
-            </div>
+            !isLoaded ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-3.5 md:gap-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="aspect-[3/4] rounded-[18px] bg-[var(--surface)] border border-[var(--border)] overflow-hidden relative shadow-[var(--shadow-card)]"
+                  >
+                    <div className="absolute inset-0 skeleton-shimmer" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="w-full py-16 px-4 flex flex-col items-center justify-center text-center">
+                <p className="text-xs text-[var(--text-secondary)]">No prompts uploaded yet.</p>
+              </div>
+            )
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-3.5 md:gap-4">
               {previewPrompts.map((prompt) => (
@@ -402,31 +416,44 @@ export function SingleSectionCardsLayout() {
       {activeTab !== "tutorials" && activeTab !== "coming-soon" && (
         <>
           {filteredPrompts.length === 0 ? (
-            <div className="w-full py-20 px-4 flex flex-col items-center justify-center text-center">
-              <div className="w-14 h-14 rounded-[16px] bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center mb-3.5 shadow-sm">
-                <SearchX className="w-6 h-6 text-[var(--icon-secondary)] stroke-[1.75]" />
+            !isLoaded ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-3.5 md:gap-4 pb-16">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="aspect-[3/4] rounded-[18px] bg-[var(--surface)] border border-[var(--border)] overflow-hidden relative shadow-[var(--shadow-card)]"
+                  >
+                    <div className="absolute inset-0 skeleton-shimmer" />
+                  </div>
+                ))}
               </div>
+            ) : (
+              <div className="w-full py-20 px-4 flex flex-col items-center justify-center text-center">
+                <div className="w-14 h-14 rounded-[16px] bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center mb-3.5 shadow-sm">
+                  <SearchX className="w-6 h-6 text-[var(--icon-secondary)] stroke-[1.75]" />
+                </div>
 
-              <h3 className="text-base font-semibold text-[var(--text-primary)] mb-1">
-                No prompts found
-              </h3>
+                <h3 className="text-base font-semibold text-[var(--text-primary)] mb-1">
+                  No prompts found
+                </h3>
 
-              <p className="text-xs text-[var(--text-secondary)] max-w-sm mb-5">
-                No formulas matching your search query or active filter.
-              </p>
+                <p className="text-xs text-[var(--text-secondary)] max-w-sm mb-5">
+                  No formulas matching your search query or active filter.
+                </p>
 
-              <button
-                onClick={() => {
-                  setSearchQuery("");
-                  setSelectedCategory("all");
-                  setActiveTab("discover");
-                }}
-                className="btn-primary flex items-center gap-2 px-4 py-2.5 text-xs font-medium"
-              >
-                <RotateCcw className="w-3.5 h-3.5 stroke-[1.75]" />
-                <span>Reset Filters</span>
-              </button>
-            </div>
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSelectedCategory("all");
+                    setActiveTab("discover");
+                  }}
+                  className="btn-primary flex items-center gap-2 px-4 py-2.5 text-xs font-medium"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 stroke-[1.75]" />
+                  <span>Reset Filters</span>
+                </button>
+              </div>
+            )
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-3.5 md:gap-4 pb-16">
               {filteredPrompts.map((prompt) => (

@@ -100,53 +100,47 @@ export function MainDashboard() {
                 setActiveTab("discover");
                 setSelectedCategory("all");
               }}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all ${
-                activeTab === "discover"
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all ${activeTab === "discover"
                   ? "bg-[#202433] text-white shadow-sm border border-white/10"
                   : "text-[#A7A7A7] hover:text-white hover:bg-white/[0.04]"
-              }`}
+                }`}
             >
               <Home
-                className={`w-4 h-4 ${
-                  activeTab === "discover" ? "text-[#E85002]" : "text-slate-400"
-                }`}
+                className={`w-4 h-4 ${activeTab === "discover" ? "text-[var(--accent)]" : "text-slate-400"
+                  }`}
               />
               <span>Home</span>
             </button>
 
             <button
               onClick={() => setActiveTab("trending")}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all ${
-                activeTab === "trending"
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all ${activeTab === "trending"
                   ? "bg-[#202433] text-white shadow-sm border border-white/10"
                   : "text-[#A7A7A7] hover:text-white hover:bg-white/[0.04]"
-              }`}
+                }`}
             >
               <Compass
-                className={`w-4 h-4 ${
-                  activeTab === "trending" ? "text-[#E85002]" : "text-slate-400"
-                }`}
+                className={`w-4 h-4 ${activeTab === "trending" ? "text-[var(--accent)]" : "text-slate-400"
+                  }`}
               />
               <span>Discovery</span>
             </button>
 
             <button
               onClick={() => setActiveTab("new")}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all ${
-                activeTab === "new"
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all ${activeTab === "new"
                   ? "bg-[#202433] text-white shadow-sm border border-white/10"
                   : "text-[#A7A7A7] hover:text-white hover:bg-white/[0.04]"
-              }`}
+                }`}
             >
               <div className="flex items-center gap-3">
                 <Clock
-                  className={`w-4 h-4 ${
-                    activeTab === "new" ? "text-[#E85002]" : "text-slate-400"
-                  }`}
+                  className={`w-4 h-4 ${activeTab === "new" ? "text-[var(--accent)]" : "text-slate-400"
+                    }`}
                 />
                 <span>Coming soon</span>
               </div>
-              <span className="w-4 h-4 rounded-full bg-[#E85002] text-white text-[9px] font-bold flex items-center justify-center">
+              <span className="w-4 h-4 rounded-full bg-[var(--accent)] text-white text-[9px] font-bold flex items-center justify-center">
                 3
               </span>
             </button>
@@ -195,11 +189,10 @@ export function MainDashboard() {
                 setSelectedCategory("all");
                 setActiveTab("discover");
               }}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${
-                selectedCategory === "all"
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${selectedCategory === "all"
                   ? "netflix-pill-active"
                   : "netflix-pill text-slate-300"
-              }`}
+                }`}
             >
               All Prompts
             </button>
@@ -213,11 +206,10 @@ export function MainDashboard() {
                     setSelectedCategory(cat.id);
                     setActiveTab("discover");
                   }}
-                  className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${
-                    isSelected
+                  className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${isSelected
                       ? "netflix-pill-active"
                       : "netflix-pill text-slate-300"
-                  }`}
+                    }`}
                 >
                   {cat.name}
                 </button>
@@ -258,7 +250,7 @@ export function MainDashboard() {
             {/* Surprise me quick button */}
             <button
               onClick={() => triggerRandomPrompt()}
-              className="p-2 rounded-full netflix-pill text-[#E85002] hover:text-[#F16001] transition-colors"
+              className="p-2 rounded-full netflix-pill text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors cursor-pointer"
               title="Surprise Me"
             >
               <Dices className="w-4 h-4" />
@@ -267,11 +259,11 @@ export function MainDashboard() {
             {/* Notification Bell */}
             <button
               onClick={() => setIsSubmitModalOpen(true)}
-              className="relative p-2 rounded-full netflix-pill text-[#A7A7A7] hover:text-white transition-colors"
+              className="relative p-2 rounded-full netflix-pill text-[#A7A7A7] hover:text-white transition-colors cursor-pointer"
               title="Submit Prompt"
             >
               <Bell className="w-4 h-4" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-[#E85002] rounded-full" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-[var(--accent)] rounded-full" />
             </button>
 
             {/* Profile Chip */}

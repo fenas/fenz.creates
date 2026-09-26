@@ -1,7 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { initialComingSoon } from "@/data/tutorialsData";
+import { fetchComingSoonBySlugFromDb } from "@/lib/supabase";
 import { ComingSoonDetailClient } from "./ComingSoonDetailClient";
 
 interface Props {
@@ -16,7 +16,8 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const feature = initialComingSoon.find((f) => f.slug === slug);
+  const dbFeature = await fetchComingSoonBySlugFromDb(slug);
+  const feature = dbFeature || initialComingSoon.find((f) => f.slug === slug);
 
   if (!feature) {
     const formattedTitle = slug
@@ -59,7 +60,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ComingSoonPage({ params }: Props) {
   const { slug } = await params;
-  const initialFeature = initialComingSoon.find((f) => f.slug === slug) || null;
+  const dbFeature = await fetchComingSoonBySlugFromDb(slug);
+  const initialFeature = dbFeature || initialComingSoon.find((f) => f.slug === slug) || null;
 
   return <ComingSoonDetailClient initialFeature={initialFeature} slug={slug} />;
 }

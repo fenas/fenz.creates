@@ -70,7 +70,7 @@ export default function AdminPage() {
             href="/"
             className="flex items-center gap-2 text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
-            <ArrowLeft className="w-4 h-4 text-[#E85002]" />
+            <ArrowLeft className="w-4 h-4 text-[var(--accent)]" />
             <span>Back to Public Showcase</span>
           </Link>
 
@@ -131,7 +131,7 @@ export default function AdminPage() {
               className="p-2 rounded-xl glass-pill text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
               title="Return to Public Site"
             >
-              <ArrowLeft className="w-4 h-4 text-[#E85002]" />
+              <ArrowLeft className="w-4 h-4 text-[var(--accent)]" />
             </Link>
 
             <div className="flex items-center gap-2.5">
@@ -144,8 +144,8 @@ export default function AdminPage() {
                   {/* Database Live status badge */}
                   <span
                     className={`px-2 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-1.5 ${isDatabaseConnected
-                        ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30"
-                        : "bg-amber-500/15 text-amber-500 border-amber-500/30"
+                      ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30"
+                      : "bg-amber-500/15 text-amber-500 border-amber-500/30"
                       }`}
                   >
                     <span
@@ -169,8 +169,8 @@ export default function AdminPage() {
               </span>
               <span
                 className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${adminRole === "super_admin"
-                    ? "bg-amber-500/20 text-amber-500 border border-amber-500/30"
-                    : "bg-cyan-500/20 text-cyan-500 border border-cyan-500/30"
+                  ? "bg-amber-500/20 text-amber-500 border border-amber-500/30"
+                  : "bg-cyan-500/20 text-cyan-500 border border-cyan-500/30"
                   }`}
               >
                 {adminRole === "super_admin" ? "👑 Super Admin" : "🛡️ Admin"}
@@ -179,7 +179,7 @@ export default function AdminPage() {
 
             <button
               onClick={handleOpenCreatePrompt}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#E85002] to-[#F16001] hover:from-[#F16001] hover:to-[#E85002] text-white font-bold text-xs shadow-lg shadow-[#E85002]/40 transition-all hover:scale-105"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl btn-accent-gradient text-xs font-semibold"
             >
               <Plus className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Upload Prompt</span>
@@ -190,7 +190,7 @@ export default function AdminPage() {
 
             <button
               onClick={logoutAdmin}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl glass-pill text-xs font-semibold text-[var(--text-secondary)] hover:text-[#E85002] hover:border-[#E85002]/30 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl glass-pill text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--accent)] hover:border-[var(--accent)]/30 transition-colors"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Logout</span>
@@ -206,13 +206,13 @@ export default function AdminPage() {
           <div className="p-5 rounded-2xl floating-panel bg-[var(--bg-surface)] border border-[var(--border-glass)] space-y-1 shadow-sm">
             <div className="flex items-center justify-between text-[var(--text-secondary)] text-xs font-medium">
               <span>Total Prompts</span>
-              <FileText className="w-4 h-4 text-[#E85002]" />
+              <FileText className="w-4 h-4 text-[var(--accent)]" />
             </div>
             <div className="text-2xl font-bold text-[var(--text-primary)]">{totalPrompts}</div>
             <div className="text-[11px] text-[var(--text-secondary)] flex items-center gap-2">
               <span className="text-emerald-500 font-semibold">{publishedCount} active</span>
               <span>•</span>
-              <span className="text-[#E85002] font-semibold">{draftCount} drafts</span>
+              <span className="text-[var(--accent)] font-semibold">{draftCount} drafts</span>
             </div>
           </div>
 
@@ -230,7 +230,7 @@ export default function AdminPage() {
           <div className="p-5 rounded-2xl floating-panel bg-[var(--bg-surface)] border border-[var(--border-glass)] space-y-1 shadow-sm">
             <div className="flex items-center justify-between text-[var(--text-secondary)] text-xs font-medium">
               <span>Tutorial Guides</span>
-              <BookOpen className="w-4 h-4 text-[#E85002]" />
+              <BookOpen className="w-4 h-4 text-[var(--accent)]" />
             </div>
             <div className="text-2xl font-bold text-[var(--text-primary)]">{tutorials.length}</div>
             <div className="text-[11px] text-[var(--text-secondary)]">
@@ -241,7 +241,7 @@ export default function AdminPage() {
           <div className="p-5 rounded-2xl floating-panel bg-[var(--bg-surface)] border border-[var(--border-glass)] space-y-1 shadow-sm">
             <div className="flex items-center justify-between text-[var(--text-secondary)] text-xs font-medium">
               <span>Roadmap Features</span>
-              <Clock className="w-4 h-4 text-[#E85002]" />
+              <Clock className="w-4 h-4 text-[var(--accent)]" />
             </div>
             <div className="text-2xl font-bold text-[var(--text-primary)]">{comingSoon.length}</div>
             <div className="text-[11px] text-[var(--text-secondary)]">
@@ -255,8 +255,8 @@ export default function AdminPage() {
           <button
             onClick={() => setActiveAdminTab("prompts")}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${activeAdminTab === "prompts"
-                ? "bg-[#E85002] text-white shadow-lg shadow-[#E85002]/40"
-                : "glass-pill text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              ? "bg-[var(--accent)] text-white shadow-lg shadow-[var(--accent)]/30"
+              : "glass-pill text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
@@ -266,8 +266,8 @@ export default function AdminPage() {
           <button
             onClick={() => setActiveAdminTab("tutorials")}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${activeAdminTab === "tutorials"
-                ? "bg-[#E85002] text-white shadow-lg shadow-[#E85002]/40"
-                : "glass-pill text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              ? "bg-[var(--accent)] text-white shadow-lg shadow-[var(--accent)]/30"
+              : "glass-pill text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
@@ -277,8 +277,8 @@ export default function AdminPage() {
           <button
             onClick={() => setActiveAdminTab("coming-soon")}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${activeAdminTab === "coming-soon"
-                ? "bg-[#E85002] text-white shadow-lg shadow-[#E85002]/40"
-                : "glass-pill text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              ? "bg-[var(--accent)] text-white shadow-lg shadow-[var(--accent)]/30"
+              : "glass-pill text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
           >
             <Clock className="w-3.5 h-3.5" />
@@ -288,8 +288,8 @@ export default function AdminPage() {
           <button
             onClick={() => setActiveAdminTab("categories")}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${activeAdminTab === "categories"
-                ? "bg-[#E85002] text-white shadow-lg shadow-[#E85002]/40"
-                : "glass-pill text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              ? "bg-[var(--accent)] text-white shadow-lg shadow-[var(--accent)]/30"
+              : "glass-pill text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
           >
             <Layers className="w-3.5 h-3.5" />

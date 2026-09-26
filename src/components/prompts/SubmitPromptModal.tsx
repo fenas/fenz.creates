@@ -351,7 +351,7 @@ export function SubmitPromptModal() {
         {/* Header */}
         <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between bg-[var(--surface-elevated)] z-10">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-2xl bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center text-[#E85002]">
+            <div className="w-9 h-9 rounded-2xl bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center text-[var(--accent)]">
               {uploadKind === "pack" ? (
                 <Layers className="w-5 h-5 stroke-[2]" />
               ) : (
@@ -384,11 +384,10 @@ export function SubmitPromptModal() {
             <button
               type="button"
               onClick={() => setUploadKind("single")}
-              className={`py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                uploadKind === "single"
-                  ? "bg-[#E85002] text-white shadow-md shadow-[#E85002]/30"
+              className={`py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${uploadKind === "single"
+                  ? "bg-[var(--accent)] text-white shadow-md shadow-[var(--accent)]/30"
                   : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-              }`}
+                }`}
             >
               <Sparkles className="w-4 h-4" />
               <span>Single Prompt (1 Image + 1 Prompt)</span>
@@ -397,11 +396,10 @@ export function SubmitPromptModal() {
             <button
               type="button"
               onClick={() => setUploadKind("pack")}
-              className={`py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                uploadKind === "pack"
-                  ? "bg-[#E85002] text-white shadow-md shadow-[#E85002]/30"
+              className={`py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${uploadKind === "pack"
+                  ? "bg-[var(--accent)] text-white shadow-md shadow-[var(--accent)]/30"
                   : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-              }`}
+                }`}
             >
               <Layers className="w-4 h-4" />
               <span>Prompt Pack (Multi-Image + Prompts)</span>
@@ -423,7 +421,7 @@ export function SubmitPromptModal() {
                     Artwork Cover Photo *
                   </label>
                   {singleImageUrl && (
-                    <span className="text-[10px] font-bold text-[#F16001] bg-[#E85002]/15 px-2 py-0.5 rounded-full flex items-center gap-1 font-mono">
+                    <span className="text-[10px] font-bold text-[var(--accent)] bg-[var(--accent-soft)] px-2 py-0.5 rounded-full flex items-center gap-1 font-mono">
                       <span>★ Primary Cover Photo</span>
                     </span>
                   )}
@@ -441,7 +439,7 @@ export function SubmitPromptModal() {
 
                     {/* Top Badges */}
                     <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/80 backdrop-blur-md text-[10px] font-bold text-white border border-white/20 flex items-center gap-1 shadow-md">
-                      <span className="text-[#E85002]">★</span>
+                      <span className="text-[var(--accent)]">★</span>
                       <span>Primary Cover Photo</span>
                     </div>
 
@@ -474,13 +472,12 @@ export function SubmitPromptModal() {
                     }}
                     onDragLeave={() => setIsDraggingSingle(false)}
                     onDrop={handleSingleDrop}
-                    className={`p-6 rounded-2xl border-2 border-dashed transition-all bg-[var(--surface-recessed)] flex flex-col items-center justify-center text-center gap-3 ${
-                      isDraggingSingle
-                        ? "border-[#E85002] ring-2 ring-[#E85002]/30 bg-[#E85002]/5"
+                    className={`p-6 rounded-2xl border-2 border-dashed transition-all bg-[var(--surface-recessed)] flex flex-col items-center justify-center text-center gap-3 ${isDraggingSingle
+                        ? "border-[var(--accent)] ring-2 ring-[var(--accent)]/30 bg-[var(--accent)]/5"
                         : "border-[var(--border)] hover:border-white/30"
-                    }`}
+                      }`}
                   >
-                    <div className="w-12 h-12 rounded-2xl bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center text-[#E85002] shadow-sm">
+                    <div className="w-12 h-12 rounded-2xl bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center text-[var(--accent)] shadow-sm">
                       <Upload className={`w-6 h-6 ${isUploadingSingle ? "animate-bounce" : ""}`} />
                     </div>
 
@@ -498,7 +495,7 @@ export function SubmitPromptModal() {
                         type="button"
                         disabled={isUploadingSingle}
                         onClick={() => singleFileInputRef.current?.click()}
-                        className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#E85002] to-[#F16001] text-white text-xs font-bold shadow-md shadow-[#E85002]/25 hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
+                        className="px-4 py-2 rounded-xl btn-accent-gradient text-xs shadow-md cursor-pointer flex items-center gap-1.5"
                       >
                         <Upload className="w-3.5 h-3.5" />
                         <span>Browse File</span>
@@ -516,7 +513,7 @@ export function SubmitPromptModal() {
                               handleSetSingleUrl();
                             }
                           }}
-                          className="flex-1 px-3 py-2 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] outline-none focus:border-[#E85002]"
+                          className="flex-1 px-3 py-2 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] outline-none focus:border-[var(--accent)]"
                         />
                         <button
                           type="button"
@@ -550,7 +547,7 @@ export function SubmitPromptModal() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Cyber Geisha in Rain-Slicked Neo-Tokyo"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--surface-recessed)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[#E85002]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--surface-recessed)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
                 />
               </div>
 
@@ -565,7 +562,7 @@ export function SubmitPromptModal() {
                   value={promptText}
                   onChange={(e) => setPromptText(e.target.value)}
                   placeholder="Paste the master prompt formula (e.g. Candid portrait of... --ar 16:9 --v 6.0)..."
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--surface-recessed)] border border-[var(--border)] text-xs font-mono text-[var(--text-primary)] placeholder-[var(--text-muted)] leading-relaxed resize-none focus:outline-none focus:border-[#E85002]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--surface-recessed)] border border-[var(--border)] text-xs font-mono text-[var(--text-primary)] placeholder-[var(--text-muted)] leading-relaxed resize-none focus:outline-none focus:border-[var(--accent)]"
                 />
               </div>
 
@@ -579,7 +576,7 @@ export function SubmitPromptModal() {
                   value={negativePrompt}
                   onChange={(e) => setNegativePrompt(e.target.value)}
                   placeholder="e.g. blur, deformed hands, cartoon, oversaturated"
-                  className="w-full px-3.5 py-2 rounded-xl bg-[var(--surface-recessed)] border border-[var(--border)] text-xs font-mono text-[var(--text-secondary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[#E85002]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-[var(--surface-recessed)] border border-[var(--border)] text-xs font-mono text-[var(--text-secondary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
                 />
               </div>
             </div>
@@ -602,7 +599,7 @@ export function SubmitPromptModal() {
                     value={packName}
                     onChange={(e) => setPackName(e.target.value)}
                     placeholder="e.g. Cinematic Product Prompts or Long Legs Studio"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs font-bold text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[#E85002]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs font-bold text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
                   />
                 </div>
 
@@ -615,13 +612,13 @@ export function SubmitPromptModal() {
                     value={packSubtitle}
                     onChange={(e) => setPackSubtitle(e.target.value)}
                     placeholder="e.g. Collection of stylized 3D fashion characters and studio setups."
-                    className="w-full px-3.5 py-2 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-secondary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[#E85002]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-secondary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
                   />
                 </div>
               </div>
 
               {/* Batch Upload Helper Banner */}
-              <div className="flex items-center justify-between p-3.5 rounded-2xl border border-[#E85002]/30 bg-[#E85002]/10 text-xs text-[#E85002]">
+              <div className="flex items-center justify-between p-3.5 rounded-2xl border border-[var(--accent)]/30 bg-[var(--accent)]/10 text-xs text-[var(--accent)]">
                 <div className="flex items-center gap-2">
                   <Layers className="w-4 h-4 flex-shrink-0" />
                   <span className="font-semibold">
@@ -629,7 +626,7 @@ export function SubmitPromptModal() {
                   </span>
                 </div>
 
-                <label className="px-3 py-1.5 rounded-xl bg-[#E85002] hover:bg-[#F16001] text-white font-bold text-[11px] cursor-pointer shadow-md transition-all">
+                <label className="px-3 py-1.5 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white font-bold text-[11px] cursor-pointer shadow-md transition-all">
                   + Batch Upload Images
                   <input
                     ref={packBatchFileInputRef}
@@ -651,7 +648,7 @@ export function SubmitPromptModal() {
                   <button
                     type="button"
                     onClick={handleAddPackSlot}
-                    className="flex items-center gap-1 text-xs font-bold text-[#E85002] hover:underline cursor-pointer"
+                    className="flex items-center gap-1 text-xs font-bold text-[var(--accent)] hover:underline cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Add Item</span>
@@ -666,7 +663,7 @@ export function SubmitPromptModal() {
                     {/* Item Header */}
                     <div className="flex items-center justify-between border-b border-[var(--border)] pb-2.5">
                       <div className="flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-[#E85002] text-white text-[11px] font-mono font-bold flex items-center justify-center">
+                        <span className="w-5 h-5 rounded-full bg-[var(--accent)] text-white text-[11px] font-mono font-bold flex items-center justify-center">
                           {index + 1}
                         </span>
                         <span className="text-xs font-bold text-[var(--text-primary)]">
@@ -714,7 +711,7 @@ export function SubmitPromptModal() {
                             </div>
                           </div>
                         ) : (
-                          <label className="aspect-square w-full rounded-xl border-2 border-dashed border-[var(--border)] hover:border-[#E85002]/50 bg-[var(--surface-muted)] flex flex-col items-center justify-center gap-1.5 p-2 text-center cursor-pointer transition-colors">
+                          <label className="aspect-square w-full rounded-xl border-2 border-dashed border-[var(--border)] hover:border-[var(--accent)]/50 bg-[var(--surface-muted)] flex flex-col items-center justify-center gap-1.5 p-2 text-center cursor-pointer transition-colors">
                             <ImageIcon className="w-5 h-5 text-slate-400" />
                             <span className="text-[10px] font-bold text-[var(--text-primary)]">Upload Image</span>
                             <span className="text-[9px] text-[var(--text-secondary)]">or paste URL below</span>
@@ -765,7 +762,7 @@ export function SubmitPromptModal() {
                               });
                             }}
                             placeholder={`Enter distinct prompt for Image #${index + 1}...`}
-                            className="w-full px-3 py-2 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs font-mono text-[var(--text-primary)] placeholder-[var(--text-muted)] resize-none outline-none focus:border-[#E85002]"
+                            className="w-full px-3 py-2 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs font-mono text-[var(--text-primary)] placeholder-[var(--text-muted)] resize-none outline-none focus:border-[var(--accent)]"
                           />
                         </div>
 
@@ -793,7 +790,7 @@ export function SubmitPromptModal() {
                 <button
                   type="button"
                   onClick={handleAddPackSlot}
-                  className="w-full py-2.5 rounded-2xl border-2 border-dashed border-[var(--border)] hover:border-[#E85002]/50 bg-[var(--surface-muted)] text-xs font-bold text-[var(--text-primary)] hover:text-[#E85002] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  className="w-full py-2.5 rounded-2xl border-2 border-dashed border-[var(--border)] hover:border-[var(--accent)]/50 bg-[var(--surface-muted)] text-xs font-bold text-[var(--text-primary)] hover:text-[var(--accent)] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Add Another Image & Prompt to Pack</span>
@@ -814,7 +811,7 @@ export function SubmitPromptModal() {
                 <select
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] cursor-pointer outline-none focus:border-[#E85002]"
+                  className="w-full px-3 py-2.5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] cursor-pointer outline-none focus:border-[var(--accent)]"
                 >
                   <option value="Midjourney v6" className="bg-[var(--surface-elevated)]">Midjourney v6</option>
                   <option value="Flux.1 Pro" className="bg-[var(--surface-elevated)]">Flux.1 Pro</option>
@@ -831,7 +828,7 @@ export function SubmitPromptModal() {
                 <select
                   value={aspectRatio}
                   onChange={(e) => setAspectRatio(e.target.value as AspectRatio)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs font-mono text-[var(--text-primary)] cursor-pointer outline-none focus:border-[#E85002]"
+                  className="w-full px-3 py-2.5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs font-mono text-[var(--text-primary)] cursor-pointer outline-none focus:border-[var(--accent)]"
                 >
                   <option value="" className="bg-[var(--surface-elevated)]">None / Blank (Default)</option>
                   <option value="4:5" className="bg-[var(--surface-elevated)]">4:5 (Portrait / Card)</option>
@@ -849,7 +846,7 @@ export function SubmitPromptModal() {
                 <select
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] cursor-pointer outline-none focus:border-[#E85002]"
+                  className="w-full px-3 py-2.5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] cursor-pointer outline-none focus:border-[var(--accent)]"
                 >
                   {categories.map((c) => (
                     <option key={c.id} value={c.id} className="bg-[var(--surface-elevated)]">
@@ -877,7 +874,7 @@ export function SubmitPromptModal() {
                     }
                   }}
                   placeholder="Add tags (press Enter)..."
-                  className="flex-1 px-3.5 py-2 rounded-xl bg-[var(--surface-recessed)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[#E85002]"
+                  className="flex-1 px-3.5 py-2 rounded-xl bg-[var(--surface-recessed)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
                 />
                 <button
                   type="button"
@@ -920,7 +917,7 @@ export function SubmitPromptModal() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#E85002] to-[#F16001] hover:from-[#F16001] hover:to-[#E85002] text-white text-xs font-bold shadow-lg shadow-[#E85002]/30 disabled:opacity-50 cursor-pointer transition-all hover:scale-105 active:scale-95"
+              className="btn-accent-gradient flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold shadow-lg disabled:opacity-50 cursor-pointer"
             >
               <Send className="w-3.5 h-3.5 stroke-[2]" />
               <span>

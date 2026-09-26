@@ -254,9 +254,9 @@ export function FloatingFormatToolbar({ containerRef }: FloatingFormatToolbarPro
 
     const finalUrl =
       formattedUrl.startsWith("http://") ||
-      formattedUrl.startsWith("https://") ||
-      formattedUrl.startsWith("/") ||
-      formattedUrl.startsWith("#")
+        formattedUrl.startsWith("https://") ||
+        formattedUrl.startsWith("/") ||
+        formattedUrl.startsWith("#")
         ? formattedUrl
         : `https://${formattedUrl}`;
 
@@ -311,7 +311,7 @@ export function FloatingFormatToolbar({ containerRef }: FloatingFormatToolbarPro
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  });
+  }, [containerRef, applyWrapper, handleConvertBlockType]);
 
   if (!visible) return null;
 
@@ -334,7 +334,7 @@ export function FloatingFormatToolbar({ containerRef }: FloatingFormatToolbarPro
       {showLinkInput ? (
         /* Inline Link Form */
         <div className="flex items-center gap-1.5 px-1 py-0.5 animate-in fade-in duration-100">
-          <LinkIcon className="w-3.5 h-3.5 text-[#E85002] ml-1 flex-shrink-0" />
+          <LinkIcon className="w-3.5 h-3.5 text-[var(--accent)] ml-1 flex-shrink-0" />
           <input
             ref={linkInputRef}
             type="url"
@@ -349,12 +349,12 @@ export function FloatingFormatToolbar({ containerRef }: FloatingFormatToolbarPro
               }
             }}
             placeholder="Paste or type URL (e.g. https://...)"
-            className="w-56 px-2 py-1 rounded-xl bg-black/60 border border-white/20 text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#E85002]"
+            className="w-56 px-2 py-1 rounded-xl bg-black/60 border border-white/20 text-xs text-white placeholder:text-slate-500 outline-none focus:border-[var(--accent)]"
           />
           <button
             type="button"
             onClick={handleApplyLink}
-            className="p-1.5 rounded-lg bg-[#E85002] hover:bg-[#F16001] text-white transition-colors"
+            className="p-1.5 rounded-lg bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white transition-colors"
             title="Apply Link (Enter)"
           >
             <Check className="w-3.5 h-3.5" />
@@ -381,11 +381,10 @@ export function FloatingFormatToolbar({ containerRef }: FloatingFormatToolbarPro
                   onClick={() =>
                     handleConvertBlockType(activeBlockType === "heading" ? "paragraph" : "heading")
                   }
-                  className={`flex items-center gap-0.5 px-2 py-1 rounded-lg text-xs font-black transition-all ${
-                    activeBlockType === "heading"
-                      ? "bg-[#E85002] text-white shadow-sm"
+                  className={`flex items-center gap-0.5 px-2 py-1 rounded-lg text-xs font-black transition-all ${activeBlockType === "heading"
+                      ? "bg-[var(--accent)] text-white shadow-sm"
                       : "text-slate-300 hover:text-white hover:bg-white/10"
-                  }`}
+                    }`}
                 >
                   <Heading1 className="w-3.5 h-3.5" />
                   <span className="text-[10px]">H1</span>
@@ -399,11 +398,10 @@ export function FloatingFormatToolbar({ containerRef }: FloatingFormatToolbarPro
                       activeBlockType === "subheading" ? "paragraph" : "subheading"
                     )
                   }
-                  className={`flex items-center gap-0.5 px-2 py-1 rounded-lg text-xs font-black transition-all ${
-                    activeBlockType === "subheading"
-                      ? "bg-[#E85002] text-white shadow-sm"
+                  className={`flex items-center gap-0.5 px-2 py-1 rounded-lg text-xs font-black transition-all ${activeBlockType === "subheading"
+                      ? "bg-[var(--accent)] text-white shadow-sm"
                       : "text-slate-300 hover:text-white hover:bg-white/10"
-                  }`}
+                    }`}
                 >
                   <Heading2 className="w-3.5 h-3.5" />
                   <span className="text-[10px]">H2</span>
@@ -470,7 +468,7 @@ export function FloatingFormatToolbar({ containerRef }: FloatingFormatToolbarPro
             type="button"
             title="Highlight (Ctrl+Shift+H)"
             onClick={() => applyWrapper("<mark>", "</mark>")}
-            className="p-1.5 rounded-xl hover:bg-[#E85002]/20 text-[#F16001] transition-all active:scale-95"
+            className="p-1.5 rounded-xl hover:bg-[var(--accent-soft)] text-[var(--accent)] transition-all active:scale-95"
           >
             <Highlighter className="w-3.5 h-3.5" />
           </button>

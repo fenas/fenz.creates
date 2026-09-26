@@ -185,7 +185,7 @@ export async function deletePromptFromDb(id: string): Promise<boolean> {
   if (!supabase) return false;
 
   try {
-    const { error } = await supabase.from("prompts").delete().eq("id", id);
+    const { error } = await supabase.from("prompts").delete().or(`id.eq.${id},slug.eq.${id}`);
     if (error) {
       console.error("[Supabase] deletePrompt error:", error);
       return false;

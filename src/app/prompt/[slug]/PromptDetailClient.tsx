@@ -21,6 +21,8 @@ import { formatDate, formatNumber } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
 import { ThemeSelector } from "@/components/theme/ThemeSelector";
 
+import { DetailLoadingState } from "@/components/ui/DetailLoadingState";
+
 export function PromptDetailClient({
   initialPrompt,
   slug,
@@ -30,6 +32,7 @@ export function PromptDetailClient({
 }) {
   const {
     prompts,
+    isLoaded,
     copyPrompt,
     categories,
     setActiveTab,
@@ -37,14 +40,15 @@ export function PromptDetailClient({
   } = usePromptStore();
   const { showToast } = useToast();
 
-  // Find latest in store or fallback to initialPrompt
-  const prompt =
-    prompts.find(
-      (p) =>
-        p.slug === slug ||
-        p.id === slug ||
-        (initialPrompt && (p.slug === initialPrompt.slug || p.id === initialPrompt.id))
-    ) || initialPrompt;
+  // Find latest in store; only use initialPrompt as SSR placeholder before store is loaded
+  const matchedPrompt = prompts.find(
+    (p) =>
+      p.slug === slug ||
+      p.id === slug ||
+      (initialPrompt && (p.slug === initialPrompt.slug || p.id === initialPrompt.id))
+  );
+
+  const prompt = matchedPrompt || (!isLoaded ? initialPrompt : null);
 
   const [copied, setCopied] = useState(false);
   const [copiedNegative, setCopiedNegative] = useState(false);
@@ -54,8 +58,8 @@ export function PromptDetailClient({
     prompt?.mediaUrls && prompt.mediaUrls.length > 0
       ? prompt.mediaUrls
       : prompt?.mediaUrl
-      ? [prompt.mediaUrl]
-      : [];
+        ? [prompt.mediaUrl]
+        : [];
 
   useEffect(() => {
     setActiveImageIndex(0);
@@ -73,7 +77,12 @@ export function PromptDetailClient({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [images.length]);
 
+  // If data is still loading and we don't have the prompt yet, show glowing loader animation
   if (!prompt) {
+    if (!isLoaded) {
+      return <DetailLoadingState type="prompt" />;
+    }
+
     return (
       <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] flex flex-col items-center justify-center p-6 text-center transition-colors duration-200">
         <div className="w-16 h-16 rounded-2xl bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center mb-4 text-[var(--accent)] shadow-sm">
@@ -156,7 +165,7 @@ export function PromptDetailClient({
           text: `Check out this AI prompt for ${prompt.model}: "${prompt.title}"`,
           url,
         });
-      } catch {}
+      } catch { }
     } else {
       await navigator.clipboard.writeText(url);
       showToast("Link Copied to Clipboard!", "success", url);
@@ -260,11 +269,10 @@ export function PromptDetailClient({
                     key={idx}
                     type="button"
                     onClick={() => setActiveImageIndex(idx)}
-                    className={`relative w-16 h-16 rounded-[12px] overflow-hidden flex-shrink-0 border transition-all cursor-pointer ${
-                      activeImageIndex === idx
-                        ? "border-[#E85002] ring-2 ring-[#E85002]/60 scale-[1.03]"
+                    className={`relative w-16 h-16 rounded-[12px] overflow-hidden flex-shrink-0 border transition-all cursor-pointer ${activeImageIndex === idx
+                        ? "border-[var(--accent)] ring-2 ring-[var(--accent)]/60 scale-[1.03]"
                         : "border-[var(--border)] opacity-60 hover:opacity-100"
-                    }`}
+                      }`}
                   >
                     <Image
                       src={img}
@@ -298,7 +306,7 @@ export function PromptDetailClient({
                   {category?.name || "AI Art"}
                 </span>
                 {isPack && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E85002]/15 text-[#F16001] font-mono">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] font-mono">
                     Prompt Pack Collection
                   </span>
                 )}
@@ -318,7 +326,7 @@ export function PromptDetailClient({
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider font-mono flex items-center gap-1.5">
                   {isPack ? (
-                    <span className="text-[#F16001]">
+                    <span className="text-[var(--accent)]">
                       Prompt for Image #{activeImageIndex + 1} of {images.length}
                     </span>
                   ) : (
@@ -333,11 +341,10 @@ export function PromptDetailClient({
                 <div className="mt-5 pt-4 border-t border-[var(--border)] flex flex-wrap items-center justify-between gap-2.5">
                   <button
                     onClick={handleCopyMain}
-                    className={`flex-1 flex items-center justify-center gap-2.5 py-3 px-6 rounded-[12px] text-xs sm:text-sm font-medium transition-all cursor-pointer ${
-                      copied
-                        ? "bg-[var(--accent)] text-white shadow-[0_2px_10px_rgba(232,92,92,0.35)]"
+                    className={`flex-1 flex items-center justify-center gap-2.5 py-3 px-6 rounded-[12px] text-xs sm:text-sm font-medium transition-all cursor-pointer ${copied
+                        ? "bg-[var(--accent)] text-white shadow-[var(--accent-shadow)]"
                         : "btn-primary"
-                    }`}
+                      }`}
                   >
                     {copied ? (
                       <>
@@ -355,10 +362,10 @@ export function PromptDetailClient({
                   {isPack && prompt.packItems && prompt.packItems.length > 1 && (
                     <button
                       onClick={handleCopyAllPackPrompts}
-                      className="px-4 py-3 rounded-[12px] bg-white/5 hover:bg-white/10 text-[var(--text-secondary)] hover:text-white border border-white/10 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                      className="px-4 py-3 rounded-[12px] bg-white/5 hover:bg-white/10 text-[var(--text-secondary)] hover:text-white border border-white/10 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                       title="Copy all prompts in this pack"
                     >
-                      <Layers className="w-4 h-4 text-[#E85002]" />
+                      <Layers className="w-4 h-4 text-[var(--accent)]" />
                       <span>Copy All ({prompt.packItems.length})</span>
                     </button>
                   )}

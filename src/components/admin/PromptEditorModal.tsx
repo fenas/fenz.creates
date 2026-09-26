@@ -87,8 +87,8 @@ export function PromptEditorModal({
         promptToEdit.mediaUrls && promptToEdit.mediaUrls.length > 0
           ? promptToEdit.mediaUrls
           : promptToEdit.mediaUrl
-          ? [promptToEdit.mediaUrl]
-          : [];
+            ? [promptToEdit.mediaUrl]
+            : [];
       setMediaUrls(existingUrls);
 
       if (promptToEdit.packItems && promptToEdit.packItems.length > 0) {
@@ -506,11 +506,10 @@ export function PromptEditorModal({
                   setActiveImageIndex(0);
                 }
               }}
-              className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
-                promptKind === "single"
-                  ? "bg-gradient-to-r from-orange-500 to-[#E85002] text-white shadow-lg shadow-[#E85002]/25"
+              className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${promptKind === "single"
+                  ? "btn-accent-gradient shadow-lg"
                   : "text-slate-400 hover:text-white hover:bg-white/5"
-              }`}
+                }`}
             >
               <Sparkles className="w-4 h-4" />
               <span>Single Prompt (1 Image + 1 Prompt)</span>
@@ -521,11 +520,10 @@ export function PromptEditorModal({
               onClick={() => {
                 setPromptKind("pack");
               }}
-              className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
-                promptKind === "pack"
-                  ? "bg-gradient-to-r from-orange-500 to-[#E85002] text-white shadow-lg shadow-[#E85002]/25"
+              className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${promptKind === "pack"
+                  ? "btn-accent-gradient shadow-lg"
                   : "text-slate-400 hover:text-white hover:bg-white/5"
-              }`}
+                }`}
             >
               <Layers className="w-4 h-4" />
               <span>Prompt Pack (Multi-Image + Prompts)</span>
@@ -539,7 +537,7 @@ export function PromptEditorModal({
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                     <span>{promptKind === "pack" ? "Pack Images" : "Showcase Image"}</span>
-                    <span className="px-2 py-0.5 rounded-full bg-[#E85002]/20 text-[#F16001] text-[10px] font-bold">
+                    <span className="px-2 py-0.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] text-[10px] font-bold">
                       {mediaUrls.length} image{mediaUrls.length !== 1 ? "s" : ""}
                     </span>
                   </label>
@@ -558,11 +556,10 @@ export function PromptEditorModal({
                   }}
                   onDragLeave={() => setIsDragging(false)}
                   onDrop={handleDropFiles}
-                  className={`relative rounded-2xl overflow-hidden bg-slate-950 border transition-all aspect-square flex items-center justify-center group ${
-                    isDragging
-                      ? "border-[#E85002] ring-2 ring-[#E85002]/40"
+                  className={`relative rounded-2xl overflow-hidden bg-slate-950 border transition-all aspect-square flex items-center justify-center group ${isDragging
+                      ? "border-[var(--accent)] ring-2 ring-[var(--accent)]/40"
                       : "border-white/10"
-                  }`}
+                    }`}
                 >
                   {currentPreviewUrl ? (
                     <Image
@@ -585,7 +582,7 @@ export function PromptEditorModal({
                       {mediaType === "video" ? "🎬 Video" : "🖼️ Image"}
                     </div>
                     {activeImageIndex === 0 && (
-                      <span className="px-2 py-0.5 rounded-lg bg-[#E85002] text-white text-[10px] font-bold shadow-md">
+                      <span className="px-2 py-0.5 rounded-lg bg-[var(--accent)] text-white text-[10px] font-bold shadow-md">
                         Cover
                       </span>
                     )}
@@ -607,7 +604,7 @@ export function PromptEditorModal({
                           const nextIdx = activeImageIndex === 0 ? mediaUrls.length - 1 : activeImageIndex - 1;
                           handleSelectImageIndex(nextIdx);
                         }}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/70 hover:bg-[#E85002] text-white backdrop-blur-md transition-all z-10 shadow-lg"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/70 hover:bg-[var(--accent)] text-white backdrop-blur-md transition-all z-10 shadow-lg"
                       >
                         <ChevronLeft className="w-4 h-4" />
                       </button>
@@ -618,7 +615,7 @@ export function PromptEditorModal({
                           const nextIdx = activeImageIndex === mediaUrls.length - 1 ? 0 : activeImageIndex + 1;
                           handleSelectImageIndex(nextIdx);
                         }}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/70 hover:bg-[#E85002] text-white backdrop-blur-md transition-all z-10 shadow-lg"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/70 hover:bg-[var(--accent)] text-white backdrop-blur-md transition-all z-10 shadow-lg"
                       >
                         <ChevronRight className="w-4 h-4" />
                       </button>
@@ -636,7 +633,7 @@ export function PromptEditorModal({
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-2.5 py-1 rounded-lg bg-[#E85002]/15 hover:bg-[#E85002] text-[#F16001] hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 font-bold text-[11px]"
+                    className="px-2.5 py-1 rounded-lg bg-[var(--accent-soft)] hover:bg-[var(--accent)] text-[var(--accent)] hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 font-bold text-[11px]"
                   >
                     <Upload className="w-3.5 h-3.5" />
                     <span>{promptKind === "pack" ? "Upload Images" : "Upload Image"}</span>
@@ -695,7 +692,7 @@ export function PromptEditorModal({
                     onClick={handleAddUrl}
                     className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-1"
                   >
-                    <Plus className="w-3.5 h-3.5 text-[#E85002]" />
+                    <Plus className="w-3.5 h-3.5 text-[var(--accent)]" />
                     <span>Add</span>
                   </button>
                 </div>
@@ -714,11 +711,10 @@ export function PromptEditorModal({
                       <div
                         key={idx}
                         onClick={() => handleSelectImageIndex(idx)}
-                        className={`group/thumb relative rounded-xl overflow-hidden aspect-square border cursor-pointer transition-all ${
-                          activeImageIndex === idx
-                            ? "border-[#E85002] ring-2 ring-[#E85002]/50 scale-[1.02]"
+                        className={`group/thumb relative rounded-xl overflow-hidden aspect-square border cursor-pointer transition-all ${activeImageIndex === idx
+                            ? "border-[var(--accent)] ring-2 ring-[var(--accent)]/50 scale-[1.02]"
                             : "border-white/10 hover:border-white/30 bg-slate-950"
-                        }`}
+                          }`}
                       >
                         <Image
                           src={url}
@@ -762,7 +758,7 @@ export function PromptEditorModal({
                                   e.stopPropagation();
                                   handleSetPrimary(idx);
                                 }}
-                                className="px-1.5 py-0.5 rounded bg-[#E85002] hover:bg-[#F16001] text-[9px] font-bold text-white flex items-center gap-0.5"
+                                className="px-1.5 py-0.5 rounded bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[9px] font-bold text-white flex items-center gap-0.5"
                                 title="Make Primary Cover"
                               >
                                 <Star className="w-2.5 h-2.5 fill-white" />
@@ -813,11 +809,10 @@ export function PromptEditorModal({
                   <button
                     type="button"
                     onClick={() => setMediaType("image")}
-                    className={`py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
-                      mediaType === "image"
+                    className={`py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${mediaType === "image"
                         ? "bg-[#252a3a] text-white border border-white/20 shadow-sm"
                         : "glass-pill text-slate-400 hover:text-slate-200"
-                    }`}
+                      }`}
                   >
                     <ImageIcon className="w-3.5 h-3.5" />
                     Image Prompt
@@ -825,11 +820,10 @@ export function PromptEditorModal({
                   <button
                     type="button"
                     onClick={() => setMediaType("video")}
-                    className={`py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
-                      mediaType === "video"
-                        ? "bg-[#E85002] text-white font-bold"
+                    className={`py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${mediaType === "video"
+                        ? "bg-[var(--accent)] text-white font-bold"
                         : "glass-pill text-slate-400 hover:text-slate-200"
-                    }`}
+                      }`}
                   >
                     <Video className="w-3.5 h-3.5" />
                     Video Prompt
@@ -849,11 +843,10 @@ export function PromptEditorModal({
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value as "published" | "draft")}
-                    className={`px-3 py-1 rounded-xl text-xs font-semibold ${
-                      status === "published"
+                    className={`px-3 py-1 rounded-xl text-xs font-semibold ${status === "published"
                         ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                        : "bg-[#E85002]/20 text-[#F16001] border border-[#E85002]/30"
-                    }`}
+                        : "bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent)]/30"
+                      }`}
                   >
                     <option value="published" className="bg-[#0f1117] text-white">
                       Published
@@ -875,13 +868,13 @@ export function PromptEditorModal({
                     type="checkbox"
                     checked={featured}
                     onChange={(e) => setFeatured(e.target.checked)}
-                    className="w-4 h-4 accent-[#E85002] rounded cursor-pointer"
+                    className="w-4 h-4 accent-[var(--accent)] rounded cursor-pointer"
                   />
                 </div>
 
                 <div className="flex items-center justify-between pt-2 border-t border-white/5">
                   <div>
-                    <div className="text-xs font-semibold text-[#F16001] flex items-center gap-1.5">
+                    <div className="text-xs font-semibold text-[var(--accent)] flex items-center gap-1.5">
                       <span>🌟 Hero Banner Post</span>
                     </div>
                     <div className="text-[10px] text-slate-400">
@@ -892,7 +885,7 @@ export function PromptEditorModal({
                     type="checkbox"
                     checked={isHeroBanner}
                     onChange={(e) => setIsHeroBanner(e.target.checked)}
-                    className="w-4 h-4 accent-[#E85002] rounded cursor-pointer"
+                    className="w-4 h-4 accent-[var(--accent)] rounded cursor-pointer"
                   />
                 </div>
               </div>
@@ -935,7 +928,7 @@ export function PromptEditorModal({
                     {promptKind === "pack" ? (
                       <span className="flex items-center gap-1.5">
                         <span>Prompt Formula for Image #{activeImageIndex + 1} *</span>
-                        <span className="text-[10px] text-[#F16001] font-mono bg-[#E85002]/15 px-1.5 py-0.2 rounded">
+                        <span className="text-[10px] text-[var(--accent)] font-mono bg-[var(--accent-soft)] px-1.5 py-0.2 rounded">
                           Image {activeImageIndex + 1} of {mediaUrls.length}
                         </span>
                       </span>
@@ -950,11 +943,10 @@ export function PromptEditorModal({
                           key={i}
                           type="button"
                           onClick={() => handleSelectImageIndex(i)}
-                          className={`w-5 h-5 rounded-md text-[10px] font-mono font-bold transition-all ${
-                            activeImageIndex === i
-                              ? "bg-[#E85002] text-white"
+                          className={`w-5 h-5 rounded-md text-[10px] font-mono font-bold transition-all ${activeImageIndex === i
+                              ? "bg-[var(--accent)] text-white"
                               : "bg-white/10 text-slate-400 hover:text-white"
-                          }`}
+                            }`}
                         >
                           {i + 1}
                         </button>
@@ -1102,7 +1094,7 @@ export function PromptEditorModal({
             </button>
             <button
               type="submit"
-              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#E85002] to-[#F16001] hover:from-[#F16001] hover:to-[#E85002] text-white font-bold text-xs shadow-lg shadow-[#E85002]/40 hover:scale-[1.02] active:scale-[0.98]"
+              className="btn-accent-gradient flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-xs shadow-lg"
             >
               <Save className="w-4 h-4" />
               <span>{isEditing ? "Save Changes" : "Create Prompt"}</span>

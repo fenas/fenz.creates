@@ -130,7 +130,7 @@ export function UnifiedHeader() {
               }`}
             >
               {selectedCategory === "all" && (
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] shadow-[0_0_6px_rgba(255,84,84,0.8)]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] shadow-[0_0_8px_rgba(255,108,0,0.8)]" />
               )}
               <span>All Categories</span>
             </button>
@@ -149,7 +149,7 @@ export function UnifiedHeader() {
                   }`}
                 >
                   {isSelected && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] shadow-[0_0_6px_rgba(255,84,84,0.8)]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] shadow-[0_0_8px_rgba(255,108,0,0.8)]" />
                   )}
                   <span>{cat.name}</span>
                 </button>

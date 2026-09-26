@@ -1,7 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { initialPrompts, initialCategories } from "@/data/seedData";
+import { initialPrompts } from "@/data/seedData";
+import { fetchPromptBySlugFromDb } from "@/lib/supabase";
 import { PromptDetailClient } from "./PromptDetailClient";
 
 interface Props {
@@ -16,7 +16,8 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const prompt = initialPrompts.find((p) => p.slug === slug);
+  const dbPrompt = await fetchPromptBySlugFromDb(slug);
+  const prompt = dbPrompt || initialPrompts.find((p) => p.slug === slug);
 
   if (!prompt) {
     const formattedTitle = slug
@@ -59,7 +60,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PromptPage({ params }: Props) {
   const { slug } = await params;
-  const initialPrompt = initialPrompts.find((p) => p.slug === slug) || null;
+  const dbPrompt = await fetchPromptBySlugFromDb(slug);
+  const initialPrompt = dbPrompt || initialPrompts.find((p) => p.slug === slug) || null;
 
   return <PromptDetailClient initialPrompt={initialPrompt} slug={slug} />;
 }
