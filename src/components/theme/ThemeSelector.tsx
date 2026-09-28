@@ -93,10 +93,10 @@ export function ThemeSelector({
     theme === "system"
       ? Monitor
       : resolvedTheme === "light"
-      ? Sun
-      : resolvedTheme === "grey"
-      ? CircleDot
-      : Moon;
+        ? Sun
+        : resolvedTheme === "grey"
+          ? CircleDot
+          : Moon;
 
   // Positioning classes based on direction prop
   const getPositionClasses = () => {
@@ -115,16 +115,14 @@ export function ThemeSelector({
     if (triggerClassName) return triggerClassName;
 
     if (variant === "dark-squircle") {
-      return `w-9 h-9 rounded-[14px] flex items-center justify-center transition-all duration-150 cursor-pointer ${
-        isOpen
+      return `w-9 h-9 rounded-[14px] flex items-center justify-center transition-all duration-150 cursor-pointer ${isOpen
           ? "bg-[var(--active-btn-bg)] text-[var(--active-btn-icon)] shadow-sm border border-[var(--active-btn-border)]"
           : "bg-[var(--surface)] hover:bg-[var(--surface-elevated)] text-[var(--icon-primary)] shadow-sm border border-[var(--border)]"
-      } focus:outline-none`;
+        } focus:outline-none`;
     }
 
-    return `h-9 w-9 flex items-center justify-center rounded-[10px] bg-[var(--surface-muted)] hover:bg-[var(--surface-elevated)] border border-[var(--border)] text-[var(--text-primary)] transition-all duration-150 cursor-pointer ${
-      isOpen ? "border-[var(--border-strong)] bg-[var(--surface-elevated)]" : ""
-    } focus:outline-none`;
+    return `h-9 w-9 flex items-center justify-center rounded-[10px] bg-[var(--surface-muted)] hover:bg-[var(--surface-elevated)] border border-[var(--border)] text-[var(--text-primary)] transition-all duration-150 cursor-pointer ${isOpen ? "border-[var(--border-strong)] bg-[var(--surface-elevated)]" : ""
+      } focus:outline-none`;
   };
 
   return (
@@ -172,11 +170,10 @@ export function ThemeSelector({
                     setTheme(opt.id);
                     setIsOpen(false);
                   }}
-                  className={`w-full flex items-center justify-between px-2.5 py-2 rounded-[10px] text-xs cursor-pointer transition-all ${
-                    isSelected
+                  className={`w-full flex items-center justify-between px-2.5 py-2 rounded-[10px] text-xs cursor-pointer transition-all ${isSelected
                       ? "bg-[var(--active-btn-bg)] text-[var(--active-btn-text)] border border-[var(--active-btn-border)] shadow-sm font-semibold"
                       : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-soft)] border border-transparent font-normal"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-2.5">
                     <Icon className={`w-3.5 h-3.5 stroke-[1.75] ${isSelected ? "text-[var(--active-btn-icon)]" : "text-[var(--icon-secondary)]"}`} />

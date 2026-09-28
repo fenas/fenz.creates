@@ -21,6 +21,7 @@ import { useToast } from "@/components/ui/Toast";
 import { ThemeSelector } from "@/components/theme/ThemeSelector";
 
 import { DetailLoadingState } from "@/components/ui/DetailLoadingState";
+import { LiquidAccentButton } from "@/components/ui/LiquidAccentButton";
 
 export function ComingSoonDetailClient({
   initialFeature,
@@ -61,12 +62,9 @@ export function ComingSoonDetailClient({
         <p className="text-xs text-[var(--text-secondary)] max-w-md mb-6">
           This feature may have been removed or the link is incorrect.
         </p>
-        <Link
-          href="/"
-          className="btn-primary px-5 py-2.5 rounded-[12px] text-xs font-medium"
-        >
+        <LiquidAccentButton href="/" size="sm">
           Return to Discovery
-        </Link>
+        </LiquidAccentButton>
       </div>
     );
   }
@@ -257,13 +255,13 @@ export function ComingSoonDetailClient({
                 className="flex-1 px-4 py-3 rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] text-xs sm:text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-secondary)] shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] transition-all"
                 required
               />
-              <button
+              <LiquidAccentButton
                 type="submit"
-                className="btn-primary px-6 py-3 rounded-[12px] text-xs sm:text-sm font-medium transition-all shadow-md flex items-center justify-center gap-2 flex-shrink-0 cursor-pointer"
+                size="md"
+                icon={<ArrowRight className="w-4 h-4 stroke-[1.75]" />}
               >
-                <span>Notify Me</span>
-                <ArrowRight className="w-4 h-4 stroke-[1.75]" />
-              </button>
+                Notify Me
+              </LiquidAccentButton>
             </form>
           )}
         </section>

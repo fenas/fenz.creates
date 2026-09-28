@@ -18,6 +18,7 @@ import { AspectRatio, PromptKind, PromptPackItem } from "@/types";
 import { useToast } from "@/components/ui/Toast";
 
 import { uploadMediaToSupabase } from "@/lib/supabase";
+import { LiquidAccentButton } from "@/components/ui/LiquidAccentButton";
 
 export function SubmitPromptModal() {
   const { isSubmitModalOpen, setIsSubmitModalOpen, categories, addPrompt } =
@@ -910,22 +911,22 @@ export function SubmitPromptModal() {
             <button
               type="button"
               onClick={() => setIsSubmitModalOpen(false)}
-              className="px-4 py-2.5 rounded-xl bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-xs font-bold text-[var(--text-primary)] cursor-pointer transition-colors"
+              className="px-4 py-2.5 rounded-full bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-xs font-medium text-[var(--text-primary)] cursor-pointer transition-colors"
             >
               Cancel
             </button>
-            <button
+            <LiquidAccentButton
               type="submit"
               disabled={isSubmitting}
-              className="btn-accent-gradient flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold shadow-lg disabled:opacity-50 cursor-pointer"
+              isLoading={isSubmitting}
+              loadingText="Publishing Blueprint..."
+              size="sm"
+              icon={<Send className="w-3.5 h-3.5 stroke-[2]" />}
             >
-              <Send className="w-3.5 h-3.5 stroke-[2]" />
-              <span>
-                {uploadKind === "pack"
-                  ? `Publish Prompt Pack (${packItems.length} Prompts)`
-                  : "Publish Single Prompt"}
-              </span>
-            </button>
+              {uploadKind === "pack"
+                ? `Publish Prompt Pack (${packItems.length} Prompts)`
+                : "Publish Single Prompt"}
+            </LiquidAccentButton>
           </div>
         </form>
       </div>

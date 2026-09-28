@@ -14,6 +14,8 @@ import { Prompt } from "@/types";
 import { usePromptStore } from "@/context/PromptContext";
 import { useToast } from "@/components/ui/Toast";
 
+import { LiquidAccentButton } from "@/components/ui/LiquidAccentButton";
+
 interface SpotlightHeroProps {
   featuredPrompt: Prompt | null;
 }
@@ -87,15 +89,15 @@ export function SpotlightHero({ featuredPrompt }: SpotlightHeroProps) {
         </p>
 
         {/* Action Buttons Row */}
-        <div className="flex items-center gap-2 pt-1 flex-wrap">
-          {/* Explore Blueprint Button */}
-          <Link
+        <div className="flex items-center gap-2.5 pt-1 flex-wrap">
+          {/* Explore Blueprint Pill CTA */}
+          <LiquidAccentButton
             href={`/prompt/${featuredPrompt.slug}`}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] text-xs font-medium btn-primary transition-all cursor-pointer shadow-sm"
+            size="sm"
+            icon={<ArrowUpRight className="w-3.5 h-3.5 stroke-[2]" />}
           >
-            <span>Explore Blueprint</span>
-            <ArrowUpRight className="w-3.5 h-3.5 stroke-[2]" />
-          </Link>
+            Explore Blueprint
+          </LiquidAccentButton>
 
           {/* Share Button */}
           <button

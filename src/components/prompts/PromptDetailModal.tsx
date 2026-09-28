@@ -19,6 +19,7 @@ import { Prompt } from "@/types";
 import { usePromptStore } from "@/context/PromptContext";
 import { formatDate, formatNumber } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
+import { LiquidAccentButton } from "@/components/ui/LiquidAccentButton";
 
 interface PromptDetailModalProps {
   prompt: Prompt | null;
@@ -333,25 +334,23 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                   <p className="select-all break-words">&ldquo;{activePromptText}&rdquo;</p>
 
                   <div className="mt-4 pt-3 border-t border-[var(--border)] flex flex-wrap items-center justify-between gap-2.5">
-                    <button
+                    <LiquidAccentButton
                       onClick={handleCopyMain}
-                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-[10px] text-xs sm:text-sm font-medium transition-all cursor-pointer ${copied
-                          ? "bg-[var(--accent)] text-white shadow-[0_2px_10px_rgba(232,92,92,0.35)]"
-                          : "btn-primary"
-                        }`}
+                      size="sm"
+                      icon={
+                        copied ? (
+                          <Check className="w-4 h-4 stroke-[2.2]" />
+                        ) : (
+                          <Copy className="w-3.5 h-3.5 stroke-[1.75]" />
+                        )
+                      }
                     >
-                      {copied ? (
-                        <>
-                          <Check className="w-4 h-4 stroke-[2]" />
-                          <span>Copied to Clipboard!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4 stroke-[1.75]" />
-                          <span>{isPack ? `Copy Image #${activeImageIndex + 1} Prompt` : "Copy Prompt"}</span>
-                        </>
-                      )}
-                    </button>
+                      {copied
+                        ? "Copied to Clipboard!"
+                        : isPack
+                        ? `Copy Image #${activeImageIndex + 1} Prompt`
+                        : "Copy Full Prompt"}
+                    </LiquidAccentButton>
 
                     {isPack && prompt.packItems && prompt.packItems.length > 1 && (
                       <button

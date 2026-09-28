@@ -100,11 +100,10 @@ export function SlimIconSidebar() {
                     <button
                       onClick={() => handleNavClick(item.id)}
                       aria-label={item.label}
-                      className={`w-9 h-9 rounded-[10px] flex items-center justify-center transition-all duration-150 relative cursor-pointer ${
-                        active
+                      className={`w-9 h-9 rounded-[10px] flex items-center justify-center transition-all duration-150 relative cursor-pointer ${active
                           ? "bg-[var(--active-btn-bg)] text-[var(--active-btn-icon)] shadow-[var(--active-btn-shadow)] border border-[var(--active-btn-border)]"
                           : "text-[var(--icon-secondary)] hover:text-[var(--icon-primary)] hover:bg-[var(--surface-elevated)]"
-                      }`}
+                        }`}
                     >
                       <Icon className="w-4 h-4 stroke-[1.75]" />
 
@@ -163,11 +162,10 @@ export function SlimIconSidebar() {
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
-                className={`flex flex-col items-center justify-center py-1 px-3 rounded-[10px] transition-all relative ${
-                  active
+                className={`flex flex-col items-center justify-center py-1 px-3 rounded-[10px] transition-all relative ${active
                     ? "text-[var(--text-primary)] font-medium bg-[var(--surface)] shadow-sm"
                     : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                }`}
+                  }`}
               >
                 <div className="relative">
                   <Icon className="w-4.5 h-4.5 stroke-[1.75]" />

@@ -18,6 +18,7 @@ import { convertTutorialToBlocks } from "@/lib/blockConverter";
 import { ThemeSelector } from "@/components/theme/ThemeSelector";
 
 import { DetailLoadingState } from "@/components/ui/DetailLoadingState";
+import { LiquidAccentButton } from "@/components/ui/LiquidAccentButton";
 
 export function TutorialDetailClient({
   initialTutorial,
@@ -56,12 +57,9 @@ export function TutorialDetailClient({
         <p className="text-xs text-[var(--text-secondary)] max-w-md mb-6">
           This tutorial may have been removed or the link is incorrect.
         </p>
-        <Link
-          href="/"
-          className="btn-primary px-5 py-2.5 rounded-[12px] text-xs font-medium"
-        >
+        <LiquidAccentButton href="/" size="sm">
           Return to Discovery
-        </Link>
+        </LiquidAccentButton>
       </div>
     );
   }

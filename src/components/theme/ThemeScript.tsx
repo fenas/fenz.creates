@@ -1,5 +1,6 @@
 import React from "react";
-import { THEME_STORAGE_KEY } from "@/context/ThemeContext";
+
+const THEME_STORAGE_KEY = "arenae_theme_v1";
 
 const themeInitScript = `
 (function() {

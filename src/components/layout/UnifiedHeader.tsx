@@ -10,7 +10,6 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { usePromptStore } from "@/context/PromptContext";
-import { ThemeSelector } from "@/components/theme/ThemeSelector";
 import { CategorySelectionModal } from "@/components/layout/CategorySelectionModal";
 
 export function UnifiedHeader() {
@@ -111,9 +110,6 @@ export function UnifiedHeader() {
               <Dices className="w-4 h-4 text-[var(--accent)] stroke-[1.75]" />
               <span className="hidden sm:inline">Surprise Me</span>
             </button>
-
-            {/* Theme Selector Popover */}
-            <ThemeSelector />
           </div>
         </div>
 

@@ -14,6 +14,7 @@ import { usePromptStore } from "@/context/PromptContext";
 import { Tutorial, ComingSoonFeature } from "@/types";
 import { PosterPromptCard } from "./PosterPromptCard";
 import { useToast } from "@/components/ui/Toast";
+import { LiquidAccentButton } from "@/components/ui/LiquidAccentButton";
 
 export function SingleSectionCardsLayout() {
   const {
@@ -133,13 +134,13 @@ export function SingleSectionCardsLayout() {
 
       {/* Actions: Read Full Guide & Share */}
       <div className="flex items-center gap-2 pt-2 border-t border-[var(--border)]">
-        <Link
+        <LiquidAccentButton
           href={`/tutorial/${tut.slug}`}
-          className="flex-1 py-2.5 px-4 rounded-[10px] text-xs font-medium btn-primary flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+          size="sm"
+          icon={<ChevronRight className="w-3.5 h-3.5 stroke-[1.75]" />}
         >
-          <span>Read Full Workflow</span>
-          <ChevronRight className="w-3.5 h-3.5 stroke-[1.75]" />
-        </Link>
+          Read Full Workflow
+        </LiquidAccentButton>
 
         <button
           onClick={(e) => handleShareTutorial(e, tut)}
@@ -441,17 +442,17 @@ export function SingleSectionCardsLayout() {
                   No formulas matching your search query or active filter.
                 </p>
 
-                <button
+                <LiquidAccentButton
                   onClick={() => {
                     setSearchQuery("");
                     setSelectedCategory("all");
                     setActiveTab("discover");
                   }}
-                  className="btn-primary flex items-center gap-2 px-4 py-2.5 text-xs font-medium"
+                  size="sm"
+                  icon={<RotateCcw className="w-3.5 h-3.5 stroke-[1.75]" />}
                 >
-                  <RotateCcw className="w-3.5 h-3.5 stroke-[1.75]" />
-                  <span>Reset Filters</span>
-                </button>
+                  Reset Filters
+                </LiquidAccentButton>
               </div>
             )
           ) : (
