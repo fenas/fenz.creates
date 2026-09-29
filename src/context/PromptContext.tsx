@@ -956,7 +956,7 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
         const query = searchQuery.toLowerCase();
         const matchesTitle = prompt.title.toLowerCase().includes(query);
         const matchesPrompt = prompt.promptText.toLowerCase().includes(query);
-        const matchesModel = prompt.model.toLowerCase().includes(query);
+        const matchesModel = (prompt.model?.toLowerCase() || "").includes(query);
         const matchesTags = prompt.tags.some((tag) =>
           tag.toLowerCase().includes(query)
         );

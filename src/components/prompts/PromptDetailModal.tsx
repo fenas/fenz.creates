@@ -14,6 +14,7 @@ import {
   Video,
   ChevronLeft,
   ChevronRight,
+  BookOpen,
 } from "lucide-react";
 import { Prompt } from "@/types";
 import { usePromptStore } from "@/context/PromptContext";
@@ -66,10 +67,9 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
 
   const isPack =
     prompt?.promptKind === "pack" ||
-    (Array.isArray(prompt?.packItems) && prompt.packItems.length > 1) ||
-    images.length > 1;
+    (Array.isArray(prompt?.packItems) && prompt.packItems.length > 1);
 
-  const currentPackItem = prompt?.packItems?.[activeImageIndex];
+  const currentPackItem = isPack ? prompt?.packItems?.[activeImageIndex] : undefined;
   const activePromptText = currentPackItem?.promptText || prompt?.promptText || "";
   const activeNegativePrompt =
     currentPackItem?.negativePrompt !== undefined
@@ -124,7 +124,9 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
       try {
         await navigator.share({
           title: `${prompt.title} - Aistronaut`,
-          text: `Check out this AI prompt for ${prompt.model}: "${prompt.title}"`,
+          text: prompt.model
+            ? `Check out this AI prompt for ${prompt.model}: "${prompt.title}"`
+            : `Check out this AI prompt: "${prompt.title}"`,
           url,
         });
       } catch { }
@@ -149,12 +151,17 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
         {/* Top Sticky Header */}
         <div className="px-4 sm:px-6 py-3.5 border-b border-[var(--border)] flex items-center justify-between bg-[var(--surface-elevated)] z-20">
           <div className="flex items-center gap-2 min-w-0 pr-4">
-            {isPack && (
+            {isPack ? (
               <span className="px-2.5 py-1 rounded-[8px] text-[11px] font-bold bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent)]/30 flex items-center gap-1.5 flex-shrink-0 font-mono">
                 <Layers className="w-3.5 h-3.5" />
-                PACK • {images.length} PROMPTS
+                PACK • {prompt.packItems?.length || images.length} PROMPTS
               </span>
-            )}
+            ) : images.length > 1 ? (
+              <span className="px-2.5 py-1 rounded-[8px] text-[11px] font-medium bg-[var(--surface-muted)] text-[var(--text-secondary)] border border-[var(--border)] flex items-center gap-1.5 flex-shrink-0 font-mono">
+                <Layers className="w-3.5 h-3.5 text-[var(--accent)]" />
+                {images.length} SHOWCASE IMAGES
+              </span>
+            ) : null}
             <span className="text-xs font-medium text-[var(--text-secondary)] truncate">
               {category?.name || "AI Art"}
             </span>
@@ -387,6 +394,26 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                   </div>
                   <div className="rounded-[10px] bg-[var(--surface-recessed)] border border-[var(--border)] p-3 font-mono text-xs text-[var(--text-secondary)] select-all shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.25)]">
                     {activeNegativePrompt}
+                  </div>
+                </div>
+              )}
+
+              {/* How to Use Section (Single Prompt Guide or Shared Pack Guide) */}
+              {(prompt.howToUse || (prompt.parameters?.how_to_use as string) || (prompt.parameters?.howToUse as string)) && (
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider font-mono flex items-center gap-1.5">
+                      <BookOpen className="w-3.5 h-3.5 text-[var(--accent)] stroke-[1.75]" />
+                      <span>How to Use</span>
+                      {isPack && (
+                        <span className="text-[10px] text-[var(--text-muted)] font-normal font-sans lowercase">
+                          (shared guide for pack)
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="rounded-[10px] bg-[var(--surface-recessed)] border border-[var(--border)] p-3.5 text-xs text-[var(--text-primary)] leading-relaxed shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.25)] whitespace-pre-line font-mono">
+                    {prompt.howToUse || (prompt.parameters?.how_to_use as string) || (prompt.parameters?.howToUse as string)}
                   </div>
                 </div>
               )}

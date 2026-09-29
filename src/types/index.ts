@@ -9,6 +9,8 @@ export interface PromptParameters {
   sampler?: string;
   steps?: number;
   negativePrompt?: string;
+  how_to_use?: string;
+  howToUse?: string;
   version?: string;
   pack_items?: unknown;
   prompt_kind?: string;
@@ -37,6 +39,7 @@ export interface Prompt {
   description?: string;
   promptText: string;
   negativePrompt?: string;
+  howToUse?: string;
   mediaUrl: string;
   mediaUrls?: string[];
   packItems?: PromptPackItem[];

@@ -46,6 +46,7 @@ export function PromptEditorModal({
   const [subtitle, setSubtitle] = useState("");
   const [promptText, setPromptText] = useState("");
   const [negativePrompt, setNegativePrompt] = useState("");
+  const [howToUse, setHowToUse] = useState("");
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [packItems, setPackItems] = useState<
     Array<{
@@ -60,7 +61,7 @@ export function PromptEditorModal({
   const [urlInput, setUrlInput] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [mediaType, setMediaType] = useState<MediaType>("image");
-  const [model, setModel] = useState("Midjourney v6");
+  const [model, setModel] = useState("");
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("");
   const [categoryId, setCategoryId] = useState(categories[0]?.id || "");
   const [tagInput, setTagInput] = useState("");
@@ -82,6 +83,7 @@ export function PromptEditorModal({
       setSubtitle(promptToEdit.subtitle || promptToEdit.description || "");
       setPromptText(promptToEdit.promptText);
       setNegativePrompt(promptToEdit.negativePrompt || "");
+      setHowToUse(promptToEdit.howToUse || (promptToEdit.parameters?.how_to_use as string) || (promptToEdit.parameters?.howToUse as string) || "");
 
       const existingUrls =
         promptToEdit.mediaUrls && promptToEdit.mediaUrls.length > 0
@@ -107,7 +109,7 @@ export function PromptEditorModal({
 
       setActiveImageIndex(0);
       setMediaType(promptToEdit.type || "image");
-      setModel(promptToEdit.model);
+      setModel(promptToEdit.model || "");
       setAspectRatio(promptToEdit.aspectRatio || "");
       setCategoryId(promptToEdit.categoryId);
       setTags(promptToEdit.tags || []);
@@ -120,6 +122,7 @@ export function PromptEditorModal({
       setSubtitle("");
       setPromptText("");
       setNegativePrompt("");
+      setHowToUse("");
       setMediaUrls([
         "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop",
       ]);
@@ -134,7 +137,7 @@ export function PromptEditorModal({
       ]);
       setActiveImageIndex(0);
       setMediaType("image");
-      setModel("Midjourney v6");
+      setModel("");
       setAspectRatio("");
       setCategoryId(categories[0]?.id || "");
       setTags(["Featured", "Cinematic"]);
@@ -218,19 +221,17 @@ export function PromptEditorModal({
 
       if (validUrls.length === 0) return;
 
-      if (promptKind === "single") {
-        setMediaUrls([validUrls[0]]);
-        setPackItems([
-          {
-            id: "item-1",
-            imageUrl: validUrls[0],
-            promptText,
-            negativePrompt,
-            title: "Cover Image",
-          },
-        ]);
-        setActiveImageIndex(0);
-        showToast("Cover photo uploaded and updated!", "success");
+      if (mediaUrls.length === 1 && mediaUrls[0].includes("unsplash.com")) {
+        setMediaUrls(validUrls);
+        setPackItems(
+          validUrls.map((url, i) => ({
+            id: `item-${Date.now()}-${i}`,
+            imageUrl: url,
+            promptText: promptKind === "pack" ? "" : promptText,
+            negativePrompt: promptKind === "pack" ? "" : negativePrompt,
+            title: `Image ${i + 1}`,
+          }))
+        );
       } else {
         setMediaUrls((prev) => [...prev, ...validUrls]);
         setPackItems((prev) => [
@@ -238,13 +239,13 @@ export function PromptEditorModal({
           ...validUrls.map((url, i) => ({
             id: `item-${Date.now()}-${i}`,
             imageUrl: url,
-            promptText: "",
-            negativePrompt: "",
+            promptText: promptKind === "pack" ? "" : promptText,
+            negativePrompt: promptKind === "pack" ? "" : negativePrompt,
             title: `Image ${prev.length + i + 1}`,
           })),
         ]);
-        showToast(`Added ${validUrls.length} image(s)`, "success");
       }
+      showToast(`Added ${validUrls.length} image(s)`, "success");
     } catch {
       showToast("Upload encountered an issue", "error");
     }
@@ -276,19 +277,17 @@ export function PromptEditorModal({
 
       if (validUrls.length === 0) return;
 
-      if (promptKind === "single") {
-        setMediaUrls([validUrls[0]]);
-        setPackItems([
-          {
-            id: "item-1",
-            imageUrl: validUrls[0],
-            promptText,
-            negativePrompt,
-            title: "Cover Image",
-          },
-        ]);
-        setActiveImageIndex(0);
-        showToast("Cover photo dropped and updated!", "success");
+      if (mediaUrls.length === 1 && mediaUrls[0].includes("unsplash.com")) {
+        setMediaUrls(validUrls);
+        setPackItems(
+          validUrls.map((url, i) => ({
+            id: `item-${Date.now()}-${i}`,
+            imageUrl: url,
+            promptText: promptKind === "pack" ? "" : promptText,
+            negativePrompt: promptKind === "pack" ? "" : negativePrompt,
+            title: `Image ${i + 1}`,
+          }))
+        );
       } else {
         setMediaUrls((prev) => [...prev, ...validUrls]);
         setPackItems((prev) => [
@@ -296,13 +295,13 @@ export function PromptEditorModal({
           ...validUrls.map((url, i) => ({
             id: `item-${Date.now()}-${i}`,
             imageUrl: url,
-            promptText: "",
-            negativePrompt: "",
+            promptText: promptKind === "pack" ? "" : promptText,
+            negativePrompt: promptKind === "pack" ? "" : negativePrompt,
             title: `Image ${prev.length + i + 1}`,
           })),
         ]);
-        showToast(`Added ${validUrls.length} image(s)`, "success");
       }
+      showToast(`Added ${validUrls.length} image(s)`, "success");
     } catch {
       showToast("Upload encountered an issue", "error");
     }
@@ -313,33 +312,18 @@ export function PromptEditorModal({
     if (!urlInput.trim()) return;
     const url = urlInput.trim();
 
-    if (promptKind === "single") {
-      setMediaUrls([url]);
-      setPackItems([
-        {
-          id: "item-1",
-          imageUrl: url,
-          promptText,
-          negativePrompt,
-          title: "Cover Image",
-        },
-      ]);
-      setActiveImageIndex(0);
-      showToast("Cover photo URL updated!", "success");
-    } else {
-      setMediaUrls((prev) => [...prev, url]);
-      setPackItems((prev) => [
-        ...prev,
-        {
-          id: `item-${Date.now()}`,
-          imageUrl: url,
-          promptText: "",
-          negativePrompt: "",
-          title: `Image ${prev.length + 1}`,
-        },
-      ]);
-      showToast("Image URL added", "success");
-    }
+    setMediaUrls((prev) => [...prev, url]);
+    setPackItems((prev) => [
+      ...prev,
+      {
+        id: `item-${Date.now()}`,
+        imageUrl: url,
+        promptText: promptKind === "pack" ? "" : promptText,
+        negativePrompt: promptKind === "pack" ? "" : negativePrompt,
+        title: `Image ${prev.length + 1}`,
+      },
+    ]);
+    showToast("Image URL added", "success");
     setUrlInput("");
   };
 
@@ -426,6 +410,7 @@ export function PromptEditorModal({
       promptKind,
       promptText: promptKind === "pack" ? formattedPackItems[0]?.promptText || promptText : promptText.trim(),
       negativePrompt: negativePrompt.trim() || undefined,
+      howToUse: howToUse.trim() || undefined,
       mediaUrl: finalMedia,
       mediaUrls: finalUrls,
       packItems: promptKind === "pack" ? formattedPackItems : undefined,
@@ -495,16 +480,6 @@ export function PromptEditorModal({
               type="button"
               onClick={() => {
                 setPromptKind("single");
-                if (mediaUrls.length > 1) {
-                  setMediaUrls([mediaUrls[0]]);
-                  setPackItems([packItems[0] || {
-                    id: "item-1",
-                    imageUrl: mediaUrls[0],
-                    promptText,
-                    negativePrompt,
-                  }]);
-                  setActiveImageIndex(0);
-                }
               }}
               className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${promptKind === "single"
                   ? "btn-accent-gradient shadow-lg"
@@ -512,7 +487,7 @@ export function PromptEditorModal({
                 }`}
             >
               <Sparkles className="w-4 h-4" />
-              <span>Single Prompt (1 Image + 1 Prompt)</span>
+              <span>Standard Prompt (1 or more Images • 1 Prompt)</span>
             </button>
 
             <button
@@ -628,7 +603,7 @@ export function PromptEditorModal({
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-400 font-medium">
-                    {promptKind === "pack" ? "Add pack images:" : "Change image:"}
+                    {promptKind === "pack" ? "Add pack images:" : "Add showcase images:"}
                   </span>
                   <button
                     type="button"
@@ -636,12 +611,12 @@ export function PromptEditorModal({
                     className="px-2.5 py-1 rounded-lg bg-[var(--accent-soft)] hover:bg-[var(--accent)] text-[var(--accent)] hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 font-bold text-[11px]"
                   >
                     <Upload className="w-3.5 h-3.5" />
-                    <span>{promptKind === "pack" ? "Upload Images" : "Upload Image"}</span>
+                    <span>Upload Image(s)</span>
                   </button>
                   <input
                     ref={fileInputRef}
                     type="file"
-                    multiple={promptKind === "pack"}
+                    multiple
                     accept="image/*"
                     onChange={handleFileUpload}
                     className="hidden"
@@ -699,11 +674,19 @@ export function PromptEditorModal({
               </div>
 
               {/* Uploaded Images Gallery Strip / Manager */}
-              {mediaUrls.length > 0 && promptKind === "pack" && (
+              {mediaUrls.length > 0 && (
                 <div className="space-y-2 pt-1 border-t border-white/5">
                   <div className="text-[11px] font-semibold text-slate-400 flex items-center justify-between">
-                    <span>Pack Gallery ({mediaUrls.length} items)</span>
-                    <span className="text-[10px] text-slate-400">Click to edit its prompt</span>
+                    <span>
+                      {promptKind === "pack"
+                        ? `Pack Gallery (${mediaUrls.length} items)`
+                        : `Showcase Images (${mediaUrls.length})`}
+                    </span>
+                    <span className="text-[10px] text-slate-400">
+                      {promptKind === "pack"
+                        ? "Click to edit its prompt"
+                        : "All showcase this single prompt"}
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1">
@@ -978,6 +961,28 @@ export function PromptEditorModal({
                   onChange={(e) => handleActiveNegativePromptChange(e.target.value)}
                   placeholder="e.g. blur, deformed hands, cartoon"
                   className="w-full px-3.5 py-2 rounded-xl glass-input text-xs font-mono text-slate-300"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-slate-300">
+                    {promptKind === "pack" ? "How to Use Instructions (Shared for entire pack)" : "How to Use Instructions (Optional)"}
+                  </label>
+                  <span className="text-[10px] text-slate-400">
+                    {promptKind === "pack" ? "One shared guide for all pack prompts" : "Placeholders, reference images, tips"}
+                  </span>
+                </div>
+                <textarea
+                  rows={3}
+                  value={howToUse}
+                  onChange={(e) => setHowToUse(e.target.value)}
+                  placeholder={
+                    promptKind === "pack"
+                      ? "e.g. • Attach reference image for character consistency&#10;• Replace [SUBJECT] across all prompts&#10;• Recommended settings: --ar 4:5 --v 6.0"
+                      : "e.g. • Attach the reference image&#10;• Replace [SUBJECT] with your character&#10;• Upload a character sheet before generating"
+                  }
+                  className="w-full px-3.5 py-2.5 rounded-xl glass-input text-xs font-mono leading-relaxed resize-none text-slate-200"
                 />
               </div>
 

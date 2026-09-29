@@ -84,12 +84,17 @@ export function PromptCard({ prompt }: PromptCardProps) {
             </span>
           )}
 
-          {images.length > 1 && (
+          {(prompt.promptKind === "pack" || (Array.isArray(prompt.packItems) && prompt.packItems.length > 1)) ? (
             <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[9.5px] font-mono font-medium text-white/90 border border-white/15 flex items-center gap-1 shadow-sm">
               <Layers className="w-3 h-3 text-[var(--accent)]" />
-              <span>Pack • {images.length} Prompts</span>
+              <span>Pack • {prompt.packItems?.length || images.length} Prompts</span>
             </span>
-          )}
+          ) : images.length > 1 ? (
+            <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[9.5px] font-mono font-medium text-white/90 border border-white/15 flex items-center gap-1 shadow-sm">
+              <Layers className="w-3 h-3 text-[var(--accent)]" />
+              <span>{images.length} Images</span>
+            </span>
+          ) : null}
         </div>
       </div>
 

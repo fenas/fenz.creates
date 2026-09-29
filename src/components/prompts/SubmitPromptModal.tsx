@@ -31,7 +31,8 @@ export function SubmitPromptModal() {
   const [title, setTitle] = useState("");
   const [promptText, setPromptText] = useState("");
   const [negativePrompt, setNegativePrompt] = useState("");
-  const [singleImageUrl, setSingleImageUrl] = useState("");
+  const [singleHowToUse, setSingleHowToUse] = useState("");
+  const [singleImageUrls, setSingleImageUrls] = useState<string[]>([]);
   const [singleUrlInput, setSingleUrlInput] = useState("");
   const [isUploadingSingle, setIsUploadingSingle] = useState(false);
   const [isDraggingSingle, setIsDraggingSingle] = useState(false);
@@ -39,6 +40,7 @@ export function SubmitPromptModal() {
   // Prompt Pack State
   const [packName, setPackName] = useState("");
   const [packSubtitle, setPackSubtitle] = useState("");
+  const [packHowToUse, setPackHowToUse] = useState("");
   const [packItems, setPackItems] = useState<
     Array<{
       id: string;
@@ -62,7 +64,7 @@ export function SubmitPromptModal() {
   ]);
 
   // Shared Settings
-  const [model, setModel] = useState("Midjourney v6");
+  const [model, setModel] = useState("");
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("");
   const [categoryId, setCategoryId] = useState(categories[0]?.id || "cat-photoreal");
   const [tagInput, setTagInput] = useState("");
@@ -85,29 +87,41 @@ export function SubmitPromptModal() {
     setTags(tags.filter((t) => t !== tag));
   };
 
-  // Single image file handler
+  // Single image file handler (supports 1 or multiple files)
   const handleSingleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !file.type.startsWith("image/")) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const fileList = Array.from(files).filter((f) => f.type.startsWith("image/"));
+    if (fileList.length === 0) return;
 
     setIsUploadingSingle(true);
-    showToast("Uploading cover photo...", "info");
+    showToast(`Uploading ${fileList.length} showcase image(s)...`, "info");
 
     try {
-      const res = await uploadMediaToSupabase(file, "prompts");
-      if (res.url) {
-        setSingleImageUrl(res.url);
-        showToast("Cover photo set successfully!", "success");
+      const uploadPromises = fileList.map((file) => uploadMediaToSupabase(file, "prompts"));
+      const results = await Promise.all(uploadPromises);
+      const validUrls = results
+        .map((r: { url: string; isRemote: boolean }) => r.url)
+        .filter(Boolean);
+
+      if (validUrls.length > 0) {
+        setSingleImageUrls((prev) => [...prev, ...validUrls]);
+        showToast(`Added ${validUrls.length} image(s)!`, "success");
       }
     } catch {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (reader.result) {
-          setSingleImageUrl(reader.result.toString());
-          showToast("Cover photo set successfully!", "success");
-        }
-      };
-      reader.readAsDataURL(file);
+      const readers = fileList.map((file) => {
+        return new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            if (reader.result) resolve(reader.result.toString());
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+      const dataUrls = await Promise.all(readers);
+      setSingleImageUrls((prev) => [...prev, ...dataUrls]);
+      showToast(`Added ${dataUrls.length} image(s)!`, "success");
     } finally {
       setIsUploadingSingle(false);
     }
@@ -115,31 +129,43 @@ export function SubmitPromptModal() {
     e.target.value = "";
   };
 
-  // Single image drag & drop handler
+  // Single image drag & drop handler (supports 1 or multiple files)
   const handleSingleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     setIsDraggingSingle(false);
-    const file = e.dataTransfer.files?.[0];
-    if (!file || !file.type.startsWith("image/")) return;
+    const files = e.dataTransfer.files;
+    if (!files || files.length === 0) return;
+
+    const fileList = Array.from(files).filter((f) => f.type.startsWith("image/"));
+    if (fileList.length === 0) return;
 
     setIsUploadingSingle(true);
-    showToast("Uploading cover photo...", "info");
+    showToast(`Uploading ${fileList.length} showcase image(s)...`, "info");
 
     try {
-      const res = await uploadMediaToSupabase(file, "prompts");
-      if (res.url) {
-        setSingleImageUrl(res.url);
-        showToast("Cover photo set successfully!", "success");
+      const uploadPromises = fileList.map((file) => uploadMediaToSupabase(file, "prompts"));
+      const results = await Promise.all(uploadPromises);
+      const validUrls = results
+        .map((r: { url: string; isRemote: boolean }) => r.url)
+        .filter(Boolean);
+
+      if (validUrls.length > 0) {
+        setSingleImageUrls((prev) => [...prev, ...validUrls]);
+        showToast(`Added ${validUrls.length} image(s)!`, "success");
       }
     } catch {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (reader.result) {
-          setSingleImageUrl(reader.result.toString());
-          showToast("Cover photo set successfully!", "success");
-        }
-      };
-      reader.readAsDataURL(file);
+      const readers = fileList.map((file) => {
+        return new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            if (reader.result) resolve(reader.result.toString());
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+      const dataUrls = await Promise.all(readers);
+      setSingleImageUrls((prev) => [...prev, ...dataUrls]);
+      showToast(`Added ${dataUrls.length} image(s)!`, "success");
     } finally {
       setIsUploadingSingle(false);
     }
@@ -148,9 +174,26 @@ export function SubmitPromptModal() {
   // Single URL add handler
   const handleSetSingleUrl = () => {
     if (!singleUrlInput.trim()) return;
-    setSingleImageUrl(singleUrlInput.trim());
+    const url = singleUrlInput.trim();
+    setSingleImageUrls((prev) => [...prev, url]);
     setSingleUrlInput("");
-    showToast("Cover photo URL set!", "success");
+    showToast("Showcase image URL added!", "success");
+  };
+
+  const handleRemoveSingleImage = (index: number) => {
+    setSingleImageUrls((prev) => prev.filter((_, i) => i !== index));
+    showToast("Image removed", "info");
+  };
+
+  const handleSetPrimarySingle = (index: number) => {
+    if (index === 0) return;
+    setSingleImageUrls((prev) => {
+      const next = [...prev];
+      const [item] = next.splice(index, 1);
+      next.unshift(item);
+      return next;
+    });
+    showToast("Set as primary cover image", "success");
   };
 
   // Pack Item single file upload
@@ -237,10 +280,11 @@ export function SubmitPromptModal() {
         return;
       }
 
-      const finalMedia =
-        singleImageUrl ||
-        singleUrlInput.trim() ||
-        "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop";
+      const finalUrls =
+        singleImageUrls.length > 0
+          ? singleImageUrls
+          : ["https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop"];
+      const finalMedia = finalUrls[0];
 
       setIsSubmitting(true);
 
@@ -248,8 +292,9 @@ export function SubmitPromptModal() {
         title: title.trim(),
         promptText: promptText.trim(),
         negativePrompt: negativePrompt.trim() || undefined,
+        howToUse: singleHowToUse.trim() || undefined,
         mediaUrl: finalMedia,
-        mediaUrls: [finalMedia],
+        mediaUrls: finalUrls,
         type: "image",
         promptKind: "single",
         model,
@@ -310,6 +355,7 @@ export function SubmitPromptModal() {
         promptKind: "pack",
         promptText: formattedPackItems[0]?.promptText || "",
         negativePrompt: formattedPackItems[0]?.negativePrompt || undefined,
+        howToUse: packHowToUse.trim() || undefined,
         mediaUrl: allMediaUrls[0] || "",
         mediaUrls: allMediaUrls,
         packItems: formattedPackItems,
@@ -334,10 +380,14 @@ export function SubmitPromptModal() {
     setTitle("");
     setPromptText("");
     setNegativePrompt("");
-    setSingleImageUrl("");
+    setSingleHowToUse("");
+    setSingleImageUrls([]);
     setSingleUrlInput("");
     setPackName("");
     setPackSubtitle("");
+    setPackHowToUse("");
+    setModel("");
+    setAspectRatio("");
     setPackItems([
       { id: "item-1", imageUrl: "", promptText: "", negativePrompt: "" },
       { id: "item-2", imageUrl: "", promptText: "", negativePrompt: "" },
@@ -391,7 +441,7 @@ export function SubmitPromptModal() {
                 }`}
             >
               <Sparkles className="w-4 h-4" />
-              <span>Single Prompt (1 Image + 1 Prompt)</span>
+              <span>Standard Prompt (1 or more Images • 1 Prompt)</span>
             </button>
 
             <button
@@ -419,49 +469,134 @@ export function SubmitPromptModal() {
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="block text-xs font-bold text-[var(--text-primary)]">
-                    Artwork Cover Photo *
+                    Showcase Images *
                   </label>
-                  {singleImageUrl && (
+                  {singleImageUrls.length > 0 && (
                     <span className="text-[10px] font-bold text-[var(--accent)] bg-[var(--accent-soft)] px-2 py-0.5 rounded-full flex items-center gap-1 font-mono">
-                      <span>★ Primary Cover Photo</span>
+                      <span>{singleImageUrls.length} image{singleImageUrls.length !== 1 ? "s" : ""} selected</span>
                     </span>
                   )}
                 </div>
 
-                {singleImageUrl ? (
-                  <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden bg-black border border-white/15 group shadow-lg">
-                    <Image
-                      src={singleImageUrl}
-                      alt="Uploaded artwork cover"
-                      fill
-                      className="object-cover"
-                      unoptimized={singleImageUrl.startsWith("data:")}
-                    />
+                {singleImageUrls.length > 0 ? (
+                  <div className="space-y-3">
+                    <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden bg-black border border-white/15 group shadow-lg">
+                      <Image
+                        src={singleImageUrls[0]}
+                        alt="Primary showcase cover"
+                        fill
+                        className="object-cover"
+                        unoptimized={singleImageUrls[0].startsWith("data:")}
+                      />
 
-                    {/* Top Badges */}
-                    <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/80 backdrop-blur-md text-[10px] font-bold text-white border border-white/20 flex items-center gap-1 shadow-md">
-                      <span className="text-[var(--accent)]">★</span>
-                      <span>Primary Cover Photo</span>
+                      {/* Top Badges */}
+                      <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/80 backdrop-blur-md text-[10px] font-bold text-white border border-white/20 flex items-center gap-1.5 shadow-md">
+                        <span className="text-[var(--accent)]">★</span>
+                        <span>Primary Cover</span>
+                        {singleImageUrls.length > 1 && (
+                          <span className="text-white/70 font-mono text-[9px]">
+                            • 1 of {singleImageUrls.length}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Controls Overlay */}
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => singleFileInputRef.current?.click()}
+                          className="px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold backdrop-blur-md border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Upload className="w-3.5 h-3.5" />
+                          <span>Add More Images</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSingleImageUrls([])}
+                          className="px-3 py-1.5 rounded-xl bg-red-500/80 hover:bg-red-600 text-white text-xs font-bold backdrop-blur-md transition-all flex items-center gap-1.5 cursor-pointer"
+                          title="Remove all images"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Clear All</span>
+                        </button>
+                      </div>
                     </div>
 
-                    {/* Controls Overlay */}
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    {/* Thumbnail strip for multi-image showcase */}
+                    <div className="flex items-center gap-2 overflow-x-auto py-1">
+                      {singleImageUrls.map((url, idx) => (
+                        <div
+                          key={idx}
+                          className={`group/thumb relative w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 border transition-all ${
+                            idx === 0
+                              ? "border-[var(--accent)] ring-2 ring-[var(--accent)]/50"
+                              : "border-white/10"
+                          }`}
+                        >
+                          <Image
+                            src={url}
+                            alt={`Showcase ${idx + 1}`}
+                            fill
+                            className="object-cover"
+                            unoptimized={url.startsWith("data:")}
+                          />
+                          <div className="absolute top-0.5 left-0.5 px-1 rounded bg-black/70 text-[8.5px] font-mono text-white font-bold">
+                            {idx === 0 ? "★" : idx + 1}
+                          </div>
+                          <div className="absolute inset-0 bg-black/70 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                            {idx > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => handleSetPrimarySingle(idx)}
+                                className="p-1 rounded bg-[var(--accent)] text-white text-[8px] font-bold"
+                                title="Set as primary cover"
+                              >
+                                ★
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveSingleImage(idx)}
+                              className="p-1 rounded bg-red-500/80 text-white"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-2.5 h-2.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+
                       <button
                         type="button"
                         onClick={() => singleFileInputRef.current?.click()}
-                        className="px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold backdrop-blur-md border border-white/20 transition-all flex items-center gap-1.5"
+                        className="w-14 h-14 rounded-xl border border-dashed border-white/20 hover:border-[var(--accent)] flex flex-col items-center justify-center text-[var(--text-secondary)] hover:text-[var(--accent)] transition-all flex-shrink-0 cursor-pointer"
+                        title="Add more images"
                       >
-                        <Upload className="w-3.5 h-3.5" />
-                        <span>Change Cover Photo</span>
+                        <Plus className="w-4 h-4" />
+                        <span className="text-[8px] font-bold mt-0.5">Add</span>
                       </button>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 pt-1">
+                      <input
+                        type="url"
+                        placeholder="Add another image URL..."
+                        value={singleUrlInput}
+                        onChange={(e) => setSingleUrlInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleSetSingleUrl();
+                          }
+                        }}
+                        className="flex-1 px-3 py-1.5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] outline-none focus:border-[var(--accent)]"
+                      />
                       <button
                         type="button"
-                        onClick={() => setSingleImageUrl("")}
-                        className="px-3 py-1.5 rounded-xl bg-red-500/80 hover:bg-red-600 text-white text-xs font-bold backdrop-blur-md transition-all flex items-center gap-1.5"
-                        title="Remove image"
+                        onClick={handleSetSingleUrl}
+                        className="px-3 py-1.5 rounded-xl bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-xs font-bold text-[var(--text-primary)] cursor-pointer"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>Remove</span>
+                        Add URL
                       </button>
                     </div>
                   </div>
@@ -484,10 +619,10 @@ export function SubmitPromptModal() {
 
                     <div className="space-y-0.5">
                       <div className="text-xs font-bold text-[var(--text-primary)]">
-                        {isUploadingSingle ? "Uploading cover photo..." : "Upload or drop cover photo"}
+                        {isUploadingSingle ? "Uploading showcase photo(s)..." : "Upload or drop showcase image(s)"}
                       </div>
                       <div className="text-[11px] text-[var(--text-secondary)]">
-                        PNG, JPG, WEBP • Automatically set as the primary cover
+                        PNG, JPG, WEBP • Select 1 or multiple showcase variations
                       </div>
                     </div>
 
@@ -499,7 +634,7 @@ export function SubmitPromptModal() {
                         className="px-4 py-2 rounded-xl btn-accent-gradient text-xs shadow-md cursor-pointer flex items-center gap-1.5"
                       >
                         <Upload className="w-3.5 h-3.5" />
-                        <span>Browse File</span>
+                        <span>Browse File(s)</span>
                       </button>
 
                       <div className="flex items-center gap-1 flex-1 min-w-[200px]">
@@ -521,7 +656,7 @@ export function SubmitPromptModal() {
                           onClick={handleSetSingleUrl}
                           className="px-3 py-2 rounded-xl bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-xs font-bold text-[var(--text-primary)] cursor-pointer"
                         >
-                          Set Cover
+                          Add URL
                         </button>
                       </div>
                     </div>
@@ -531,6 +666,7 @@ export function SubmitPromptModal() {
                 <input
                   ref={singleFileInputRef}
                   type="file"
+                  multiple
                   accept="image/*"
                   onChange={handleSingleFileUpload}
                   className="hidden"
@@ -580,6 +716,25 @@ export function SubmitPromptModal() {
                   className="w-full px-3.5 py-2 rounded-xl bg-[var(--surface-recessed)] border border-[var(--border)] text-xs font-mono text-[var(--text-secondary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
                 />
               </div>
+
+              {/* How to Use Instructions */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-[var(--text-primary)]">
+                    How to Use Instructions (Optional)
+                  </label>
+                  <span className="text-[10px] text-[var(--text-muted)] font-mono">
+                    e.g. replace [SUBJECT], upload ref image
+                  </span>
+                </div>
+                <textarea
+                  rows={3}
+                  value={singleHowToUse}
+                  onChange={(e) => setSingleHowToUse(e.target.value)}
+                  placeholder="Practical instructions:&#10;• Attach the reference image for style consistency&#10;• Replace [SUBJECT] with your character&#10;• Best with Midjourney v6"
+                  className="w-full px-3.5 py-2 rounded-xl bg-[var(--surface-recessed)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] leading-relaxed resize-none focus:outline-none focus:border-[var(--accent)] font-mono"
+                />
+              </div>
             </div>
           )}
 
@@ -614,6 +769,24 @@ export function SubmitPromptModal() {
                     onChange={(e) => setPackSubtitle(e.target.value)}
                     placeholder="e.g. Collection of stylized 3D fashion characters and studio setups."
                     className="w-full px-3.5 py-2 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-secondary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-bold text-[var(--text-primary)]">
+                      How to Use Instructions (Shared for Entire Pack)
+                    </label>
+                    <span className="text-[10px] text-[var(--text-muted)] font-mono">
+                      One shared guide for all pack prompts
+                    </span>
+                  </div>
+                  <textarea
+                    rows={3}
+                    value={packHowToUse}
+                    onChange={(e) => setPackHowToUse(e.target.value)}
+                    placeholder="e.g.&#10;• Attach the reference image for style consistency across generations&#10;• Replace [SUBJECT] across all prompts&#10;• Recommended engine: Flux.1 or Midjourney v6"
+                    className="w-full px-3.5 py-2 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] leading-relaxed resize-none focus:outline-none focus:border-[var(--accent)] font-mono"
                   />
                 </div>
               </div>
@@ -807,13 +980,14 @@ export function SubmitPromptModal() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block text-xs font-bold text-[var(--text-primary)] mb-1.5">
-                  AI Engine
+                  AI Model
                 </label>
                 <select
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
                   className="w-full px-3 py-2.5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] cursor-pointer outline-none focus:border-[var(--accent)]"
                 >
+                  <option value="" className="bg-[var(--surface-elevated)]">None / Blank (Default)</option>
                   <option value="Midjourney v6" className="bg-[var(--surface-elevated)]">Midjourney v6</option>
                   <option value="Flux.1 Pro" className="bg-[var(--surface-elevated)]">Flux.1 Pro</option>
                   <option value="SDXL" className="bg-[var(--surface-elevated)]">Stable Diffusion XL</option>

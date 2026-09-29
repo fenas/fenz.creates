@@ -78,6 +78,7 @@ export const initialPrompts: Prompt[] = [
     description: "Collection of stylized 3D fashion characters.",
     promptText: "Stylized 3D full-body fashion character with exaggerated long legs, wearing an oversized electric cobalt blue puffer jacket, neon lime green headphones, futuristic white sunglasses, soft pink studio backdrop, Octane 3D render, glossy vinyl materials, cinematic studio lighting --ar 4:5 --v 6.0",
     negativePrompt: "low quality, blur, deformed, photorealistic human, realistic skin",
+    howToUse: "• Use Midjourney v6 with stylize parameter `--s 250` for vibrant colors.\n• Replace `[electric cobalt blue puffer jacket]` with your desired outfit or wardrobe item.\n• Keep `--ar 4:5` aspect ratio for full-body character silhouettes.\n• Attach the cover image as a style reference (`--sref`) for character consistency across poses.",
     mediaUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop",
     mediaUrls: [
       "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop",
@@ -125,6 +126,7 @@ export const initialPrompts: Prompt[] = [
     description: "Collection of fintech-inspired vector icons.",
     promptText: "Minimalist flat 3D fintech vector illustration of a dark smartphone and a glossy golden coin floating with clean sparkle stars, bold electric international orange background, clean geometric lines, vibrant color contrast, Figma icon aesthetic --ar 4:5 --v 6.0",
     negativePrompt: "photorealistic, noisy, gradients, complex textures",
+    howToUse: "• Optimized for Flux.1 Pro and Midjourney v6.\n• Replace `[smartphone and glossy golden coin]` with your app widget or payment hardware.\n• Use a bold solid background color to make icon assets easy to isolate in Figma/Photoshop.",
     mediaUrl: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=1200&auto=format&fit=crop",
     mediaUrls: [
       "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=1200&auto=format&fit=crop",
@@ -172,6 +174,7 @@ export const initialPrompts: Prompt[] = [
     description: "Collection of wide-angle fashion portraits.",
     promptText: "Candid low-angle 35mm photograph of an avant-garde fashion model with bleached blonde curly hair, amber-tinted orange sunglasses, sheer blue silk shirt and textured red knit collar, looking down into the camera, vivid cobalt summer sky, Kodak Portra 400 --ar 4:5 --v 6.0 --style raw",
     negativePrompt: "cgi, render, cartoon, digital painting, oversaturated",
+    howToUse: "• Upload a character reference (`--cref`) to preserve facial features.\n• Add `--style raw` to avoid artificial digital smoothing.\n• Replace `[amber-tinted orange sunglasses]` and `[sheer blue silk shirt]` with your fashion wardrobe items.",
     mediaUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop",
     mediaUrls: [
       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop",
@@ -219,6 +222,7 @@ export const initialPrompts: Prompt[] = [
     description: "Collection of Swiss typography and high-contrast editorial layouts.",
     promptText: "Experimental Swiss graphic design editorial poster, stark brutalist typography, monochrome high-fashion portrait with vivid international orange abstract geometric accents, risograph grain texture, exhibition catalogue layout --ar 4:5 --v 6.0",
     negativePrompt: "cluttered, 3d render, soft lighting, blur",
+    howToUse: "• Replace `[monochrome high-fashion portrait]` with your desired subject, product, or architecture.\n• Use `--v 6.0` with `--style raw` for authentic risograph texture.\n• For clean graphic layout results, attach an existing poster as style reference (`--sref`).",
     mediaUrl: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=1200&auto=format&fit=crop",
     mediaUrls: [
       "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=1200&auto=format&fit=crop",
@@ -248,6 +252,7 @@ export const initialPrompts: Prompt[] = [
     description: "Collection of frosted glass 3D interface widgets.",
     promptText: "3D floating frosted glassmorphism interface cards with caustic light refractions, iridescent gradient mesh background, clean Apple visionOS aesthetics, translucent blur, glowing acrylic edges, Octane render --ar 4:5 --v 6.0",
     negativePrompt: "flat 2d, wireframe, low poly, noisy",
+    howToUse: "• Replace `[interface cards]` with your UI components (e.g. music player widget, health stats card).\n• Pair with dark mode or bright mesh gradient backdrop for high glass contrast.",
     mediaUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop",
     mediaUrls: [
       "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop",

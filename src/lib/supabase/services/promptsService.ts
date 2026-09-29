@@ -25,6 +25,7 @@ export function mapRowToPrompt(row: any): Prompt {
     description: row.description || params.description || row.subtitle || params.subtitle || undefined,
     promptText: row.prompt_text || "",
     negativePrompt: row.negative_prompt || undefined,
+    howToUse: row.how_to_use || params.how_to_use || params.howToUse || undefined,
     mediaUrl: row.media_url || "",
     mediaUrls: Array.isArray(row.media_urls)
       ? row.media_urls
@@ -33,7 +34,7 @@ export function mapRowToPrompt(row: any): Prompt {
       : [],
     packItems,
     thumbnailUrl: row.thumbnail_url || undefined,
-    model: row.model || "Midjourney v6",
+    model: row.model || "",
     aspectRatio: row.aspect_ratio || "",
     tags: Array.isArray(row.tags) ? row.tags : [],
     categoryId: row.category_id || "",
@@ -59,6 +60,7 @@ export function mapPromptToRow(p: Partial<Prompt>): Record<string, any> {
   if (p.title !== undefined) row.title = p.title;
   if (p.promptText !== undefined) row.prompt_text = p.promptText;
   if (p.negativePrompt !== undefined) row.negative_prompt = p.negativePrompt;
+  if (p.howToUse !== undefined) row.how_to_use = p.howToUse;
   if (p.mediaUrl !== undefined) row.media_url = p.mediaUrl;
   if (p.mediaUrls !== undefined) row.media_urls = p.mediaUrls;
   if (p.thumbnailUrl !== undefined) row.thumbnail_url = p.thumbnailUrl;
@@ -71,12 +73,13 @@ export function mapPromptToRow(p: Partial<Prompt>): Record<string, any> {
   if (p.copyCount !== undefined) row.copy_count = p.copyCount;
   if (p.viewCount !== undefined) row.view_count = p.viewCount;
 
-  // Store extra metadata (subtitle, description, pack_items, prompt_kind) safely inside parameters JSONB
+  // Store extra metadata (subtitle, description, pack_items, prompt_kind, how_to_use) safely inside parameters JSONB
   const parameters = { ...(p.parameters || {}) };
   if (p.subtitle !== undefined) parameters.subtitle = p.subtitle;
   if (p.description !== undefined) parameters.description = p.description;
   if (p.packItems !== undefined) parameters.pack_items = p.packItems;
   if (p.promptKind !== undefined) parameters.prompt_kind = p.promptKind;
+  if (p.howToUse !== undefined) parameters.how_to_use = p.howToUse;
   row.parameters = parameters;
 
   if (p.createdAt !== undefined) row.created_at = p.createdAt;
@@ -141,7 +144,19 @@ export async function insertPromptToDb(prompt: Prompt): Promise<boolean> {
 
   try {
     const row = mapPromptToRow(prompt);
-    const { error } = await supabase.from("prompts").insert(row);
+    let { error } = await supabase.from("prompts").insert(row);
+    
+    // Graceful fallback if certain columns don't exist yet in the database schema
+    if (error && error.code === "PGRST204") {
+      const fallbackRow = { ...row };
+      delete fallbackRow.how_to_use;
+      delete fallbackRow.media_urls;
+      delete fallbackRow.prompt_kind;
+      delete fallbackRow.pack_items;
+      const retryRes = await supabase.from("prompts").insert(fallbackRow);
+      error = retryRes.error;
+    }
+
     if (error) {
       console.error("[Supabase] insertPrompt error:", error);
       return false;
@@ -165,7 +180,19 @@ export async function updatePromptInDb(id: string, updates: Partial<Prompt>): Pr
       ...updates,
       updatedAt: new Date().toISOString(),
     });
-    const { error } = await supabase.from("prompts").update(row).eq("id", id);
+    let { error } = await supabase.from("prompts").update(row).eq("id", id);
+
+    // Graceful fallback if certain columns don't exist yet in the database schema
+    if (error && error.code === "PGRST204") {
+      const fallbackRow = { ...row };
+      delete fallbackRow.how_to_use;
+      delete fallbackRow.media_urls;
+      delete fallbackRow.prompt_kind;
+      delete fallbackRow.pack_items;
+      const retryRes = await supabase.from("prompts").update(fallbackRow).eq("id", id);
+      error = retryRes.error;
+    }
+
     if (error) {
       console.error("[Supabase] updatePrompt error:", error);
       return false;

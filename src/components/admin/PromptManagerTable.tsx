@@ -57,7 +57,7 @@ export function PromptManagerTable({
       return (
         p.title.toLowerCase().includes(q) ||
         p.promptText.toLowerCase().includes(q) ||
-        p.model.toLowerCase().includes(q) ||
+        (p.model?.toLowerCase() || "").includes(q) ||
         p.tags.some((t) => t.toLowerCase().includes(q))
       );
     }
@@ -215,7 +215,9 @@ export function PromptManagerTable({
                       {/* Model & Aspect Ratio */}
                       <td className="p-4 hidden md:table-cell whitespace-nowrap">
                         <div className="space-y-0.5">
-                          <div className="font-medium text-slate-200">{p.model}</div>
+                          <div className="font-medium text-slate-200">
+                            {p.model || <span className="text-slate-500 font-mono text-xs">—</span>}
+                          </div>
                           <div className="flex items-center gap-1.5">
                             {p.aspectRatio ? (
                               <span className="px-1.5 py-0.2 rounded bg-[var(--accent-soft)] text-[var(--accent)] text-[9px] font-bold border border-[var(--accent)]/40">

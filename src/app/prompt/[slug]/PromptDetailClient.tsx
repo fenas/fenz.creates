@@ -14,6 +14,7 @@ import {
   Video,
   ChevronLeft,
   ChevronRight,
+  BookOpen,
 } from "lucide-react";
 import { Prompt } from "@/types";
 import { usePromptStore } from "@/context/PromptContext";
@@ -105,10 +106,9 @@ export function PromptDetailClient({
 
   const isPack =
     prompt?.promptKind === "pack" ||
-    (Array.isArray(prompt?.packItems) && prompt.packItems.length > 1) ||
-    images.length > 1;
+    (Array.isArray(prompt?.packItems) && prompt.packItems.length > 1);
 
-  const currentPackItem = prompt?.packItems?.[activeImageIndex];
+  const currentPackItem = isPack ? prompt?.packItems?.[activeImageIndex] : undefined;
   const activePromptText = currentPackItem?.promptText || prompt?.promptText || "";
   const activeNegativePrompt =
     currentPackItem?.negativePrompt !== undefined
@@ -163,7 +163,9 @@ export function PromptDetailClient({
       try {
         await navigator.share({
           title: `${prompt.title} - Aistronaut`,
-          text: `Check out this AI prompt for ${prompt.model}: "${prompt.title}"`,
+          text: prompt.model
+            ? `Check out this AI prompt for ${prompt.model}: "${prompt.title}"`
+            : `Check out this AI prompt: "${prompt.title}"`,
           url,
         });
       } catch { }
@@ -306,11 +308,15 @@ export function PromptDetailClient({
                 <span className="text-xs font-medium text-[var(--accent)] font-mono uppercase tracking-wider">
                   {category?.name || "AI Art"}
                 </span>
-                {isPack && (
+                {isPack ? (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] font-mono">
                     Prompt Pack Collection
                   </span>
-                )}
+                ) : images.length > 1 ? (
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[var(--surface-muted)] text-[var(--text-secondary)] border border-[var(--border)] font-mono">
+                    {images.length} Showcase Images
+                  </span>
+                ) : null}
               </div>
               <h1 className="text-2xl sm:text-3xl font-medium text-[var(--text-primary)] tracking-tight">
                 {prompt.title}
@@ -387,6 +393,26 @@ export function PromptDetailClient({
                 </div>
                 <div className="rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] p-3.5 font-mono text-xs text-[var(--text-secondary)] select-all shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.25)]">
                   {activeNegativePrompt}
+                </div>
+              </div>
+            )}
+
+            {/* How to Use Section (Single Prompt Guide or Shared Pack Guide) */}
+            {(prompt.howToUse || (prompt.parameters?.how_to_use as string) || (prompt.parameters?.howToUse as string)) && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs font-mono uppercase text-[var(--text-secondary)]">
+                  <span className="flex items-center gap-1.5 font-medium">
+                    <BookOpen className="w-3.5 h-3.5 text-[var(--accent)] stroke-[1.75]" />
+                    <span>How to Use</span>
+                    {isPack && (
+                      <span className="text-[10px] text-[var(--text-muted)] font-normal font-sans lowercase">
+                        (shared guide for pack)
+                      </span>
+                    )}
+                  </span>
+                </div>
+                <div className="rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] p-4 font-mono text-xs sm:text-[13px] text-[var(--text-primary)] select-all shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.25)] leading-relaxed whitespace-pre-line">
+                  {prompt.howToUse || (prompt.parameters?.how_to_use as string) || (prompt.parameters?.howToUse as string)}
                 </div>
               </div>
             )}
