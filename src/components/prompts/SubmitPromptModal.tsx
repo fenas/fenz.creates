@@ -974,10 +974,10 @@ export function SubmitPromptModal() {
           )}
 
           {/* ======================================================== */}
-          {/* SHARED SETTINGS (Category, Engine, Aspect Ratio, Tags) */}
+          {/* SHARED SETTINGS (Engine, Aspect Ratio, Tags) */}
           {/* ======================================================== */}
           <div className="pt-2 border-t border-[var(--border)] space-y-3.5">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-bold text-[var(--text-primary)] mb-1.5">
                   AI Model
@@ -1011,23 +1011,6 @@ export function SubmitPromptModal() {
                   <option value="16:9" className="bg-[var(--surface-elevated)]">16:9 (Landscape)</option>
                   <option value="9:16" className="bg-[var(--surface-elevated)]">9:16 (Story)</option>
                   <option value="3:2" className="bg-[var(--surface-elevated)]">3:2 (35mm Film)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[var(--text-primary)] mb-1.5">
-                  Category
-                </label>
-                <select
-                  value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] cursor-pointer outline-none focus:border-[var(--accent)]"
-                >
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id} className="bg-[var(--surface-elevated)]">
-                      {c.name}
-                    </option>
-                  ))}
                 </select>
               </div>
             </div>

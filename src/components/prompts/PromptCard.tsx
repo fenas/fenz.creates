@@ -6,16 +6,19 @@ import {
   Layers,
   ArrowUpRight,
   Sparkles,
+  Share2,
 } from "lucide-react";
 import { Prompt } from "@/types";
 import { usePromptStore } from "@/context/PromptContext";
+import { useToast } from "@/components/ui/Toast";
 
 interface PromptCardProps {
   prompt: Prompt;
 }
 
 export function PromptCard({ prompt }: PromptCardProps) {
-  const { setActiveModalPrompt, categories } = usePromptStore();
+  const { setActiveModalPrompt } = usePromptStore();
+  const { showToast } = useToast();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -35,11 +38,27 @@ export function PromptCard({ prompt }: PromptCardProps) {
     return () => clearInterval(interval);
   }, [images.length]);
 
-  const category = categories.find((c) => c.id === prompt.categoryId);
-  const displaySubtitle =
-    prompt.subtitle ||
-    prompt.description ||
-    prompt.promptText.slice(0, 100);
+  const handleShare = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `${window.location.origin}/prompt/${prompt.slug}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${prompt.title} - Aistronaut`,
+          text: `Check out this AI prompt for ${prompt.model || "AI"}: "${prompt.title}"`,
+          url,
+        });
+      } catch { }
+    } else {
+      await navigator.clipboard.writeText(url);
+      showToast("Prompt Link Copied!", "success", url);
+    }
+  };
+
+  const isPack =
+    prompt.promptKind === "pack" ||
+    (Array.isArray(prompt.packItems) && prompt.packItems.length > 1);
 
   return (
     <div
@@ -61,10 +80,11 @@ export function PromptCard({ prompt }: PromptCardProps) {
             alt={`${prompt.title} - ${i + 1}`}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className={`object-cover object-center transition-all duration-700 ease-out group-hover:scale-105 ${i === currentImageIndex
+            className={`object-cover object-center transition-all duration-700 ease-out group-hover:scale-105 ${
+              i === currentImageIndex
                 ? "opacity-100 scale-100 z-[1]"
                 : "opacity-0 scale-95 z-0"
-              }`}
+            }`}
             onLoad={() => setImageLoaded(true)}
             priority={prompt.featured && i === 0}
             unoptimized={imgUrl.startsWith("data:")}
@@ -72,45 +92,44 @@ export function PromptCard({ prompt }: PromptCardProps) {
         ))}
       </div>
 
-      {/* 2. Soft Cinema Vignette & Contrast Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10 pointer-events-none z-[2]" />
+      {/* 2. Soft Cinema Vignette Overlay (Visible on Hover Only) */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-[2]" />
 
-      {/* 3. Top Badges Header */}
-      <div className="relative z-10 flex items-center justify-between w-full p-3.5 sm:p-4">
-        <div className="flex items-center gap-1.5">
-          {category && (
-            <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-semibold text-white/90 border border-white/15 shadow-sm">
-              {category.name}
-            </span>
-          )}
-
-          {(prompt.promptKind === "pack" || (Array.isArray(prompt.packItems) && prompt.packItems.length > 1)) ? (
-            <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[9.5px] font-mono font-medium text-white/90 border border-white/15 flex items-center gap-1 shadow-sm">
+      {/* 3. Top Header: No. of Images & Share Button (Visible on Hover Only) */}
+      <div className="relative z-10 flex items-center justify-between w-full p-3.5 sm:p-4 opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-y-1.5 group-hover:translate-y-0">
+        <div>
+          {isPack ? (
+            <span className="px-2.5 py-1 rounded-full bg-black/65 backdrop-blur-md text-[9.5px] font-mono font-medium text-white border border-white/15 flex items-center gap-1.5 shadow-sm">
               <Layers className="w-3 h-3 text-[var(--accent)]" />
               <span>Pack • {prompt.packItems?.length || images.length} Prompts</span>
             </span>
-          ) : images.length > 1 ? (
-            <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[9.5px] font-mono font-medium text-white/90 border border-white/15 flex items-center gap-1 shadow-sm">
+          ) : (
+            <span className="px-2.5 py-1 rounded-full bg-black/65 backdrop-blur-md text-[9.5px] font-mono font-medium text-white border border-white/15 flex items-center gap-1.5 shadow-sm">
               <Layers className="w-3 h-3 text-[var(--accent)]" />
-              <span>{images.length} Images</span>
+              <span>{images.length} {images.length === 1 ? "Image" : "Images"}</span>
             </span>
-          ) : null}
+          )}
         </div>
+
+        <button
+          onClick={handleShare}
+          className="p-2 rounded-full bg-black/65 backdrop-blur-md hover:bg-black/90 text-white/90 hover:text-white border border-white/15 transition-all hover:scale-110 active:scale-95 cursor-pointer shadow-md"
+          title="Share Prompt Link"
+        >
+          <Share2 className="w-3.5 h-3.5 stroke-[2]" />
+        </button>
       </div>
 
-      {/* 4. Bottom Filatov-Style Typography & Corner Arrow Button */}
-      <div className="relative z-10 p-4 sm:p-5 md:p-6 flex items-end justify-between gap-3 w-full">
-        {/* Left: Title + Subtitle */}
-        <div className="min-w-0 flex-1 space-y-1">
-          <h3 className="text-base sm:text-lg md:text-xl font-bold text-white tracking-tight leading-snug drop-shadow-md group-hover:text-white/95 transition-colors line-clamp-1">
+      {/* 4. Bottom: Title & Corner Arrow Button (Visible on Hover Only) */}
+      <div className="relative z-10 p-4 sm:p-5 flex items-end justify-between gap-3 w-full opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1.5 group-hover:translate-y-0">
+        {/* Title */}
+        <div className="min-w-0 flex-1">
+          <h3 className="text-base sm:text-lg font-bold text-white tracking-tight leading-snug drop-shadow-md line-clamp-2">
             {prompt.title}
           </h3>
-          <p className="text-xs sm:text-[13px] text-white/80 font-normal leading-relaxed line-clamp-2 drop-shadow-sm">
-            {displaySubtitle}
-          </p>
         </div>
 
-        {/* Right: Corner Arrow Button */}
+        {/* Corner Arrow Button */}
         <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-black/80 group-hover:bg-[var(--accent)] border border-white/15 text-white flex items-center justify-center transition-all duration-300 shadow-xl group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(255,108,0,0.5)] active:scale-95 flex-shrink-0">
           <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2] text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
         </div>
@@ -118,4 +137,5 @@ export function PromptCard({ prompt }: PromptCardProps) {
     </div>
   );
 }
+
 

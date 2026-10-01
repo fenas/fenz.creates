@@ -986,7 +986,7 @@ export function PromptEditorModal({
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1">
                     AI Model
@@ -1016,23 +1016,6 @@ export function PromptEditorModal({
                     <option value="9:16" className="bg-[#0f1117]">9:16 (Story)</option>
                     <option value="3:2" className="bg-[#0f1117]">3:2 (35mm)</option>
                     <option value="21:9" className="bg-[#0f1117]">21:9 (Ultrawide)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Category
-                  </label>
-                  <select
-                    value={categoryId}
-                    onChange={(e) => setCategoryId(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl glass-input text-xs"
-                  >
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.id} className="bg-[#0f1117]">
-                        {c.name}
-                      </option>
-                    ))}
                   </select>
                 </div>
               </div>
