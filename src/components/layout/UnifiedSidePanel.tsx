@@ -166,19 +166,31 @@ export function UnifiedSidePanel({
           </div>
         </div>
 
-        {/* Footer info in expanded view */}
+        {/* About & Contact info in expanded view */}
         {!isCollapsed && (
           <div className="p-3 mx-3 mb-2 rounded-2xl bg-white/[0.03] border border-white/5 space-y-2">
-            <div className="flex items-center justify-between text-[11px] text-slate-400">
-              <span>Catalog Version</span>
-              <span className="font-mono text-white">v2.4</span>
+            <div className="flex items-center justify-between text-[11px] text-slate-300 font-semibold">
+              <span>About & Contact</span>
+              <span className="font-mono text-[var(--accent)] text-[10px]">Aistronaut</span>
             </div>
-            <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
-              <div className="bg-[var(--accent)] h-full w-3/4 rounded-full" />
-            </div>
-            <p className="text-[10px] text-slate-400">
-              Free to copy and remix prompts for AI creators.
-            </p>
+            
+            <a
+              href="https://www.instagram.com/aistronaut.in"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between p-1.5 px-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-[11px] text-slate-300 hover:text-white transition-colors cursor-pointer"
+            >
+              <span className="font-mono">@aistronaut.in</span>
+              <span className="text-[10px] text-[var(--accent)]">Instagram ↗</span>
+            </a>
+
+            <a
+              href="mailto:contact@aistronaut.in"
+              className="flex items-center justify-between p-1.5 px-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-[10px] text-slate-300 hover:text-white transition-colors"
+            >
+              <span className="font-mono truncate">contact@aistronaut.in</span>
+              <span className="text-slate-400">Mail ↗</span>
+            </a>
           </div>
         )}
 

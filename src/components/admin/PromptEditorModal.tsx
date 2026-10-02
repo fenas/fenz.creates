@@ -24,6 +24,13 @@ import { Prompt, AspectRatio, MediaType, PromptKind } from "@/types";
 import { usePromptStore } from "@/context/PromptContext";
 import { useToast } from "@/components/ui/Toast";
 import { uploadMediaToSupabase } from "@/lib/supabase";
+import {
+  isYouTubeUrl,
+  extractYouTubeId,
+  getYouTubeEmbedUrl,
+  getYouTubeThumbnailUrl,
+  isVideoVertical,
+} from "@/lib/youtube";
 
 interface PromptEditorModalProps {
   promptToEdit: Prompt | null;
@@ -48,6 +55,13 @@ export function PromptEditorModal({
   const [negativePrompt, setNegativePrompt] = useState("");
   const [howToUse, setHowToUse] = useState("");
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
+  const [referenceImages, setReferenceImages] = useState<string[]>([]);
+  const [refUrlInput, setRefUrlInput] = useState("");
+  const [isUploadingRef, setIsUploadingRef] = useState(false);
+  const [videoUrl, setVideoUrl] = useState("");
+  const [videoCoverUrl, setVideoCoverUrl] = useState("");
+  const [videoCoverInputText, setVideoCoverInputText] = useState("");
+  const videoCoverFileInputRef = useRef<HTMLInputElement>(null);
   const [packItems, setPackItems] = useState<
     Array<{
       id: string;
@@ -71,6 +85,7 @@ export function PromptEditorModal({
   const [status, setStatus] = useState<"published" | "draft">("published");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const refFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (promptToEdit) {
@@ -78,37 +93,56 @@ export function PromptEditorModal({
         promptToEdit.promptKind === "pack" ||
         (Array.isArray(promptToEdit.packItems) && promptToEdit.packItems.length > 1);
 
+      const isVideo = promptToEdit.type === "video" || isYouTubeUrl(promptToEdit.mediaUrl);
+
       setPromptKind(isPack ? "pack" : "single");
+      setMediaType(isVideo ? "video" : "image");
       setTitle(promptToEdit.title);
       setSubtitle(promptToEdit.subtitle || promptToEdit.description || "");
       setPromptText(promptToEdit.promptText);
       setNegativePrompt(promptToEdit.negativePrompt || "");
       setHowToUse(promptToEdit.howToUse || (promptToEdit.parameters?.how_to_use as string) || (promptToEdit.parameters?.howToUse as string) || "");
 
-      const existingUrls =
-        promptToEdit.mediaUrls && promptToEdit.mediaUrls.length > 0
-          ? promptToEdit.mediaUrls
-          : promptToEdit.mediaUrl
-            ? [promptToEdit.mediaUrl]
-            : [];
-      setMediaUrls(existingUrls);
+      const existingRefImages =
+        promptToEdit.referenceImages ||
+        (promptToEdit.parameters?.reference_images as string[]) ||
+        (promptToEdit.parameters?.referenceImages as string[]) ||
+        [];
+      setReferenceImages(existingRefImages);
 
-      if (promptToEdit.packItems && promptToEdit.packItems.length > 0) {
-        setPackItems(promptToEdit.packItems);
+      if (isVideo) {
+        setVideoUrl(promptToEdit.mediaUrl);
+        const ytThumb = getYouTubeThumbnailUrl(promptToEdit.mediaUrl, "maxres") || getYouTubeThumbnailUrl(promptToEdit.mediaUrl, "hq") || promptToEdit.mediaUrl;
+        const customCover = promptToEdit.thumbnailUrl || (promptToEdit.mediaUrls && promptToEdit.mediaUrls.length > 0 && !isYouTubeUrl(promptToEdit.mediaUrls[0]) ? promptToEdit.mediaUrls[0] : "");
+        setVideoCoverUrl(customCover);
+        setMediaUrls([customCover || ytThumb]);
       } else {
-        setPackItems(
-          existingUrls.map((url, i) => ({
-            id: `item-${i + 1}`,
-            imageUrl: url,
-            promptText: promptToEdit.promptText,
-            negativePrompt: promptToEdit.negativePrompt || "",
-            title: `Image ${i + 1}`,
-          }))
-        );
+        setVideoUrl("");
+        setVideoCoverUrl("");
+        const existingUrls =
+          promptToEdit.mediaUrls && promptToEdit.mediaUrls.length > 0
+            ? promptToEdit.mediaUrls
+            : promptToEdit.mediaUrl
+              ? [promptToEdit.mediaUrl]
+              : [];
+        setMediaUrls(existingUrls);
+
+        if (promptToEdit.packItems && promptToEdit.packItems.length > 0) {
+          setPackItems(promptToEdit.packItems);
+        } else {
+          setPackItems(
+            existingUrls.map((url, i) => ({
+              id: `item-${i + 1}`,
+              imageUrl: url,
+              promptText: promptToEdit.promptText,
+              negativePrompt: promptToEdit.negativePrompt || "",
+              title: `Image ${i + 1}`,
+            }))
+          );
+        }
       }
 
       setActiveImageIndex(0);
-      setMediaType(promptToEdit.type || "image");
       setModel(promptToEdit.model || "");
       setAspectRatio(promptToEdit.aspectRatio || "");
       setCategoryId(promptToEdit.categoryId);
@@ -118,11 +152,16 @@ export function PromptEditorModal({
       setStatus(promptToEdit.status);
     } else {
       setPromptKind("single");
+      setMediaType("image");
+      setVideoUrl("");
+      setVideoCoverUrl("");
+      setVideoCoverInputText("");
       setTitle("");
       setSubtitle("");
       setPromptText("");
       setNegativePrompt("");
       setHowToUse("");
+      setReferenceImages([]);
       setMediaUrls([
         "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop",
       ]);
@@ -136,7 +175,6 @@ export function PromptEditorModal({
         },
       ]);
       setActiveImageIndex(0);
-      setMediaType("image");
       setModel("");
       setAspectRatio("");
       setCategoryId(categories[0]?.id || "");
@@ -379,6 +417,57 @@ export function PromptEditorModal({
     setActiveImageIndex(to);
   };
 
+  const handleRefFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const fileList = Array.from(files).filter((f) => f.type.startsWith("image/"));
+    if (fileList.length === 0) return;
+
+    setIsUploadingRef(true);
+    showToast(`Uploading ${fileList.length} reference image(s)...`, "info");
+    try {
+      const uploadPromises = fileList.map((file) => uploadMediaToSupabase(file, "prompts"));
+      const results = await Promise.all(uploadPromises);
+      const validUrls = results
+        .map((r: { url: string; isRemote: boolean }) => r.url)
+        .filter(Boolean);
+
+      if (validUrls.length > 0) {
+        setReferenceImages((prev) => [...prev, ...validUrls]);
+        showToast(`Added ${validUrls.length} reference image(s)`, "success");
+      }
+    } catch {
+      const readers = fileList.map((file) => {
+        return new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            if (reader.result) resolve(reader.result.toString());
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+      const dataUrls = await Promise.all(readers);
+      setReferenceImages((prev) => [...prev, ...dataUrls]);
+      showToast(`Added ${dataUrls.length} reference image(s)`, "success");
+    } finally {
+      setIsUploadingRef(false);
+    }
+    e.target.value = "";
+  };
+
+  const handleAddRefUrl = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!refUrlInput.trim()) return;
+    setReferenceImages((prev) => [...prev, refUrlInput.trim()]);
+    setRefUrlInput("");
+    showToast("Reference image URL added", "success");
+  };
+
+  const handleRemoveRefImage = (index: number) => {
+    setReferenceImages((prev) => prev.filter((_, i) => i !== index));
+    showToast("Reference image removed", "info");
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -387,11 +476,28 @@ export function PromptEditorModal({
       return;
     }
 
-    const finalUrls =
-      mediaUrls.length > 0
-        ? mediaUrls
-        : ["https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop"];
-    const finalMedia = finalUrls[0];
+    let finalMedia = "";
+    let finalUrls: string[] = [];
+
+    if (mediaType === "video") {
+      if (!videoUrl.trim()) {
+        showToast("Please enter a valid YouTube video link", "error");
+        return;
+      }
+      finalMedia = videoUrl.trim();
+      const ytThumb =
+        getYouTubeThumbnailUrl(videoUrl, "maxres") ||
+        getYouTubeThumbnailUrl(videoUrl, "hq") ||
+        "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop";
+      const finalCover = videoCoverUrl.trim() || ytThumb;
+      finalUrls = [finalCover];
+    } else {
+      finalUrls =
+        mediaUrls.length > 0
+          ? mediaUrls
+          : ["https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop"];
+      finalMedia = finalUrls[0];
+    }
 
     const formattedPackItems = packItems.map((item, i) => ({
       id: item.id || `pack-item-${i}`,
@@ -413,6 +519,8 @@ export function PromptEditorModal({
       howToUse: howToUse.trim() || undefined,
       mediaUrl: finalMedia,
       mediaUrls: finalUrls,
+      referenceImages: referenceImages.length > 0 ? referenceImages : undefined,
+      thumbnailUrl: mediaType === "video" ? (videoCoverUrl.trim() || getYouTubeThumbnailUrl(videoUrl, "maxres") || getYouTubeThumbnailUrl(videoUrl, "hq") || undefined) : undefined,
       packItems: promptKind === "pack" ? formattedPackItems : undefined,
       type: mediaType,
       model,
@@ -452,21 +560,27 @@ export function PromptEditorModal({
         <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between bg-[#0a0c12]/90">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-amber-400" />
+              {mediaType === "video" ? (
+                <Video className="w-4 h-4 text-red-400" />
+              ) : (
+                <Sparkles className="w-4 h-4 text-amber-400" />
+              )}
             </div>
             <div>
               <h2 className="text-base font-bold text-white">
                 {isEditing ? "Edit Prompt Showcase" : "Create New Prompt Showcase"}
               </h2>
               <p className="text-[11px] text-slate-400">
-                Upload multiple showcase images, model specifications, and search tags
+                {mediaType === "video"
+                  ? "Showcase an AI video generation prompt using a YouTube video link"
+                  : "Upload showcase images, model specifications, and search tags"}
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white transition-colors"
+            className="p-1.5 rounded-xl bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -474,345 +588,517 @@ export function PromptEditorModal({
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* Mode Switcher */}
-          <div className="p-1.5 rounded-2xl bg-white/[0.04] border border-white/10 grid grid-cols-2 gap-1.5">
+          {/* Mode Switcher (3 Choices: Image Prompt, Video Prompt, Prompt Pack) */}
+          <div className="p-1.5 rounded-2xl bg-white/[0.04] border border-white/10 grid grid-cols-3 gap-1.5">
             <button
               type="button"
               onClick={() => {
+                setMediaType("image");
                 setPromptKind("single");
               }}
-              className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${promptKind === "single"
+              className={`py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                mediaType === "image" && promptKind === "single"
                   ? "btn-accent-gradient shadow-lg"
                   : "text-slate-400 hover:text-white hover:bg-white/5"
-                }`}
+              }`}
             >
-              <Sparkles className="w-4 h-4" />
-              <span>Standard Prompt (1 or more Images • 1 Prompt)</span>
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Standard Image Prompt</span>
             </button>
 
             <button
               type="button"
               onClick={() => {
+                setMediaType("video");
+                setPromptKind("single");
+              }}
+              className={`py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                mediaType === "video"
+                  ? "bg-red-600 text-white shadow-lg shadow-red-600/30"
+                  : "text-slate-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              <Video className="w-3.5 h-3.5" />
+              <span>Video Prompt (YouTube)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setMediaType("image");
                 setPromptKind("pack");
               }}
-              className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${promptKind === "pack"
+              className={`py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                mediaType === "image" && promptKind === "pack"
                   ? "btn-accent-gradient shadow-lg"
                   : "text-slate-400 hover:text-white hover:bg-white/5"
-                }`}
+              }`}
             >
-              <Layers className="w-4 h-4" />
-              <span>Prompt Pack (Multi-Image + Prompts)</span>
+              <Layers className="w-3.5 h-3.5" />
+              <span>Prompt Pack</span>
             </button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Left side: Media preview & multiple upload */}
+            {/* Left side: Media preview & upload or YouTube player */}
             <div className="lg:col-span-5 space-y-4">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                    <span>{promptKind === "pack" ? "Pack Images" : "Showcase Image"}</span>
-                    <span className="px-2 py-0.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] text-[10px] font-bold">
-                      {mediaUrls.length} image{mediaUrls.length !== 1 ? "s" : ""}
-                    </span>
-                  </label>
-                  {mediaUrls.length > 1 && (
-                    <span className="text-[10px] text-slate-400 font-mono">
-                      Image {activeImageIndex + 1} of {mediaUrls.length}
-                    </span>
-                  )}
-                </div>
-
-                {/* Main Preview Box */}
-                <div
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setIsDragging(true);
-                  }}
-                  onDragLeave={() => setIsDragging(false)}
-                  onDrop={handleDropFiles}
-                  className={`relative rounded-2xl overflow-hidden bg-slate-950 border transition-all aspect-square flex items-center justify-center group ${isDragging
-                      ? "border-[var(--accent)] ring-2 ring-[var(--accent)]/40"
-                      : "border-white/10"
-                    }`}
-                >
-                  {currentPreviewUrl ? (
-                    <Image
-                      src={currentPreviewUrl}
-                      alt="Preview"
-                      fill
-                      className="object-cover"
-                      unoptimized={currentPreviewUrl.startsWith("data:")}
-                    />
-                  ) : (
-                    <div className="text-center p-4 text-slate-400 text-xs">
-                      <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                      No media selected
-                    </div>
-                  )}
-
-                  {/* Top Left: Active badge */}
-                  <div className="absolute top-3 left-3 flex items-center gap-1 z-10">
-                    <div className="px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-[11px] font-semibold text-slate-200">
-                      {mediaType === "video" ? "🎬 Video" : "🖼️ Image"}
-                    </div>
-                    {activeImageIndex === 0 && (
-                      <span className="px-2 py-0.5 rounded-lg bg-[var(--accent)] text-white text-[10px] font-bold shadow-md">
-                        Cover
+              {mediaType === "video" ? (
+                /* VIDEO PROMPT SOURCE */
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                      <Video className="w-3.5 h-3.5 text-red-400" />
+                      <span>YouTube Video Player</span>
+                    </label>
+                    {extractYouTubeId(videoUrl) && (
+                      <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                        ID: {extractYouTubeId(videoUrl)}
                       </span>
                     )}
                   </div>
 
-                  {aspectRatio && (
-                    <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-xs font-mono text-slate-300 z-10">
-                      {aspectRatio}
+                  {extractYouTubeId(videoUrl) ? (
+                    <div className={`relative rounded-2xl overflow-hidden bg-black border border-white/10 shadow-xl flex items-center justify-center mx-auto ${
+                      isVideoVertical(aspectRatio, videoUrl) ? "aspect-[9/16] max-h-[420px] max-w-[240px]" : "aspect-video w-full"
+                    }`}>
+                      <iframe
+                        src={getYouTubeEmbedUrl(videoUrl) || ""}
+                        title="YouTube Video Preview"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="w-full h-full border-0"
+                      />
+                    </div>
+                  ) : (
+                    <div className={`rounded-2xl bg-slate-950 border border-dashed border-white/15 flex flex-col items-center justify-center p-6 text-center text-slate-400 mx-auto ${
+                      isVideoVertical(aspectRatio, videoUrl) ? "aspect-[9/16] max-h-[420px] max-w-[240px]" : "aspect-video w-full"
+                    }`}>
+                      <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-2.5 text-red-400 shadow-lg">
+                        <Video className="w-6 h-6 stroke-[1.75]" />
+                      </div>
+                      <span className="text-xs font-semibold text-slate-200">YouTube Video Preview</span>
+                      <span className="text-[11px] text-slate-400 mt-1 max-w-xs leading-relaxed">
+                        Paste a YouTube video or shorts link below to preview the stream
+                      </span>
                     </div>
                   )}
 
-                  {/* Navigation Arrows on Preview Box */}
-                  {mediaUrls.length > 1 && (
-                    <>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const nextIdx = activeImageIndex === 0 ? mediaUrls.length - 1 : activeImageIndex - 1;
-                          handleSelectImageIndex(nextIdx);
-                        }}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/70 hover:bg-[var(--accent)] text-white backdrop-blur-md transition-all z-10 shadow-lg"
-                      >
-                        <ChevronLeft className="w-4 h-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const nextIdx = activeImageIndex === mediaUrls.length - 1 ? 0 : activeImageIndex + 1;
-                          handleSelectImageIndex(nextIdx);
-                        }}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/70 hover:bg-[var(--accent)] text-white backdrop-blur-md transition-all z-10 shadow-lg"
-                      >
-                        <ChevronRight className="w-4 h-4" />
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Upload Multiple Files & Add URL Bar */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400 font-medium">
-                    {promptKind === "pack" ? "Add pack images:" : "Add showcase images:"}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="px-2.5 py-1 rounded-lg bg-[var(--accent-soft)] hover:bg-[var(--accent)] text-[var(--accent)] hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 font-bold text-[11px]"
-                  >
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>Upload Image(s)</span>
-                  </button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                </div>
-
-                {/* Paste URL Input */}
-                <div className="flex gap-1.5">
-                  <input
-                    type="url"
-                    value={urlInput}
-                    onChange={(e) => setUrlInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        if (urlInput.trim()) {
-                          const url = urlInput.trim();
-                          if (promptKind === "single") {
-                            setMediaUrls([url]);
-                            setPackItems([{
-                              id: `item-1`,
-                              imageUrl: url,
-                              promptText,
-                              negativePrompt,
-                            }]);
-                          } else {
-                            setMediaUrls((prev) => [...prev, url]);
-                            setPackItems((prev) => [
-                              ...prev,
-                              {
-                                id: `item-${Date.now()}`,
-                                imageUrl: url,
-                                promptText: "",
-                                negativePrompt: "",
-                              },
-                            ]);
-                          }
-                          setUrlInput("");
-                          showToast("Image URL added", "success");
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-slate-300">
+                      YouTube Video Link *
+                    </label>
+                    <input
+                      type="url"
+                      value={videoUrl}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setVideoUrl(val);
+                        const thumb = getYouTubeThumbnailUrl(val, "maxres") || getYouTubeThumbnailUrl(val, "hq");
+                        if (thumb && !videoCoverUrl) {
+                          setMediaUrls([thumb]);
                         }
-                      }
-                    }}
-                    placeholder="Paste image URL (https://...)"
-                    className="flex-1 px-3 py-1.5 rounded-xl glass-input text-xs"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAddUrl}
-                    className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-1"
-                  >
-                    <Plus className="w-3.5 h-3.5 text-[var(--accent)]" />
-                    <span>Add</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Uploaded Images Gallery Strip / Manager */}
-              {mediaUrls.length > 0 && (
-                <div className="space-y-2 pt-1 border-t border-white/5">
-                  <div className="text-[11px] font-semibold text-slate-400 flex items-center justify-between">
-                    <span>
-                      {promptKind === "pack"
-                        ? `Pack Gallery (${mediaUrls.length} items)`
-                        : `Showcase Images (${mediaUrls.length})`}
-                    </span>
-                    <span className="text-[10px] text-slate-400">
-                      {promptKind === "pack"
-                        ? "Click to edit its prompt"
-                        : "All showcase this single prompt"}
-                    </span>
+                      }}
+                      placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                      className="w-full px-3.5 py-2.5 rounded-xl glass-input text-xs font-mono"
+                    />
+                    <p className="text-[10px] text-slate-400">
+                      Supports YouTube watch links, shorts, and youtu.be shortlinks.
+                    </p>
                   </div>
 
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1">
-                    {mediaUrls.map((url, idx) => (
-                      <div
-                        key={idx}
-                        onClick={() => handleSelectImageIndex(idx)}
-                        className={`group/thumb relative rounded-xl overflow-hidden aspect-square border cursor-pointer transition-all ${activeImageIndex === idx
-                            ? "border-[var(--accent)] ring-2 ring-[var(--accent)]/50 scale-[1.02]"
-                            : "border-white/10 hover:border-white/30 bg-slate-950"
-                          }`}
-                      >
-                        <Image
-                          src={url}
-                          alt={`Thumbnail ${idx + 1}`}
-                          fill
-                          className="object-cover"
-                          unoptimized={url.startsWith("data:")}
-                        />
+                  {/* Optional Custom Cover Image Upload */}
+                  <div className="space-y-2.5 rounded-xl bg-slate-950/70 border border-white/10 p-3.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+                        <ImageIcon className="w-3.5 h-3.5 text-[var(--accent)]" />
+                        <span>Custom Cover Image (Optional)</span>
+                      </label>
+                      {videoCoverUrl ? (
+                        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-mono">
+                          Custom Cover Active
+                        </span>
+                      ) : extractYouTubeId(videoUrl) ? (
+                        <span className="text-[10px] font-medium text-slate-400 bg-white/5 px-2 py-0.5 rounded-full border border-white/10 font-mono">
+                          YouTube Auto-Thumbnail
+                        </span>
+                      ) : null}
+                    </div>
 
-                        {/* Order badge */}
-                        <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-[9px] font-mono text-white font-bold">
-                          {idx === 0 ? "★ Cover" : `#${idx + 1}`}
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      Upload an optional custom poster image to display on prompt cards before hover video playback:
+                    </p>
+
+                    {/* Hidden File Input */}
+                    <input
+                      ref={videoCoverFileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file || !file.type.startsWith("image/")) return;
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                          if (reader.result) {
+                            setVideoCoverUrl(reader.result.toString());
+                            setMediaUrls([reader.result.toString()]);
+                            showToast("Custom cover image uploaded", "success");
+                          }
+                        };
+                        reader.readAsDataURL(file);
+                      }}
+                      className="hidden"
+                    />
+
+                    <div className="flex items-center gap-3">
+                      {videoCoverUrl ? (
+                        <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-black border border-white/20 flex-shrink-0 shadow-sm">
+                          <Image
+                            src={videoCoverUrl}
+                            alt="Custom cover preview"
+                            fill
+                            className="object-cover"
+                            unoptimized={videoCoverUrl.startsWith("data:")}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setVideoCoverUrl("");
+                              const ytThumb = getYouTubeThumbnailUrl(videoUrl, "maxres") || getYouTubeThumbnailUrl(videoUrl, "hq");
+                              if (ytThumb) setMediaUrls([ytThumb]);
+                            }}
+                            className="absolute top-1 right-1 p-1 rounded-md bg-black/80 hover:bg-red-500 text-white transition-colors"
+                            title="Remove custom cover image"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ) : extractYouTubeId(videoUrl) ? (
+                        <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-black border border-white/10 flex-shrink-0 opacity-80">
+                          <Image
+                            src={getYouTubeThumbnailUrl(videoUrl, "hq") || ""}
+                            alt="Default YouTube Thumbnail"
+                            fill
+                            className="object-cover"
+                            unoptimized
+                          />
+                        </div>
+                      ) : null}
+
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <button
+                            type="button"
+                            onClick={() => videoCoverFileInputRef.current?.click()}
+                            className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                          >
+                            <Upload className="w-3.5 h-3.5 text-[var(--accent)]" />
+                            <span>{videoCoverUrl ? "Change Cover Image" : "Upload Cover Image"}</span>
+                          </button>
+
+                          {videoCoverUrl && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setVideoCoverUrl("");
+                                const ytThumb = getYouTubeThumbnailUrl(videoUrl, "maxres") || getYouTubeThumbnailUrl(videoUrl, "hq");
+                                if (ytThumb) setMediaUrls([ytThumb]);
+                              }}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400 text-xs transition-colors cursor-pointer"
+                            >
+                              Use YouTube Thumbnail
+                            </button>
+                          )}
                         </div>
 
-                        {/* Prompt configured indicator */}
-                        {packItems[idx]?.promptText?.trim() && (
-                          <div className="absolute bottom-1 right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 border border-black shadow" title="Prompt configured" />
-                        )}
-
-                        {/* Hover Overlay Controls */}
-                        <div className="absolute inset-0 bg-black/70 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex flex-col items-center justify-between p-1">
-                          <div className="flex items-center justify-end w-full">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="url"
+                            value={videoCoverInputText}
+                            onChange={(e) => setVideoCoverInputText(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                if (videoCoverInputText.trim()) {
+                                  setVideoCoverUrl(videoCoverInputText.trim());
+                                  setMediaUrls([videoCoverInputText.trim()]);
+                                  setVideoCoverInputText("");
+                                  showToast("Custom cover URL applied", "success");
+                                }
+                              }
+                            }}
+                            placeholder="Or paste image URL (https://...)"
+                            className="flex-1 px-3 py-1.5 rounded-lg glass-input text-[11px] font-mono"
+                          />
+                          {videoCoverInputText.trim() && (
                             <button
                               type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRemoveImage(idx);
+                              onClick={() => {
+                                setVideoCoverUrl(videoCoverInputText.trim());
+                                setMediaUrls([videoCoverInputText.trim()]);
+                                setVideoCoverInputText("");
+                                showToast("Custom cover URL applied", "success");
                               }}
-                              className="p-1 rounded-md bg-red-500/80 hover:bg-red-600 text-white"
-                              title="Delete image"
+                              className="px-3 py-1.5 rounded-lg bg-[var(--accent)] text-white text-xs font-semibold cursor-pointer"
                             >
-                              <Trash2 className="w-2.5 h-2.5" />
+                              Set
                             </button>
-                          </div>
-
-                          <div className="flex items-center gap-1">
-                            {idx > 0 && (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleSetPrimary(idx);
-                                }}
-                                className="px-1.5 py-0.5 rounded bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[9px] font-bold text-white flex items-center gap-0.5"
-                                title="Make Primary Cover"
-                              >
-                                <Star className="w-2.5 h-2.5 fill-white" />
-                                <span>Cover</span>
-                              </button>
-                            )}
-                          </div>
-
-                          <div className="flex items-center justify-between w-full">
-                            <button
-                              type="button"
-                              disabled={idx === 0}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleMoveImage(idx, idx - 1);
-                              }}
-                              className="p-1 rounded-md bg-white/20 hover:bg-white/40 text-white disabled:opacity-30"
-                              title="Move left"
-                            >
-                              <ArrowLeft className="w-2.5 h-2.5" />
-                            </button>
-                            <button
-                              type="button"
-                              disabled={idx === mediaUrls.length - 1}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleMoveImage(idx, idx + 1);
-                              }}
-                              className="p-1 rounded-md bg-white/20 hover:bg-white/40 text-white disabled:opacity-30"
-                              title="Move right"
-                            >
-                              <ArrowRight className="w-2.5 h-2.5" />
-                            </button>
-                          </div>
+                          )}
                         </div>
                       </div>
-                    ))}
+                    </div>
                   </div>
                 </div>
-              )}
+              ) : (
+                /* IMAGE PROMPT SOURCE */
+                <>
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                        <span>{promptKind === "pack" ? "Pack Images" : "Showcase Image"}</span>
+                        <span className="px-2 py-0.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] text-[10px] font-bold">
+                          {mediaUrls.length} image{mediaUrls.length !== 1 ? "s" : ""}
+                        </span>
+                      </label>
+                      {mediaUrls.length > 1 && (
+                        <span className="text-[10px] text-slate-400 font-mono">
+                          Image {activeImageIndex + 1} of {mediaUrls.length}
+                        </span>
+                      )}
+                    </div>
 
-              {/* Media Type Switcher (Image vs Video) */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Media Type
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setMediaType("image")}
-                    className={`py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${mediaType === "image"
-                        ? "bg-[#252a3a] text-white border border-white/20 shadow-sm"
-                        : "glass-pill text-slate-400 hover:text-slate-200"
+                    {/* Main Preview Box */}
+                    <div
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDragging(true);
+                      }}
+                      onDragLeave={() => setIsDragging(false)}
+                      onDrop={handleDropFiles}
+                      className={`relative rounded-2xl overflow-hidden bg-slate-950 border transition-all aspect-square flex items-center justify-center group ${
+                        isDragging
+                          ? "border-[var(--accent)] ring-2 ring-[var(--accent)]/40"
+                          : "border-white/10"
                       }`}
-                  >
-                    <ImageIcon className="w-3.5 h-3.5" />
-                    Image Prompt
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setMediaType("video")}
-                    className={`py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${mediaType === "video"
-                        ? "bg-[var(--accent)] text-white font-bold"
-                        : "glass-pill text-slate-400 hover:text-slate-200"
-                      }`}
-                  >
-                    <Video className="w-3.5 h-3.5" />
-                    Video Prompt
-                  </button>
-                </div>
-              </div>
+                    >
+                      {currentPreviewUrl ? (
+                        <Image
+                          src={currentPreviewUrl}
+                          alt="Preview"
+                          fill
+                          className="object-cover"
+                          unoptimized={currentPreviewUrl.startsWith("data:")}
+                        />
+                      ) : (
+                        <div className="text-center p-4 text-slate-400 text-xs">
+                          <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                          No media selected
+                        </div>
+                      )}
+
+                      {/* Top Left: Active badge */}
+                      <div className="absolute top-3 left-3 flex items-center gap-1 z-10">
+                        <div className="px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-[11px] font-semibold text-slate-200">
+                          🖼️ Image
+                        </div>
+                        {activeImageIndex === 0 && (
+                          <span className="px-2 py-0.5 rounded-lg bg-[var(--accent)] text-white text-[10px] font-bold shadow-md">
+                            Cover
+                          </span>
+                        )}
+                      </div>
+
+                      {aspectRatio && (
+                        <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-xs font-mono text-slate-300 z-10">
+                          {aspectRatio}
+                        </div>
+                      )}
+
+                      {/* Navigation Arrows on Preview Box */}
+                      {mediaUrls.length > 1 && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const nextIdx = activeImageIndex === 0 ? mediaUrls.length - 1 : activeImageIndex - 1;
+                              handleSelectImageIndex(nextIdx);
+                            }}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/70 hover:bg-[var(--accent)] text-white backdrop-blur-md transition-all z-10 shadow-lg cursor-pointer"
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const nextIdx = activeImageIndex === mediaUrls.length - 1 ? 0 : activeImageIndex + 1;
+                              handleSelectImageIndex(nextIdx);
+                            }}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/70 hover:bg-[var(--accent)] text-white backdrop-blur-md transition-all z-10 shadow-lg cursor-pointer"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Upload Multiple Files & Add URL Bar */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-400 font-medium">
+                        {promptKind === "pack" ? "Add pack images:" : "Add showcase images:"}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-2.5 py-1 rounded-lg bg-[var(--accent-soft)] hover:bg-[var(--accent)] text-[var(--accent)] hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 font-bold text-[11px]"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Upload Image(s)</span>
+                      </button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                      />
+                    </div>
+
+                    {/* Paste URL Input */}
+                    <div className="flex gap-1.5">
+                      <input
+                        type="url"
+                        value={urlInput}
+                        onChange={(e) => setUrlInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            if (urlInput.trim()) {
+                              const url = urlInput.trim();
+                              if (promptKind === "single") {
+                                setMediaUrls((prev) => [...prev, url]);
+                              } else {
+                                setMediaUrls((prev) => [...prev, url]);
+                                setPackItems((prev) => [
+                                  ...prev,
+                                  {
+                                    id: `item-${Date.now()}`,
+                                    imageUrl: url,
+                                    promptText: "",
+                                    negativePrompt: "",
+                                  },
+                                ]);
+                              }
+                              setUrlInput("");
+                              showToast("Image URL added", "success");
+                            }
+                          }
+                        }}
+                        placeholder="Paste image URL (https://...)"
+                        className="flex-1 px-3 py-1.5 rounded-xl glass-input text-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddUrl}
+                        className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5 text-[var(--accent)]" />
+                        <span>Add</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Uploaded Images Gallery Strip / Manager */}
+                  {mediaUrls.length > 0 && (
+                    <div className="space-y-2 pt-1 border-t border-white/5">
+                      <div className="text-[11px] font-semibold text-slate-400 flex items-center justify-between">
+                        <span>
+                          {promptKind === "pack"
+                            ? `Pack Gallery (${mediaUrls.length} items)`
+                            : `Showcase Images (${mediaUrls.length})`}
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          {promptKind === "pack"
+                            ? "Click to edit its prompt"
+                            : "All showcase this single prompt"}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1">
+                        {mediaUrls.map((url, idx) => (
+                          <div
+                            key={idx}
+                            onClick={() => handleSelectImageIndex(idx)}
+                            className={`group/thumb relative rounded-xl overflow-hidden aspect-square border cursor-pointer transition-all ${
+                              activeImageIndex === idx
+                                ? "border-[var(--accent)] ring-2 ring-[var(--accent)]/50 scale-[1.02]"
+                                : "border-white/10 hover:border-white/30 bg-slate-950"
+                            }`}
+                          >
+                            <Image
+                              src={url}
+                              alt={`Thumbnail ${idx + 1}`}
+                              fill
+                              className="object-cover"
+                              unoptimized={url.startsWith("data:")}
+                            />
+
+                            {/* Order badge */}
+                            <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-[9px] font-mono text-white font-bold">
+                              {idx === 0 ? "★ Cover" : `#${idx + 1}`}
+                            </div>
+
+                            {/* Prompt configured indicator */}
+                            {packItems[idx]?.promptText?.trim() && (
+                              <div
+                                className="absolute bottom-1 right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 border border-black shadow"
+                                title="Prompt configured"
+                              />
+                            )}
+
+                            {/* Hover Overlay Controls */}
+                            <div className="absolute inset-0 bg-black/70 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex flex-col items-center justify-between p-1">
+                              <div className="flex items-center justify-end w-full">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemoveImage(idx);
+                                  }}
+                                  className="p-1 rounded-md bg-red-500/80 hover:bg-red-600 text-white cursor-pointer"
+                                  title="Delete image"
+                                >
+                                  <Trash2 className="w-2.5 h-2.5" />
+                                </button>
+                              </div>
+
+                              <div className="flex items-center gap-1">
+                                {idx > 0 && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleSetPrimary(idx);
+                                    }}
+                                    className="px-1.5 py-0.5 rounded bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[9px] font-bold text-white flex items-center gap-0.5 cursor-pointer"
+                                    title="Make Primary Cover"
+                                  >
+                                    <Star className="w-2.5 h-2.5 fill-white" />
+                                    <span>Cover</span>
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
 
               {/* Status & Featured Toggles */}
               <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
@@ -826,10 +1112,11 @@ export function PromptEditorModal({
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value as "published" | "draft")}
-                    className={`px-3 py-1 rounded-xl text-xs font-semibold ${status === "published"
+                    className={`px-3 py-1 rounded-xl text-xs font-semibold ${
+                      status === "published"
                         ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
                         : "bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent)]/30"
-                      }`}
+                    }`}
                   >
                     <option value="published" className="bg-[#0f1117] text-white">
                       Published
@@ -984,6 +1271,94 @@ export function PromptEditorModal({
                   }
                   className="w-full px-3.5 py-2.5 rounded-xl glass-input text-xs font-mono leading-relaxed resize-none text-slate-200"
                 />
+              </div>
+
+              {/* Reference Images Section */}
+              <div className="space-y-2 p-3.5 rounded-2xl bg-white/[0.03] border border-white/10">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="text-xs font-semibold text-white flex items-center gap-1.5">
+                      <ImageIcon className="w-3.5 h-3.5 text-sky-400" />
+                      <span>Reference Images / Input Samples (Optional)</span>
+                    </label>
+                    <p className="text-[10px] text-slate-400 mt-0.5">
+                      Showcase source images used to guide style, character, or image-to-video motion
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => refFileInputRef.current?.click()}
+                    disabled={isUploadingRef}
+                    className="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 text-[11px] font-semibold flex items-center gap-1.5 border border-sky-500/30 transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    <Upload className="w-3 h-3" />
+                    <span>Upload Ref</span>
+                  </button>
+                  <input
+                    ref={refFileInputRef}
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleRefFileUpload}
+                    className="hidden"
+                  />
+                </div>
+
+                {/* Paste URL Input for Reference */}
+                <div className="flex gap-1.5 pt-1">
+                  <input
+                    type="url"
+                    value={refUrlInput}
+                    onChange={(e) => setRefUrlInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddRefUrl();
+                      }
+                    }}
+                    placeholder="Paste reference image URL (https://...)"
+                    className="flex-1 px-3 py-1.5 rounded-xl glass-input text-xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddRefUrl}
+                    className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5 text-sky-400" />
+                    <span>Add</span>
+                  </button>
+                </div>
+
+                {/* Reference Images Strip */}
+                {referenceImages.length > 0 && (
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 pt-2 border-t border-white/5">
+                    {referenceImages.map((refUrl, idx) => (
+                      <div
+                        key={idx}
+                        className="group/ref relative rounded-xl overflow-hidden aspect-square border border-white/15 bg-black"
+                      >
+                        <Image
+                          src={refUrl}
+                          alt={`Reference ${idx + 1}`}
+                          fill
+                          className="object-cover"
+                          unoptimized={refUrl.startsWith("data:")}
+                        />
+                        <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/75 text-[9px] font-mono text-sky-300 font-bold">
+                          Ref #{idx + 1}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveRefImage(idx)}
+                          className="absolute top-1 right-1 p-1 rounded-md bg-red-500/80 hover:bg-red-600 text-white opacity-0 group-hover/ref:opacity-100 transition-opacity cursor-pointer"
+                          title="Remove reference"
+                        >
+                          <Trash2 className="w-2.5 h-2.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

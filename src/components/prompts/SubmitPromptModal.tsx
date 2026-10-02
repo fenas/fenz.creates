@@ -12,6 +12,7 @@ import {
   Trash2,
   Image as ImageIcon,
   Check,
+  Video,
 } from "lucide-react";
 import { usePromptStore } from "@/context/PromptContext";
 import { AspectRatio, PromptKind, PromptPackItem } from "@/types";
@@ -19,13 +20,20 @@ import { useToast } from "@/components/ui/Toast";
 
 import { uploadMediaToSupabase } from "@/lib/supabase";
 import { LiquidAccentButton } from "@/components/ui/LiquidAccentButton";
+import {
+  isYouTubeUrl,
+  extractYouTubeId,
+  getYouTubeEmbedUrl,
+  getYouTubeThumbnailUrl,
+  isVideoVertical,
+} from "@/lib/youtube";
 
 export function SubmitPromptModal() {
   const { isSubmitModalOpen, setIsSubmitModalOpen, categories, addPrompt } =
     usePromptStore();
   const { showToast } = useToast();
 
-  const [uploadKind, setUploadKind] = useState<PromptKind>("single");
+  const [uploadKind, setUploadKind] = useState<"single" | "video" | "pack">("single");
 
   // Single Prompt State
   const [title, setTitle] = useState("");
@@ -36,6 +44,22 @@ export function SubmitPromptModal() {
   const [singleUrlInput, setSingleUrlInput] = useState("");
   const [isUploadingSingle, setIsUploadingSingle] = useState(false);
   const [isDraggingSingle, setIsDraggingSingle] = useState(false);
+
+  // Reference Images State (shared for Single & Video)
+  const [referenceImages, setReferenceImages] = useState<string[]>([]);
+  const [refUrlInput, setRefUrlInput] = useState("");
+  const [isUploadingRef, setIsUploadingRef] = useState(false);
+
+  // Video Prompt State (YouTube & Optional Custom Cover)
+  const [videoUrl, setVideoUrl] = useState("");
+  const [videoCoverUrl, setVideoCoverUrl] = useState("");
+  const [videoCoverInputText, setVideoCoverInputText] = useState("");
+  const [videoTitle, setVideoTitle] = useState("");
+  const [videoPromptText, setVideoPromptText] = useState("");
+  const [videoNegativePrompt, setVideoNegativePrompt] = useState("");
+  const [videoHowToUse, setVideoHowToUse] = useState("");
+
+  const videoCoverFileInputRef = useRef<HTMLInputElement>(null);
 
   // Prompt Pack State
   const [packName, setPackName] = useState("");
@@ -72,6 +96,7 @@ export function SubmitPromptModal() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const singleFileInputRef = useRef<HTMLInputElement>(null);
+  const refFileInputRef = useRef<HTMLInputElement>(null);
   const packBatchFileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isSubmitModalOpen) return null;
@@ -85,6 +110,61 @@ export function SubmitPromptModal() {
 
   const handleRemoveTag = (tag: string) => {
     setTags(tags.filter((t) => t !== tag));
+  };
+
+  // Reference image file uploader
+  const handleRefFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const fileList = Array.from(files).filter((f) => f.type.startsWith("image/"));
+    if (fileList.length === 0) return;
+
+    setIsUploadingRef(true);
+    showToast(`Uploading ${fileList.length} reference image(s)...`, "info");
+
+    try {
+      const uploadPromises = fileList.map((file) => uploadMediaToSupabase(file, "prompts"));
+      const results = await Promise.all(uploadPromises);
+      const validUrls = results
+        .map((r: { url: string; isRemote: boolean }) => r.url)
+        .filter(Boolean);
+
+      if (validUrls.length > 0) {
+        setReferenceImages((prev) => [...prev, ...validUrls]);
+        showToast(`Added ${validUrls.length} reference image(s)!`, "success");
+      }
+    } catch {
+      const readers = fileList.map((file) => {
+        return new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            if (reader.result) resolve(reader.result.toString());
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+      const dataUrls = await Promise.all(readers);
+      setReferenceImages((prev) => [...prev, ...dataUrls]);
+      showToast(`Added ${dataUrls.length} reference image(s)!`, "success");
+    } finally {
+      setIsUploadingRef(false);
+    }
+
+    e.target.value = "";
+  };
+
+  const handleAddRefUrl = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!refUrlInput.trim()) return;
+    setReferenceImages((prev) => [...prev, refUrlInput.trim()]);
+    setRefUrlInput("");
+    showToast("Reference image URL added", "success");
+  };
+
+  const handleRemoveRefImage = (index: number) => {
+    setReferenceImages((prev) => prev.filter((_, i) => i !== index));
+    showToast("Reference image removed", "info");
   };
 
   // Single image file handler (supports 1 or multiple files)
@@ -295,6 +375,7 @@ export function SubmitPromptModal() {
         howToUse: singleHowToUse.trim() || undefined,
         mediaUrl: finalMedia,
         mediaUrls: finalUrls,
+        referenceImages: referenceImages.length > 0 ? referenceImages : undefined,
         type: "image",
         promptKind: "single",
         model,
@@ -311,6 +392,51 @@ export function SubmitPromptModal() {
       setIsSubmitting(false);
       setIsSubmitModalOpen(false);
       showToast("Single Prompt uploaded successfully!", "success");
+    } else if (uploadKind === "video") {
+      if (!videoTitle.trim() || !videoPromptText.trim()) {
+        showToast("Please enter video prompt title and prompt formula text", "error");
+        return;
+      }
+
+      if (!videoUrl.trim() || !extractYouTubeId(videoUrl)) {
+        showToast("Please enter a valid YouTube video link", "error");
+        return;
+      }
+
+      const ytThumb =
+        getYouTubeThumbnailUrl(videoUrl, "maxres") ||
+        getYouTubeThumbnailUrl(videoUrl, "hq") ||
+        "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop";
+
+      const finalCover = videoCoverUrl.trim() || ytThumb;
+
+      setIsSubmitting(true);
+
+      addPrompt({
+        title: videoTitle.trim(),
+        promptText: videoPromptText.trim(),
+        negativePrompt: videoNegativePrompt.trim() || undefined,
+        howToUse: videoHowToUse.trim() || undefined,
+        mediaUrl: videoUrl.trim(),
+        mediaUrls: [finalCover],
+        thumbnailUrl: finalCover,
+        referenceImages: referenceImages.length > 0 ? referenceImages : undefined,
+        type: "video",
+        promptKind: "single",
+        model,
+        aspectRatio: aspectRatio || "16:9",
+        categoryId: categoryId || categories[0]?.id || "cat-photoreal",
+        tags: tags.length > 0 ? tags : ["AI Video", "Motion"],
+        featured: false,
+        status: "published",
+        parameters: {
+          version: "v1.0",
+        },
+      });
+
+      setIsSubmitting(false);
+      setIsSubmitModalOpen(false);
+      showToast("Video Prompt submitted successfully!", "success");
     } else {
       // Prompt Pack Validation
       if (!packName.trim()) {
@@ -383,6 +509,15 @@ export function SubmitPromptModal() {
     setSingleHowToUse("");
     setSingleImageUrls([]);
     setSingleUrlInput("");
+    setReferenceImages([]);
+    setRefUrlInput("");
+    setVideoUrl("");
+    setVideoCoverUrl("");
+    setVideoCoverInputText("");
+    setVideoTitle("");
+    setVideoPromptText("");
+    setVideoNegativePrompt("");
+    setVideoHowToUse("");
     setPackName("");
     setPackSubtitle("");
     setPackHowToUse("");
@@ -405,18 +540,26 @@ export function SubmitPromptModal() {
             <div className="w-9 h-9 rounded-2xl bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center text-[var(--accent)]">
               {uploadKind === "pack" ? (
                 <Layers className="w-5 h-5 stroke-[2]" />
+              ) : uploadKind === "video" ? (
+                <Video className="w-5 h-5 stroke-[2] text-red-400" />
               ) : (
                 <Sparkles className="w-5 h-5 stroke-[2]" />
               )}
             </div>
             <div>
               <h2 className="text-base font-bold text-[var(--text-primary)]">
-                {uploadKind === "pack" ? "Create Prompt Pack" : "Submit Single Prompt"}
+                {uploadKind === "pack"
+                  ? "Create Prompt Pack"
+                  : uploadKind === "video"
+                  ? "Submit Video Prompt (YouTube)"
+                  : "Submit Single Prompt"}
               </h2>
               <p className="text-xs text-[var(--text-secondary)]">
                 {uploadKind === "pack"
                   ? "Upload multiple images where each image has its own prompt formula"
-                  : "Share a single image + prompt formula with the community"}
+                  : uploadKind === "video"
+                  ? "Showcase an AI video generation prompt using a YouTube video link"
+                  : "Share a showcase image + prompt formula with the community"}
               </p>
             </div>
           </div>
@@ -429,31 +572,46 @@ export function SubmitPromptModal() {
           </button>
         </div>
 
-        {/* Upload Mode Selector (2 Choices) */}
+        {/* Upload Mode Selector (3 Choices) */}
         <div className="px-6 pt-4 pb-2 bg-[var(--surface-elevated)] border-b border-[var(--border)]">
-          <div className="grid grid-cols-2 p-1 rounded-2xl bg-[var(--surface-recessed)] border border-[var(--border)] gap-1">
+          <div className="grid grid-cols-3 p-1 rounded-2xl bg-[var(--surface-recessed)] border border-[var(--border)] gap-1">
             <button
               type="button"
               onClick={() => setUploadKind("single")}
-              className={`py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${uploadKind === "single"
+              className={`py-2 px-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                uploadKind === "single"
                   ? "bg-[var(--accent)] text-white shadow-md shadow-[var(--accent)]/30"
                   : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                }`}
+              }`}
             >
-              <Sparkles className="w-4 h-4" />
-              <span>Standard Prompt (1 or more Images • 1 Prompt)</span>
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Standard Image</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setUploadKind("video")}
+              className={`py-2 px-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                uploadKind === "video"
+                  ? "bg-red-600 text-white shadow-md shadow-red-600/30"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              }`}
+            >
+              <Video className="w-3.5 h-3.5" />
+              <span>Video (YouTube)</span>
             </button>
 
             <button
               type="button"
               onClick={() => setUploadKind("pack")}
-              className={`py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${uploadKind === "pack"
+              className={`py-2 px-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                uploadKind === "pack"
                   ? "bg-[var(--accent)] text-white shadow-md shadow-[var(--accent)]/30"
                   : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                }`}
+              }`}
             >
-              <Layers className="w-4 h-4" />
-              <span>Prompt Pack (Multi-Image + Prompts)</span>
+              <Layers className="w-3.5 h-3.5" />
+              <span>Prompt Pack</span>
             </button>
           </div>
         </div>
@@ -735,11 +893,438 @@ export function SubmitPromptModal() {
                   className="w-full px-3.5 py-2 rounded-xl bg-[var(--surface-recessed)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] leading-relaxed resize-none focus:outline-none focus:border-[var(--accent)] font-mono"
                 />
               </div>
+
+              {/* Reference Images / Input Samples for Single Prompt */}
+              <div className="space-y-2 p-3.5 rounded-2xl bg-[var(--surface-recessed)] border border-[var(--border)]">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+                      <ImageIcon className="w-3.5 h-3.5 text-sky-400" />
+                      <span>Reference Images / Input Sample (Optional)</span>
+                    </label>
+                    <p className="text-[10px] text-[var(--text-secondary)] mt-0.5">
+                      Add sample input images used with this prompt (e.g. Character `--cref`, Style `--sref`, ControlNet)
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => refFileInputRef.current?.click()}
+                    disabled={isUploadingRef}
+                    className="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-400 text-[11px] font-semibold flex items-center gap-1.5 border border-sky-500/30 transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    <Upload className="w-3 h-3" />
+                    <span>Upload Ref</span>
+                  </button>
+                  <input
+                    ref={refFileInputRef}
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleRefFileUpload}
+                    className="hidden"
+                  />
+                </div>
+
+                {/* Paste URL Input for Reference */}
+                <div className="flex gap-1.5 pt-1">
+                  <input
+                    type="url"
+                    value={refUrlInput}
+                    onChange={(e) => setRefUrlInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddRefUrl();
+                      }
+                    }}
+                    placeholder="Paste reference image URL (https://...)"
+                    className="flex-1 px-3 py-1.5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] outline-none focus:border-[var(--accent)]"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddRefUrl}
+                    className="px-3 py-1.5 rounded-xl bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-xs font-bold text-[var(--text-primary)] cursor-pointer"
+                  >
+                    Add
+                  </button>
+                </div>
+
+                {/* Reference Images Strip */}
+                {referenceImages.length > 0 && (
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 pt-2 border-t border-[var(--border)]">
+                    {referenceImages.map((refUrl, idx) => (
+                      <div
+                        key={idx}
+                        className="group/ref relative rounded-xl overflow-hidden aspect-square border border-[var(--border)] bg-black"
+                      >
+                        <Image
+                          src={refUrl}
+                          alt={`Reference ${idx + 1}`}
+                          fill
+                          className="object-cover"
+                          unoptimized={refUrl.startsWith("data:")}
+                        />
+                        <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/75 text-[9px] font-mono text-sky-300 font-bold">
+                          Ref #{idx + 1}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveRefImage(idx)}
+                          className="absolute top-1 right-1 p-1 rounded-md bg-red-500/80 hover:bg-red-600 text-white opacity-0 group-hover/ref:opacity-100 transition-opacity cursor-pointer"
+                          title="Remove reference"
+                        >
+                          <Trash2 className="w-2.5 h-2.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
           {/* ======================================================== */}
-          {/* CASE 2: PROMPT PACK UPLOAD FLOW */}
+          {/* CASE 2: VIDEO PROMPT UPLOAD FLOW (YOUTUBE) */}
+          {/* ======================================================== */}
+          {uploadKind === "video" && (
+            <div className="space-y-4">
+              {/* YouTube Video Player / Embed Preview */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-[var(--text-primary)]">
+                    YouTube Video Source *
+                  </label>
+                  {extractYouTubeId(videoUrl) && (
+                    <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-1 font-mono border border-emerald-500/20">
+                      <span>YouTube ID: {extractYouTubeId(videoUrl)}</span>
+                    </span>
+                  )}
+                </div>
+
+                {extractYouTubeId(videoUrl) ? (
+                  <div className={`relative rounded-2xl overflow-hidden bg-black border border-white/15 shadow-xl flex items-center justify-center mx-auto ${
+                    isVideoVertical(aspectRatio, videoUrl) ? "aspect-[9/16] max-h-[420px] max-w-[240px]" : "aspect-[16/9] w-full"
+                  }`}>
+                    <iframe
+                      src={getYouTubeEmbedUrl(videoUrl) || ""}
+                      title="YouTube Video Preview"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full border-0"
+                    />
+                  </div>
+                ) : (
+                  <div className={`p-6 rounded-2xl border-2 border-dashed transition-all bg-[var(--surface-recessed)] border-[var(--border)] flex flex-col items-center justify-center text-center gap-3 mx-auto ${
+                    isVideoVertical(aspectRatio, videoUrl) ? "aspect-[9/16] max-h-[420px] max-w-[240px]" : "w-full"
+                  }`}>
+                    <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 shadow-sm">
+                      <Video className="w-6 h-6 stroke-[1.75]" />
+                    </div>
+
+                    <div className="space-y-0.5">
+                      <div className="text-xs font-bold text-[var(--text-primary)]">
+                        Paste YouTube Video Link
+                      </div>
+                      <div className="text-[11px] text-[var(--text-secondary)]">
+                        Watch links, shorts, or youtu.be shortlinks • Auto-fetches cover thumbnail
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* YouTube URL Input */}
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-primary)] mb-1.5">
+                  YouTube Video Link *
+                </label>
+                <input
+                  type="url"
+                  required
+                  value={videoUrl}
+                  onChange={(e) => setVideoUrl(e.target.value)}
+                  placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--surface-recessed)] border border-[var(--border)] text-xs font-mono text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
+                />
+              </div>
+
+              {/* Optional Custom Cover Image Upload */}
+              <div className="space-y-2.5 rounded-xl bg-[var(--surface-recessed)] border border-[var(--border)] p-3.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+                    <ImageIcon className="w-3.5 h-3.5 text-[var(--accent)]" />
+                    <span>Custom Cover Image (Optional)</span>
+                  </label>
+                  {videoCoverUrl ? (
+                    <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-mono">
+                      Custom Cover Active
+                    </span>
+                  ) : extractYouTubeId(videoUrl) ? (
+                    <span className="text-[10px] font-medium text-[var(--text-secondary)] bg-white/5 px-2 py-0.5 rounded-full border border-white/10 font-mono">
+                      YouTube Auto-Thumbnail
+                    </span>
+                  ) : null}
+                </div>
+
+                <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
+                  Upload an optional custom cover poster for prompt cards before video playback begins on hover:
+                </p>
+
+                {/* Hidden File Input */}
+                <input
+                  ref={videoCoverFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file || !file.type.startsWith("image/")) return;
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      if (reader.result) {
+                        setVideoCoverUrl(reader.result.toString());
+                        showToast("Custom cover image uploaded", "success");
+                      }
+                    };
+                    reader.readAsDataURL(file);
+                  }}
+                  className="hidden"
+                />
+
+                <div className="flex items-center gap-3">
+                  {videoCoverUrl ? (
+                    <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-black border border-white/15 flex-shrink-0 shadow-sm">
+                      <Image
+                        src={videoCoverUrl}
+                        alt="Custom video cover preview"
+                        fill
+                        className="object-cover"
+                        unoptimized={videoCoverUrl.startsWith("data:")}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setVideoCoverUrl("")}
+                        className="absolute top-1 right-1 p-1 rounded-md bg-black/80 hover:bg-red-500 text-white transition-colors"
+                        title="Remove custom cover image"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ) : extractYouTubeId(videoUrl) ? (
+                    <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-black border border-white/10 flex-shrink-0 opacity-80">
+                      <Image
+                        src={getYouTubeThumbnailUrl(videoUrl, "hq") || ""}
+                        alt="Default YouTube Thumbnail"
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                  ) : null}
+
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <button
+                        type="button"
+                        onClick={() => videoCoverFileInputRef.current?.click()}
+                        className="px-3 py-1.5 rounded-lg bg-[var(--surface-muted)] hover:bg-[var(--surface)] text-[var(--text-primary)] border border-[var(--border)] text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <Upload className="w-3.5 h-3.5 text-[var(--accent)]" />
+                        <span>{videoCoverUrl ? "Change Cover Image" : "Upload Cover Image"}</span>
+                      </button>
+
+                      {videoCoverUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setVideoCoverUrl("")}
+                          className="px-2.5 py-1.5 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400 text-xs transition-colors cursor-pointer"
+                        >
+                          Use YouTube Thumbnail
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="url"
+                        value={videoCoverInputText}
+                        onChange={(e) => setVideoCoverInputText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            if (videoCoverInputText.trim()) {
+                              setVideoCoverUrl(videoCoverInputText.trim());
+                              setVideoCoverInputText("");
+                              showToast("Custom cover URL applied", "success");
+                            }
+                          }
+                        }}
+                        placeholder="Or paste image URL (https://...)"
+                        className="flex-1 px-3 py-1.5 rounded-lg bg-[var(--surface-recessed)] border border-[var(--border)] text-[11px] text-[var(--text-primary)] font-mono placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
+                      />
+                      {videoCoverInputText.trim() && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setVideoCoverUrl(videoCoverInputText.trim());
+                            setVideoCoverInputText("");
+                            showToast("Custom cover URL applied", "success");
+                          }}
+                          className="px-3 py-1.5 rounded-lg bg-[var(--accent)] text-white text-xs font-semibold cursor-pointer"
+                        >
+                          Set
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Video Prompt Title */}
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-primary)] mb-1.5">
+                  Video Prompt Title *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={videoTitle}
+                  onChange={(e) => setVideoTitle(e.target.value)}
+                  placeholder="e.g. Cyberpunk FPV Drone Flythrough in Neo-Tokyo"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--surface-recessed)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
+                />
+              </div>
+
+              {/* Video Prompt Text */}
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-primary)] mb-1.5">
+                  Video Prompt Formula Text *
+                </label>
+                <textarea
+                  required
+                  rows={3}
+                  value={videoPromptText}
+                  onChange={(e) => setVideoPromptText(e.target.value)}
+                  placeholder="e.g. FPV drone cinematic shot flying smoothly through neon-lit futuristic streets, motion blur, 8k resolution, photorealistic..."
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--surface-recessed)] border border-[var(--border)] text-xs font-mono text-[var(--text-primary)] placeholder-[var(--text-muted)] leading-relaxed resize-none focus:outline-none focus:border-[var(--accent)]"
+                />
+              </div>
+
+              {/* Negative Prompt */}
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-primary)] mb-1.5">
+                  Negative Prompt (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={videoNegativePrompt}
+                  onChange={(e) => setVideoNegativePrompt(e.target.value)}
+                  placeholder="e.g. jittery motion, stutter, blur, artifacts"
+                  className="w-full px-3.5 py-2 rounded-xl bg-[var(--surface-recessed)] border border-[var(--border)] text-xs font-mono text-[var(--text-secondary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
+                />
+              </div>
+
+              {/* How to Use */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-[var(--text-primary)]">
+                    How to Use Instructions (Optional)
+                  </label>
+                  <span className="text-[10px] text-[var(--text-muted)] font-mono">
+                    e.g. camera motion settings, seed, frames
+                  </span>
+                </div>
+                <textarea
+                  rows={2}
+                  value={videoHowToUse}
+                  onChange={(e) => setVideoHowToUse(e.target.value)}
+                  placeholder="e.g. • Recommended Motion: 6.0&#10;• Set Camera: Pan Right&#10;• Best on Runway Gen-3 Alpha"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--surface-recessed)] border border-[var(--border)] text-xs font-mono text-[var(--text-primary)] placeholder-[var(--text-muted)] leading-relaxed resize-none focus:outline-none focus:border-[var(--accent)]"
+                />
+              </div>
+
+              {/* Reference Images / Input Sample for Video Prompt */}
+              <div className="space-y-2 p-3.5 rounded-2xl bg-[var(--surface-recessed)] border border-[var(--border)]">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+                      <ImageIcon className="w-3.5 h-3.5 text-sky-400" />
+                      <span>Reference Image / First Frame Sample (Optional)</span>
+                    </label>
+                    <p className="text-[10px] text-[var(--text-secondary)] mt-0.5">
+                      Showcase the source image or starting frame used for image-to-video generation
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => refFileInputRef.current?.click()}
+                    disabled={isUploadingRef}
+                    className="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-400 text-[11px] font-semibold flex items-center gap-1.5 border border-sky-500/30 transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    <Upload className="w-3 h-3" />
+                    <span>Upload Ref</span>
+                  </button>
+                </div>
+
+                {/* Paste URL Input for Reference */}
+                <div className="flex gap-1.5 pt-1">
+                  <input
+                    type="url"
+                    value={refUrlInput}
+                    onChange={(e) => setRefUrlInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddRefUrl();
+                      }
+                    }}
+                    placeholder="Paste reference image URL (https://...)"
+                    className="flex-1 px-3 py-1.5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--text-primary)] outline-none focus:border-[var(--accent)]"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddRefUrl}
+                    className="px-3 py-1.5 rounded-xl bg-[var(--surface-muted)] hover:bg-[var(--surface)] border border-[var(--border)] text-xs font-bold text-[var(--text-primary)] cursor-pointer"
+                  >
+                    Add
+                  </button>
+                </div>
+
+                {/* Reference Images Strip */}
+                {referenceImages.length > 0 && (
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 pt-2 border-t border-[var(--border)]">
+                    {referenceImages.map((refUrl, idx) => (
+                      <div
+                        key={idx}
+                        className="group/ref relative rounded-xl overflow-hidden aspect-square border border-[var(--border)] bg-black"
+                      >
+                        <Image
+                          src={refUrl}
+                          alt={`Reference ${idx + 1}`}
+                          fill
+                          className="object-cover"
+                          unoptimized={refUrl.startsWith("data:")}
+                        />
+                        <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/75 text-[9px] font-mono text-sky-300 font-bold">
+                          Ref #{idx + 1}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveRefImage(idx)}
+                          className="absolute top-1 right-1 p-1 rounded-md bg-red-500/80 hover:bg-red-600 text-white opacity-0 group-hover/ref:opacity-100 transition-opacity cursor-pointer"
+                          title="Remove reference"
+                        >
+                          <Trash2 className="w-2.5 h-2.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* CASE 3: PROMPT PACK UPLOAD FLOW */}
           {/* ======================================================== */}
           {uploadKind === "pack" && (
             <div className="space-y-5">

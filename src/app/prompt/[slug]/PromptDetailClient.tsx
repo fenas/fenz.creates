@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   BookOpen,
+  ExternalLink,
 } from "lucide-react";
 import { Prompt } from "@/types";
 import { usePromptStore } from "@/context/PromptContext";
@@ -24,6 +25,8 @@ import { ThemeSelector } from "@/components/theme/ThemeSelector";
 
 import { DetailLoadingState } from "@/components/ui/DetailLoadingState";
 import { LiquidAccentButton } from "@/components/ui/LiquidAccentButton";
+import { isYouTubeUrl, getYouTubeEmbedUrl } from "@/lib/youtube";
+import { CleanVideoPlayer } from "@/components/prompts/CleanVideoPlayer";
 
 export function PromptDetailClient({
   initialPrompt,
@@ -55,6 +58,9 @@ export function PromptDetailClient({
   const [copied, setCopied] = useState(false);
   const [copiedNegative, setCopiedNegative] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  const isVideo = !!prompt && (prompt.type === "video" || isYouTubeUrl(prompt.mediaUrl));
+  const ytEmbedUrl = isVideo && prompt ? getYouTubeEmbedUrl(prompt.mediaUrl, false) : null;
 
   const images =
     prompt?.mediaUrls && prompt.mediaUrls.length > 0
@@ -105,8 +111,9 @@ export function PromptDetailClient({
   }
 
   const isPack =
-    prompt?.promptKind === "pack" ||
-    (Array.isArray(prompt?.packItems) && prompt.packItems.length > 1);
+    !isVideo &&
+    (prompt?.promptKind === "pack" ||
+      (Array.isArray(prompt?.packItems) && prompt.packItems.length > 1));
 
   const currentPackItem = isPack ? prompt?.packItems?.[activeImageIndex] : undefined;
   const activePromptText = currentPackItem?.promptText || prompt?.promptText || "";
@@ -208,64 +215,73 @@ export function PromptDetailClient({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           {/* Artwork Showcase with Arrow Scroll */}
           <div className="lg:col-span-6 space-y-4">
-            <div className="relative rounded-[20px] overflow-hidden bg-[#141619] border border-[var(--border)] shadow-[var(--shadow-card)] group">
-              <div className="relative w-full aspect-square sm:aspect-[4/3] lg:aspect-square">
-                <Image
-                  src={currentImageUrl}
-                  alt={`${prompt.title} - Artwork ${activeImageIndex + 1}`}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover object-center transition-all duration-300"
-                  unoptimized={currentImageUrl.startsWith("data:")}
-                  priority
-                />
+            {isVideo ? (
+              <CleanVideoPlayer
+                url={prompt.mediaUrl}
+                title={prompt.title}
+                thumbnailUrl={prompt.thumbnailUrl}
+                aspectRatio={prompt.aspectRatio}
+              />
+            ) : (
+              <div className="relative rounded-[20px] overflow-hidden bg-[#141619] border border-[var(--border)] shadow-[var(--shadow-card)] group">
+                <div className="relative w-full aspect-square sm:aspect-[4/3] lg:aspect-square">
+                  <Image
+                    src={currentImageUrl}
+                    alt={`${prompt.title} - Artwork ${activeImageIndex + 1}`}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover object-center transition-all duration-300"
+                    unoptimized={currentImageUrl.startsWith("data:")}
+                    priority
+                  />
+                </div>
+
+                {/* Multiple Images Arrow Navigation */}
+                {images.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setActiveImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
+                      }
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-[10px] bg-[#1D2024]/90 hover:bg-[#25292E] text-white flex items-center justify-center border border-white/20 shadow-xl transition-all hover:scale-105 active:scale-95 z-20 cursor-pointer"
+                      title="Previous Image"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setActiveImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
+                      }
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-[10px] bg-[#1D2024]/90 hover:bg-[#25292E] text-white flex items-center justify-center border border-white/20 shadow-xl transition-all hover:scale-105 active:scale-95 z-20 cursor-pointer"
+                      title="Next Image"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
+
+                {/* Counter Badge */}
+                {images.length > 1 && (
+                  <div className="absolute top-4 right-4 px-2.5 py-1 rounded-[7px] bg-[#141619]/85 border border-white/15 text-white font-mono text-xs shadow-xl z-20 flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5 text-white/80" />
+                    <span>{activeImageIndex + 1} / {images.length}</span>
+                  </div>
+                )}
+
+                {prompt.type === "video" && (
+                  <div className="absolute top-4 left-4 px-2.5 py-1 rounded-[7px] bg-[#141619]/80 border border-white/15 text-white font-medium text-xs flex items-center gap-1.5 shadow-lg z-20 font-mono">
+                    <Video className="w-3.5 h-3.5" />
+                    Video Prompt
+                  </div>
+                )}
               </div>
-
-              {/* Multiple Images Arrow Navigation */}
-              {images.length > 1 && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setActiveImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
-                    }
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-[10px] bg-[#1D2024]/90 hover:bg-[#25292E] text-white flex items-center justify-center border border-white/20 shadow-xl transition-all hover:scale-105 active:scale-95 z-20 cursor-pointer"
-                    title="Previous Image"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setActiveImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
-                    }
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-[10px] bg-[#1D2024]/90 hover:bg-[#25292E] text-white flex items-center justify-center border border-white/20 shadow-xl transition-all hover:scale-105 active:scale-95 z-20 cursor-pointer"
-                    title="Next Image"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </>
-              )}
-
-              {/* Counter Badge */}
-              {images.length > 1 && (
-                <div className="absolute top-4 right-4 px-2.5 py-1 rounded-[7px] bg-[#141619]/85 border border-white/15 text-white font-mono text-xs shadow-xl z-20 flex items-center gap-1.5">
-                  <Layers className="w-3.5 h-3.5 text-white/80" />
-                  <span>{activeImageIndex + 1} / {images.length}</span>
-                </div>
-              )}
-
-              {prompt.type === "video" && (
-                <div className="absolute top-4 left-4 px-2.5 py-1 rounded-[7px] bg-[#141619]/80 border border-white/15 text-white font-medium text-xs flex items-center gap-1.5 shadow-lg z-20 font-mono">
-                  <Video className="w-3.5 h-3.5" />
-                  Video Prompt
-                </div>
-              )}
-            </div>
+            )}
 
             {/* Thumbnail Navigation Strip */}
-            {images.length > 1 && (
+            {!isVideo && images.length > 1 && (
               <div className="flex items-center gap-2.5 overflow-x-auto py-1 no-scrollbar">
                 {images.map((img, idx) => (
                   <button
@@ -305,14 +321,16 @@ export function PromptDetailClient({
           <div className="lg:col-span-6 space-y-6">
             <div>
               <div className="flex items-center gap-2 mb-1.5">
-                <span className="text-xs font-medium text-[var(--accent)] font-mono uppercase tracking-wider">
-                  {category?.name || "AI Art"}
-                </span>
-                {isPack ? (
+                {!isVideo && (
+                  <span className="text-xs font-medium text-[var(--accent)] font-mono uppercase tracking-wider">
+                    {category?.name || "AI Art"}
+                  </span>
+                )}
+                {!isVideo && isPack ? (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] font-mono">
                     Prompt Pack Collection
                   </span>
-                ) : images.length > 1 ? (
+                ) : !isVideo && images.length > 1 ? (
                   <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[var(--surface-muted)] text-[var(--text-secondary)] border border-[var(--border)] font-mono">
                     {images.length} Showcase Images
                   </span>
@@ -393,6 +411,57 @@ export function PromptDetailClient({
                 </div>
                 <div className="rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] p-3.5 font-mono text-xs text-[var(--text-secondary)] select-all shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.25)]">
                   {activeNegativePrompt}
+                </div>
+              </div>
+            )}
+
+            {/* Reference Images Showcase Section */}
+            {((prompt.referenceImages && prompt.referenceImages.length > 0) ||
+              (Array.isArray(prompt.parameters?.reference_images) && (prompt.parameters.reference_images as string[]).length > 0) ||
+              (Array.isArray(prompt.parameters?.referenceImages) && (prompt.parameters.referenceImages as string[]).length > 0)) && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs font-mono uppercase text-[var(--text-secondary)]">
+                  <span className="flex items-center gap-1.5 font-medium">
+                    <ExternalLink className="w-3.5 h-3.5 text-sky-400 stroke-[1.75]" />
+                    <span>Reference Image</span>
+                  </span>
+                </div>
+                <div className="rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] p-4 shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.25)] space-y-3">
+                  <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                    Source reference image(s) used as input guidance alongside this prompt formula:
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {(
+                      prompt.referenceImages ||
+                      (prompt.parameters?.reference_images as string[]) ||
+                      (prompt.parameters?.referenceImages as string[]) ||
+                      []
+                    ).map((refImg, idx) => (
+                      <a
+                        key={idx}
+                        href={refImg}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="group/ref relative aspect-square rounded-[10px] overflow-hidden border border-[var(--border)] hover:border-sky-500/60 bg-black block transition-all shadow-sm"
+                        title="Open full reference image in new tab"
+                      >
+                        <Image
+                          src={refImg}
+                          alt={`Reference sample ${idx + 1}`}
+                          fill
+                          sizes="200px"
+                          className="object-cover group-hover/ref:scale-105 transition-transform duration-300"
+                          unoptimized={refImg.startsWith("data:")}
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover/ref:bg-black/40 transition-colors flex items-center justify-center">
+                          <ExternalLink className="w-4 h-4 text-white opacity-0 group-hover/ref:opacity-100 transition-opacity" />
+                        </div>
+                        <div className="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded bg-black/80 text-[9px] font-mono text-white font-bold">
+                          Ref #{idx + 1}
+                        </div>
+                      </a>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}

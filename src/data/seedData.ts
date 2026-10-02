@@ -84,6 +84,9 @@ export const initialPrompts: Prompt[] = [
       "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=1200&auto=format&fit=crop",
     ],
+    referenceImages: [
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop",
+    ],
     packItems: [
       {
         id: "item-1-1",
@@ -419,6 +422,40 @@ export const initialPrompts: Prompt[] = [
     createdAt: "2026-09-18T14:00:00.000Z",
     updatedAt: "2026-09-18T14:00:00.000Z",
   },
+  {
+    id: "prompt-11",
+    slug: "cinematic-scifi-cinematography-breakdown",
+    type: "video",
+    title: "Cinematic Sci-Fi Video Camera Motion",
+    subtitle: "Complete video prompt guide for dynamic Runway Gen-3 camera movements and sci-fi aesthetic.",
+    description: "Complete video prompt guide for dynamic Runway Gen-3 camera movements and sci-fi aesthetic.",
+    promptText: "Drone establishing shot pushing through towering illuminated cyberpunk skyscrapers, volumetric blue neon fog, cinematic reflections on wet asphalt, ultra-smooth continuous gimbal movement, 4k 60fps photoreal motion",
+    negativePrompt: "jittery camera, artifacting, blurry, low frame rate",
+    howToUse: "1. Paste this prompt into Runway Gen-3 Alpha or Luma Dream Machine.\n2. Set Camera Motion: 'Pan Down + Forward Speed: 4'.\n3. Use 16:9 widescreen aspect ratio for high production cinematic output.",
+    mediaUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    mediaUrls: [
+      "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+    ],
+    thumbnailUrl: "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+    referenceImages: [
+      "https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=800&auto=format&fit=crop",
+    ],
+    model: "Runway Gen-3",
+    aspectRatio: "16:9",
+    tags: ["Runway", "Gen-3", "Video Prompt", "Cinematography", "Sci-Fi"],
+    categoryId: "cat-cyberpunk",
+    featured: false,
+    status: "published",
+    copyCount: 2430,
+    viewCount: 11200,
+    parameters: {
+      motion_score: 5,
+      version: "Gen-3 Alpha",
+    },
+    createdAt: "2026-09-19T10:00:00.000Z",
+    updatedAt: "2026-09-19T10:00:00.000Z",
+  },
 ];
+
 
 

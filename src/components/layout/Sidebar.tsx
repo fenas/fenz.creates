@@ -174,6 +174,34 @@ export function Sidebar() {
           </div>
         </div>
 
+        {/* About & Contact Section */}
+        <div className="p-3 mx-3 mb-2 rounded-2xl bg-white/[0.03] border border-white/5 space-y-2.5 hidden lg:block">
+          <div className="flex items-center justify-between text-[11px] font-semibold text-slate-300">
+            <span>About & Contact</span>
+            <span className="text-[10px] text-[var(--accent)] font-mono">Aistronaut</span>
+          </div>
+
+          {/* Instagram */}
+          <a
+            href="https://www.instagram.com/aistronaut.in"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 text-xs text-slate-300 hover:text-white transition-colors cursor-pointer group"
+          >
+            <span className="font-mono text-[11px]">@aistronaut.in</span>
+            <span className="text-[10px] text-[var(--accent)] group-hover:underline">Instagram ↗</span>
+          </a>
+
+          {/* Email */}
+          <a
+            href="mailto:contact@aistronaut.in"
+            className="flex items-center justify-between p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 text-xs text-slate-300 hover:text-white transition-colors"
+          >
+            <span className="font-mono text-[10px] truncate">contact@aistronaut.in</span>
+            <span className="text-[10px] text-slate-400">Mail ↗</span>
+          </a>
+        </div>
+
         {/* Footer Actions */}
         <div className="p-3 border-t border-white/5 space-y-2">
           {/* Submit prompt button */}

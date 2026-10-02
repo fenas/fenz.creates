@@ -64,15 +64,16 @@ export function TutorialManagerTable({
       </div>
 
       <div className="rounded-2xl floating-panel bg-[#0c0e15] border border-white/5 overflow-hidden shadow-xl w-full">
-        <div className="overflow-x-auto w-full">
-          <table className="w-full text-left text-xs text-slate-300 table-auto">
+        {/* Desktop / Tablet Table (Zero Scroll) */}
+        <div className="hidden md:block w-full overflow-hidden">
+          <table className="w-full text-left text-xs text-slate-300">
             <thead className="bg-white/[0.02] border-b border-white/5 text-[11px] font-semibold text-[#A7A7A7] uppercase tracking-wider">
               <tr>
-                <th className="p-4 min-w-[320px]">Tutorial Guide</th>
-                <th className="p-4 w-[160px]">Model Focus</th>
-                <th className="p-4 w-[120px]">Level</th>
-                <th className="p-4 w-[140px]">Read Time</th>
-                <th className="p-4 w-[180px] text-right">Actions</th>
+                <th className="py-3.5 pl-4 pr-2">Tutorial Guide</th>
+                <th className="py-3.5 px-2 w-[120px]">Model Focus</th>
+                <th className="py-3.5 px-2 w-[90px]">Level</th>
+                <th className="py-3.5 px-2 w-[90px] text-center">Read Time</th>
+                <th className="py-3.5 pl-2 pr-4 w-[140px] text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -85,23 +86,23 @@ export function TutorialManagerTable({
               ) : (
                 filtered.map((t) => (
                   <tr key={t.id} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="p-4">
+                    <td className="py-3 pl-4 pr-2">
                       <div className="flex items-center gap-3">
                         <Link
                           href={`/tutorial/${t.slug}`}
                           target="_blank"
-                          className="relative w-12 h-12 rounded-xl overflow-hidden bg-slate-900 border border-white/10 flex-shrink-0 hover:border-[var(--accent)]/40 transition-colors"
+                          className="relative w-11 h-11 rounded-xl overflow-hidden bg-slate-900 border border-white/10 flex-shrink-0 hover:border-[var(--accent)]/40 transition-colors"
                         >
                           <Image
                             src={t.mediaUrl}
                             alt={t.title}
                             fill
-                            sizes="48px"
+                            sizes="44px"
                             className="object-cover"
                             unoptimized={t.mediaUrl?.startsWith("data:")}
                           />
                         </Link>
-                        <div className="min-w-0 flex-1 max-w-sm sm:max-w-md lg:max-w-xl">
+                        <div className="min-w-0 flex-1">
                           <Link
                             href={`/tutorial/${t.slug}`}
                             target="_blank"
@@ -116,20 +117,22 @@ export function TutorialManagerTable({
                         </div>
                       </div>
                     </td>
-                    <td className="p-4 font-semibold text-[var(--accent)] whitespace-nowrap">
+                    <td className="py-3 px-2 font-semibold text-[var(--accent)] whitespace-nowrap">
                       {t.model || <span className="text-slate-500 font-normal">Universal</span>}
                     </td>
-                    <td className="p-4 whitespace-nowrap">
+                    <td className="py-3 px-2 whitespace-nowrap">
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white/5 text-slate-300">
                         {t.level || "Beginner"}
                       </span>
                     </td>
-                    <td className="p-4 text-[#A7A7A7] font-mono whitespace-nowrap">{t.readTime || "—"}</td>
-                    <td className="p-4 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-1.5">
+                    <td className="py-3 px-2 text-[#A7A7A7] font-mono text-center whitespace-nowrap">
+                      {t.readTime || "—"}
+                    </td>
+                    <td className="py-3 pl-2 pr-4 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => handleCopyLink(t)}
-                          className="p-1.5 rounded-lg hover:bg-white/10 text-[#A7A7A7] hover:text-[var(--accent)]"
+                          className="p-1.5 rounded-lg hover:bg-white/10 text-[#A7A7A7] hover:text-[var(--accent)] transition-colors"
                           title="Copy Sharable URL"
                         >
                           <Share2 className="w-3.5 h-3.5" />
@@ -137,21 +140,21 @@ export function TutorialManagerTable({
                         <Link
                           href={`/tutorial/${t.slug}`}
                           target="_blank"
-                          className="p-1.5 rounded-lg hover:bg-white/10 text-[#A7A7A7] hover:text-white"
+                          className="p-1.5 rounded-lg hover:bg-white/10 text-[#A7A7A7] hover:text-white transition-colors"
                           title="Open Live Page"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
                         </Link>
                         <button
                           onClick={() => onEditTutorial(t)}
-                          className="p-1.5 rounded-lg hover:bg-white/10 text-[#A7A7A7] hover:text-white"
+                          className="p-1.5 rounded-lg hover:bg-white/10 text-[#A7A7A7] hover:text-white transition-colors"
                           title="Edit"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => handleDelete(t.id, t.title)}
-                          className="p-1.5 rounded-lg hover:bg-red-500/10 text-[#A7A7A7] hover:text-red-400"
+                          className="p-1.5 rounded-lg hover:bg-red-500/10 text-[#A7A7A7] hover:text-red-400 transition-colors"
                           title="Delete"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -163,6 +166,90 @@ export function TutorialManagerTable({
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile View (<768px): Responsive card view */}
+        <div className="md:hidden divide-y divide-white/5">
+          {filtered.length === 0 ? (
+            <div className="p-6 text-center text-[#A7A7A7] text-xs">
+              No tutorials uploaded yet. Click &quot;Upload Tutorial&quot; to publish one.
+            </div>
+          ) : (
+            filtered.map((t) => (
+              <div key={t.id} className="p-3.5 space-y-2.5">
+                <div className="flex items-start justify-between gap-2.5">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <Link
+                      href={`/tutorial/${t.slug}`}
+                      target="_blank"
+                      className="relative w-11 h-11 rounded-xl overflow-hidden bg-slate-900 border border-white/10 flex-shrink-0"
+                    >
+                      <Image
+                        src={t.mediaUrl}
+                        alt={t.title}
+                        fill
+                        sizes="44px"
+                        className="object-cover"
+                        unoptimized={t.mediaUrl?.startsWith("data:")}
+                      />
+                    </Link>
+                    <div className="min-w-0 flex-1">
+                      <Link
+                        href={`/tutorial/${t.slug}`}
+                        target="_blank"
+                        className="font-semibold text-white truncate block text-xs hover:text-[var(--accent)]"
+                      >
+                        {t.title}
+                      </Link>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className="text-[9.5px] font-semibold text-[var(--accent)]">
+                          {t.model || "Universal"}
+                        </span>
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-white/5 text-slate-300">
+                          {t.level || "Beginner"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-1 border-t border-white/5">
+                  <span className="text-[11px] text-[#A7A7A7] font-mono">{t.readTime || "5 min"}</span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleCopyLink(t)}
+                      className="p-1.5 rounded-lg bg-white/5 text-[#A7A7A7] hover:text-[var(--accent)]"
+                      title="Copy URL"
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                    </button>
+                    <Link
+                      href={`/tutorial/${t.slug}`}
+                      target="_blank"
+                      className="p-1.5 rounded-lg bg-white/5 text-[#A7A7A7] hover:text-white"
+                      title="Live Page"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </Link>
+                    <button
+                      onClick={() => onEditTutorial(t)}
+                      className="p-1.5 rounded-lg bg-white/5 text-[#A7A7A7] hover:text-white"
+                      title="Edit"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(t.id, t.title)}
+                      className="p-1.5 rounded-lg bg-red-500/10 text-[#A7A7A7] hover:text-red-400"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

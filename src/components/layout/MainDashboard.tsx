@@ -65,8 +65,8 @@ export function MainDashboard() {
       avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=120&auto=format&fit=crop",
     },
     {
-      name: "Fenas Sharma",
-      tag: "@fenz.creates",
+      name: "Aistronaut Studio",
+      tag: "@aistronaut.in",
       avatar: "https://images.unsplash.com/photo-1628157582853-a796fa650a6a?q=80&w=120&auto=format&fit=crop",
     },
   ];
@@ -281,10 +281,10 @@ export function MainDashboard() {
               </div>
               <div className="flex flex-col text-left">
                 <span className="text-[11px] font-bold text-white leading-tight">
-                  Fenas Sharma
+                  Aistronaut
                 </span>
                 <span className="text-[9px] text-[#A7A7A7] leading-tight">
-                  @fenz.creates
+                  @aistronaut.in
                 </span>
               </div>
             </div>

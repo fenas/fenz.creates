@@ -15,6 +15,17 @@ export function mapRowToPrompt(row: any): Prompt {
     params.prompt_kind ||
     (packItems && packItems.length > 1 ? "pack" : "single");
 
+  const referenceImages =
+    Array.isArray(row.reference_images)
+      ? row.reference_images
+      : Array.isArray(params.reference_images)
+      ? params.reference_images
+      : Array.isArray(params.referenceImages)
+      ? params.referenceImages
+      : row.reference_image
+      ? [row.reference_image]
+      : undefined;
+
   return {
     id: row.id,
     slug: row.slug || row.id,
@@ -32,6 +43,7 @@ export function mapRowToPrompt(row: any): Prompt {
       : row.media_url
       ? [row.media_url]
       : [],
+    referenceImages,
     packItems,
     thumbnailUrl: row.thumbnail_url || undefined,
     model: row.model || "",
@@ -73,13 +85,14 @@ export function mapPromptToRow(p: Partial<Prompt>): Record<string, any> {
   if (p.copyCount !== undefined) row.copy_count = p.copyCount;
   if (p.viewCount !== undefined) row.view_count = p.viewCount;
 
-  // Store extra metadata (subtitle, description, pack_items, prompt_kind, how_to_use) safely inside parameters JSONB
+  // Store extra metadata (subtitle, description, pack_items, prompt_kind, how_to_use, reference_images) safely inside parameters JSONB
   const parameters = { ...(p.parameters || {}) };
   if (p.subtitle !== undefined) parameters.subtitle = p.subtitle;
   if (p.description !== undefined) parameters.description = p.description;
   if (p.packItems !== undefined) parameters.pack_items = p.packItems;
   if (p.promptKind !== undefined) parameters.prompt_kind = p.promptKind;
   if (p.howToUse !== undefined) parameters.how_to_use = p.howToUse;
+  if (p.referenceImages !== undefined) parameters.reference_images = p.referenceImages;
   row.parameters = parameters;
 
   if (p.createdAt !== undefined) row.created_at = p.createdAt;

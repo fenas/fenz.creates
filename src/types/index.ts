@@ -14,6 +14,8 @@ export interface PromptParameters {
   version?: string;
   pack_items?: unknown;
   prompt_kind?: string;
+  reference_images?: string[];
+  referenceImages?: string[];
   [key: string]: unknown;
 }
 
@@ -42,6 +44,7 @@ export interface Prompt {
   howToUse?: string;
   mediaUrl: string;
   mediaUrls?: string[];
+  referenceImages?: string[];
   packItems?: PromptPackItem[];
   thumbnailUrl?: string;
   model: string;

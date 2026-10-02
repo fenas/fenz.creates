@@ -92,20 +92,7 @@ export function SingleSectionCardsLayout() {
             className="object-cover group-hover:scale-[1.02] transition-transform duration-500"
             unoptimized={tut.mediaUrl?.startsWith("data:")}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
-
-          <div className="absolute top-3 left-3 flex items-center gap-1.5">
-            {tut.model && (
-              <span className="px-2 py-0.5 rounded-[6px] bg-[#0A0C0E]/90 text-white text-[9.5px] font-mono border border-white/20 shadow-sm">
-                {tut.model}
-              </span>
-            )}
-            {tut.readTime && (
-              <span className="px-2 py-0.5 rounded-[6px] bg-[#0A0C0E]/90 text-white/90 text-[9.5px] font-mono border border-white/20 shadow-sm">
-                {tut.readTime}
-              </span>
-            )}
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
 
           <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
             <button

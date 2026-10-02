@@ -175,18 +175,6 @@ export function TutorialDetailClient({
                 priority
                 unoptimized={tutorial.mediaUrl.startsWith("data:")}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent" />
-
-              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-white">
-                <span className="px-2.5 py-1 rounded-[7px] bg-[#141619]/80 border border-white/10 text-[11px] font-mono">
-                  Aistronaut Blueprint
-                </span>
-                {tutorial.model && (
-                  <span className="px-2.5 py-1 rounded-[7px] bg-[#141619]/80 border border-white/10 text-[11px] font-mono text-white/80">
-                    {tutorial.model}
-                  </span>
-                )}
-              </div>
             </div>
           )}
         </div>

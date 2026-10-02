@@ -21,6 +21,8 @@ import { usePromptStore } from "@/context/PromptContext";
 import { formatDate, formatNumber } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
 import { LiquidAccentButton } from "@/components/ui/LiquidAccentButton";
+import { isYouTubeUrl, getYouTubeEmbedUrl } from "@/lib/youtube";
+import { CleanVideoPlayer } from "@/components/prompts/CleanVideoPlayer";
 
 interface PromptDetailModalProps {
   prompt: Prompt | null;
@@ -35,6 +37,9 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
   const [copied, setCopied] = useState(false);
   const [copiedNegative, setCopiedNegative] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  const isVideo = !!prompt && (prompt.type === "video" || isYouTubeUrl(prompt.mediaUrl));
+  const ytEmbedUrl = isVideo && prompt ? getYouTubeEmbedUrl(prompt.mediaUrl, false) : null;
 
   const images =
     prompt?.mediaUrls && prompt.mediaUrls.length > 0
@@ -66,8 +71,9 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
   if (!prompt) return null;
 
   const isPack =
-    prompt?.promptKind === "pack" ||
-    (Array.isArray(prompt?.packItems) && prompt.packItems.length > 1);
+    !isVideo &&
+    (prompt?.promptKind === "pack" ||
+      (Array.isArray(prompt?.packItems) && prompt.packItems.length > 1));
 
   const currentPackItem = isPack ? prompt?.packItems?.[activeImageIndex] : undefined;
   const activePromptText = currentPackItem?.promptText || prompt?.promptText || "";
@@ -151,20 +157,22 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
         {/* Top Sticky Header */}
         <div className="px-4 sm:px-6 py-3.5 border-b border-[var(--border)] flex items-center justify-between bg-[var(--surface-elevated)] z-20">
           <div className="flex items-center gap-2 min-w-0 pr-4">
-            {isPack ? (
+            {!isVideo && isPack ? (
               <span className="px-2.5 py-1 rounded-[8px] text-[11px] font-bold bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent)]/30 flex items-center gap-1.5 flex-shrink-0 font-mono">
                 <Layers className="w-3.5 h-3.5" />
                 PACK • {prompt.packItems?.length || images.length} PROMPTS
               </span>
-            ) : images.length > 1 ? (
+            ) : !isVideo && images.length > 1 ? (
               <span className="px-2.5 py-1 rounded-[8px] text-[11px] font-medium bg-[var(--surface-muted)] text-[var(--text-secondary)] border border-[var(--border)] flex items-center gap-1.5 flex-shrink-0 font-mono">
                 <Layers className="w-3.5 h-3.5 text-[var(--accent)]" />
                 {images.length} SHOWCASE IMAGES
               </span>
             ) : null}
-            <span className="text-xs font-medium text-[var(--text-secondary)] truncate">
-              {category?.name || "AI Art"}
-            </span>
+            {!isVideo && (
+              <span className="text-xs font-medium text-[var(--text-secondary)] truncate">
+                {category?.name || "AI Art"}
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-1.5">
@@ -200,67 +208,76 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
             {/* Left Column: Artwork Showcase */}
             <div className="lg:col-span-6 space-y-3">
-              <div className="relative rounded-[16px] overflow-hidden bg-[#141619] border border-[var(--border)] shadow-[var(--shadow-card)] group">
-                <div className="relative w-full aspect-square sm:aspect-[4/3] lg:aspect-square">
-                  <Image
-                    src={currentImageUrl}
-                    alt={`${prompt.title} - Image ${activeImageIndex + 1}`}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    className="object-cover object-center transition-all duration-300"
-                    unoptimized={currentImageUrl.startsWith("data:")}
-                    priority
-                  />
+              {isVideo ? (
+                <CleanVideoPlayer
+                  url={prompt.mediaUrl}
+                  title={prompt.title}
+                  thumbnailUrl={prompt.thumbnailUrl}
+                  aspectRatio={prompt.aspectRatio}
+                />
+              ) : (
+                <div className="relative rounded-[16px] overflow-hidden bg-[#141619] border border-[var(--border)] shadow-[var(--shadow-card)] group">
+                  <div className="relative w-full aspect-square sm:aspect-[4/3] lg:aspect-square">
+                    <Image
+                      src={currentImageUrl}
+                      alt={`${prompt.title} - Image ${activeImageIndex + 1}`}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      className="object-cover object-center transition-all duration-300"
+                      unoptimized={currentImageUrl.startsWith("data:")}
+                      priority
+                    />
+                  </div>
+
+                  {/* Media Type pill */}
+                  {prompt.type === "video" && (
+                    <div className="absolute top-3 left-3 px-2.5 py-1 rounded-[6px] bg-[#141619]/80 text-white text-[10px] font-mono flex items-center gap-1.5 border border-white/10 z-20">
+                      <Video className="w-3.5 h-3.5" />
+                      Video Prompt
+                    </div>
+                  )}
+
+                  {/* Image Counter Badge */}
+                  {images.length > 1 && (
+                    <div className="absolute top-3 right-3 px-2 py-0.5 rounded-[6px] bg-[#141619]/85 border border-white/15 text-white font-mono text-xs z-20 flex items-center gap-1.5">
+                      <Layers className="w-3.5 h-3.5 text-white/80" />
+                      <span>{activeImageIndex + 1} / {images.length}</span>
+                    </div>
+                  )}
+
+                  {/* Navigation Arrows for Multiple Images */}
+                  {images.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+                        }}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-[8px] bg-[#1D2024]/90 hover:bg-[#25292E] text-white flex items-center justify-center border border-white/15 transition-all z-20 cursor-pointer"
+                        title="Previous Image"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+                        }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-[8px] bg-[#1D2024]/90 hover:bg-[#25292E] text-white flex items-center justify-center border border-white/15 transition-all z-20 cursor-pointer"
+                        title="Next Image"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
                 </div>
-
-                {/* Media Type pill */}
-                {prompt.type === "video" && (
-                  <div className="absolute top-3 left-3 px-2.5 py-1 rounded-[6px] bg-[#141619]/80 text-white text-[10px] font-mono flex items-center gap-1.5 border border-white/10 z-20">
-                    <Video className="w-3.5 h-3.5" />
-                    Video Prompt
-                  </div>
-                )}
-
-                {/* Image Counter Badge */}
-                {images.length > 1 && (
-                  <div className="absolute top-3 right-3 px-2 py-0.5 rounded-[6px] bg-[#141619]/85 border border-white/15 text-white font-mono text-xs z-20 flex items-center gap-1.5">
-                    <Layers className="w-3.5 h-3.5 text-white/80" />
-                    <span>{activeImageIndex + 1} / {images.length}</span>
-                  </div>
-                )}
-
-                {/* Navigation Arrows for Multiple Images */}
-                {images.length > 1 && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setActiveImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-                      }}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-[8px] bg-[#1D2024]/90 hover:bg-[#25292E] text-white flex items-center justify-center border border-white/15 transition-all z-20 cursor-pointer"
-                      title="Previous Image"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setActiveImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-                      }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-[8px] bg-[#1D2024]/90 hover:bg-[#25292E] text-white flex items-center justify-center border border-white/15 transition-all z-20 cursor-pointer"
-                      title="Next Image"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </>
-                )}
-              </div>
+              )}
 
               {/* Multiple Images Thumbnail Strip */}
-              {images.length > 1 && (
+              {!isVideo && images.length > 1 && (
                 <div className="flex items-center gap-2 overflow-x-auto py-1 no-scrollbar">
                   {images.map((img, idx) => (
                     <button
@@ -301,10 +318,12 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
             <div className="lg:col-span-6 space-y-6">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[11px] font-mono text-[var(--accent)] uppercase tracking-wider font-medium">
-                    {category?.name}
-                  </span>
-                  {isPack && (
+                  {!isVideo && (
+                    <span className="text-[11px] font-mono text-[var(--accent)] uppercase tracking-wider font-medium">
+                      {category?.name}
+                    </span>
+                  )}
+                  {!isVideo && isPack && (
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] font-mono">
                       Prompt Pack Collection
                     </span>
@@ -398,6 +417,57 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                 </div>
               )}
 
+              {/* Reference Images Showcase Section */}
+              {((prompt.referenceImages && prompt.referenceImages.length > 0) ||
+                (Array.isArray(prompt.parameters?.reference_images) && (prompt.parameters.reference_images as string[]).length > 0) ||
+                (Array.isArray(prompt.parameters?.referenceImages) && (prompt.parameters.referenceImages as string[]).length > 0)) && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider font-mono flex items-center gap-1.5">
+                      <ExternalLink className="w-3.5 h-3.5 text-sky-400 stroke-[1.75]" />
+                      <span>Reference Image</span>
+                    </span>
+                  </div>
+                  <div className="rounded-[12px] bg-[var(--surface-recessed)] border border-[var(--border)] p-3 shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.25)] space-y-2">
+                    <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
+                      Reference image(s) used as source input with this prompt formula:
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {(
+                        prompt.referenceImages ||
+                        (prompt.parameters?.reference_images as string[]) ||
+                        (prompt.parameters?.referenceImages as string[]) ||
+                        []
+                      ).map((refImg, idx) => (
+                        <a
+                          key={idx}
+                          href={refImg}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="group/ref relative aspect-square rounded-[8px] overflow-hidden border border-[var(--border)] hover:border-sky-500/60 bg-black block transition-all"
+                          title="Open full reference image in new tab"
+                        >
+                          <Image
+                            src={refImg}
+                            alt={`Reference sample ${idx + 1}`}
+                            fill
+                            sizes="150px"
+                            className="object-cover group-hover/ref:scale-105 transition-transform duration-300"
+                            unoptimized={refImg.startsWith("data:")}
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover/ref:bg-black/40 transition-colors flex items-center justify-center">
+                            <ExternalLink className="w-3.5 h-3.5 text-white opacity-0 group-hover/ref:opacity-100 transition-opacity" />
+                          </div>
+                          <div className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-black/80 text-[8.5px] font-mono text-white font-bold">
+                            Ref #{idx + 1}
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* How to Use Section (Single Prompt Guide or Shared Pack Guide) */}
               {(prompt.howToUse || (prompt.parameters?.how_to_use as string) || (prompt.parameters?.howToUse as string)) && (
                 <div className="space-y-1.5">
@@ -417,8 +487,6 @@ export function PromptDetailModal({ prompt, onClose }: PromptDetailModalProps) {
                   </div>
                 </div>
               )}
-
-
 
               {/* Tags */}
               <div className="space-y-2">
